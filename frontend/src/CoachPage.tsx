@@ -60,6 +60,6 @@ export function CoachPage() {
     {reportMatch ? <AnalysisReportExport
       match={reportMatch}
       initialSide={side}
-    /> : match ? <p className="coach-report-reference muted small">CS2 Performance Report ใช้ได้กับแมตช์ที่ทีมอัปโหลดเท่านั้น ชุดอ้างอิงใช้สำหรับฝึกโมเดล</p> : null}
+    /> : match ? <p className="coach-report-reference muted small">{t("CS2 Performance Report ใช้ได้กับแมตช์ที่ทีมอัปโหลดเท่านั้น ชุดอ้างอิงใช้สำหรับฝึกโมเดล")}</p> : null}
   </section>;
 }
