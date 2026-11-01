@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { ApiError, auth, isGuest, playerApi, type PlayerMap, type PlayerProfileFilters, type PlayerWeapon } from "./api";
 import { MapThumb, weaponLabel } from "./utils";
+import "./player-profile.css";
 import unknownAvatar from "./assets/avatar-unknown.jpg";
 import { useT } from "./i18n";
 
@@ -52,11 +53,14 @@ export function PlayerPage() {
   const entryRate = (entry: { kills: number; deaths: number }) => entry.kills + entry.deaths ? entry.kills / (entry.kills + entry.deaths) : null;
   return <div className="player" data-testid="player-page">
     <header className="pl-head">
+      <span className="pl-game-tag">COUNTER-STRIKE 2 <span>PLAYER PROFILE</span></span>
       <img className="pl-avatar" src={d.player.avatar || unknownAvatar} alt="" referrerPolicy="no-referrer" />
       <div className="pl-identity"><h1>{d.player.name}</h1><p className="muted">{d.player.account_name || `Steam ${d.player.steam_id}`} {d.player.latest_team ? `· ${d.player.latest_team}` : ""}</p><p className="muted small">{t("ข้อมูล {matches} แมตช์ · {rounds} รอบ", { matches: d.source.selected_matches, rounds: d.source.selected_rounds })} · {isoDate(d.data_range.from)} – {isoDate(d.data_range.to)}</p></div>
       <div className="pl-source"><strong>{d.source.selected_matches}</strong><span>{t("แมตช์ที่ใช้คำนวณ")}</span></div>
+      <div className="pl-sidebar-facts"><div><span>Steam ID</span><b>{d.player.steam_id}</b></div><div><span>{t("ทีม")}</span><b>{d.player.latest_team || "—"}</b></div><div><span>{t("รอบ")}</span><b>{d.source.selected_rounds.toLocaleString()}</b></div></div><Link className="pl-browse" to="/players">{t("ค้นหาผู้เล่น")} ↗</Link>
     </header>
-
+    <div className="pl-content">
+    <nav className="pl-section-nav" aria-label={t("สถิติผู้เล่น")}><a href="#pl-overview">{t("สถิติภาพรวม")}</a><a href="#pl-details">{t("แมตช์ล่าสุด")}</a><a href="#pl-loadout">{t("แผนที่และอาวุธ")}</a></nav>
     <section className="pl-filters card" aria-label={t("ตัวกรองข้อมูลผู้เล่น")}>
       <label>{t("ช่วงแมตช์")}<select value={filters.recent} onChange={(event) => change("recent", event.target.value)}><option value={0}>{t("ทุกแมตช์")}</option><option value={5}>{t("5 แมตช์ล่าสุด")}</option><option value={10}>{t("10 แมตช์ล่าสุด")}</option><option value={20}>{t("20 แมตช์ล่าสุด")}</option></select></label>
       <label>{t("ตั้งแต่วันที่นำเข้า")}<input type="date" value={filters.date_from ?? ""} max={filters.date_to} onChange={(event) => change("from", event.target.value)} /></label>
@@ -66,24 +70,26 @@ export function PlayerPage() {
     </section>
 
     {!tot ? <section className="card pl-filter-empty"><h2>{t("ไม่มีข้อมูลตามตัวกรองนี้")}</h2><p className="muted">{t("ลองขยายช่วงแมตช์ วันที่ แผนที่ หรือเลือกทั้งสองฝั่ง")}</p></section> : <>
-      <section className="pl-grid" aria-label={t("สถิติหลัก")}>
-        <article className="card pl-card"><h2>K/D</h2><Gauge value={tot.kd ?? 0} max={2} label={valueOrData(tot.kd, 2)} /><p className="muted small">{t("{k} คิล · {d} ตาย · {a} ช่วย", { k: tot.kills, d: tot.deaths, a: tot.assists })}</p></article>
-        <article className="card pl-card"><h2>{t("Rating 1.0 ที่คำนวณ")}</h2><Gauge value={tot.rating ?? 0} max={2} label={valueOrData(tot.rating, 2)} /><p className="muted small">{t("ใช้สูตร Rating 1.0 ที่เผยแพร่ ไม่ใช่ค่าจาก stat feed อย่างเป็นทางการ")}<br />{t("Rating 2.0 ค่าประมาณ: {v}", { v: tot.rating2_approx.toFixed(2) })}<br />{t("ไม่ใช่ค่า HLTV Rating 2.0 อย่างเป็นทางการ")}</p></article>
-        <article className="card pl-card"><h2>{t("ชนะรอบ")}</h2><Gauge value={tot.win_rate} max={100} label={valueOrData(tot.win_rate, 0, "%")} unit /><p className="muted small">{t("{r} รอบใน {m} แมตช์", { r: tot.rounds, m: tot.matches })}</p></article>
-        <article className="card pl-card"><h2>HS% · ADR · KAST</h2><ul className="pl-nums"><li><b>{valueOrData(tot.hs_rate, 0, "%")}</b><span>{t("HS จาก kills")}</span></li><li><b>{valueOrData(tot.adr, 1)}</b><span>ADR</span></li><li><b>{valueOrData(tot.kast, 0, "%")}</b><span>KAST</span></li><li><b>{valueOrData(tot.survival_rate, 0, "%")}</b><span>{t("รอดจบรอบ")}</span></li></ul></article>
-        <article className="card pl-card pl-wide"><h2>{t("Clutch 1v1–1v5")}</h2>{d.clutches ? <div className="pl-clutches">{d.clutches.map((clutch) => <MiniPie key={clutch.vs} label={`1v${clutch.vs}`} wins={clutch.wins} attempts={clutch.attempts} />)}</div> : <p className="muted">{t("ไม่มีข้อมูล")}</p>}</article>
-        <article className="card pl-card pl-wide"><h2>{t("Entry — First kill / First death")}</h2><div className="pl-donuts"><Donut label={t("รวม")} value={entryRate(d.entry.both)} won={d.entry.both.kills} lost={d.entry.both.deaths} /><Donut label={t("ฝั่ง CT")} value={entryRate(d.entry.ct)} won={d.entry.ct.kills} lost={d.entry.ct.deaths} tone="ct" /><Donut label={t("ฝั่ง T")} value={entryRate(d.entry.t)} won={d.entry.t.kills} lost={d.entry.t.deaths} tone="t" /></div><p className="muted small">{t("เปอร์เซ็นต์ = First kills / (First kills + First deaths)")}</p></article>
+      <section id="pl-overview" className="pl-grid" aria-label={t("สถิติหลัก")}>
+        <article className="card pl-card pl-kd"><h2>K/D</h2><Gauge value={tot.kd ?? 0} max={2} label={valueOrData(tot.kd, 2)} /><p className="muted small">{t("{k} คิล · {d} ตาย · {a} ช่วย", { k: tot.kills, d: tot.deaths, a: tot.assists })}</p></article>
+        <article className="card pl-card pl-rating"><h2>{t("Rating 1.0 ที่คำนวณ")}</h2><Gauge value={tot.rating ?? 0} max={2} label={valueOrData(tot.rating, 2)} /><p className="muted small">{t("ใช้สูตร Rating 1.0 ที่เผยแพร่ ไม่ใช่ค่าจาก stat feed อย่างเป็นทางการ")}<br />{t("Rating 2.0 ค่าประมาณ: {v}", { v: tot.rating2_approx.toFixed(2) })}<br />{t("ไม่ใช่ค่า HLTV Rating 2.0 อย่างเป็นทางการ")}</p></article>
+        <article className="card pl-card pl-win"><h2>{t("ชนะรอบ")}</h2><Gauge value={tot.win_rate} max={100} label={valueOrData(tot.win_rate, 0, "%")} unit /><p className="muted small">{t("{r} รอบใน {m} แมตช์", { r: tot.rounds, m: tot.matches })}</p></article>
+        <article className="card pl-card pl-headshots"><h2>HEADSHOTS</h2><strong className="pl-big-number">{valueOrData(tot.hs_rate, 0)}<small>%</small></strong><dl className="pl-facts"><div><dt>{t("คิล")}</dt><dd>{tot.kills.toLocaleString()}</dd></div><div><dt>{t("ตาย")}</dt><dd>{tot.deaths.toLocaleString()}</dd></div><div><dt>{t("ช่วย")}</dt><dd>{tot.assists.toLocaleString()}</dd></div><div><dt>Headshots</dt><dd>{tot.headshots.toLocaleString()}</dd></div></dl></article>
+        <article className="card pl-card pl-damage"><h2>AVG. DAMAGE / ROUND</h2><strong className="pl-big-number">{valueOrData(tot.adr, 1)}</strong><dl className="pl-facts"><div><dt>KAST</dt><dd>{valueOrData(tot.kast, 0, "%")}</dd></div><div><dt>{t("รอดจบรอบ")}</dt><dd>{valueOrData(tot.survival_rate, 0, "%")}</dd></div><div><dt>{t("รอบ")}</dt><dd>{tot.rounds.toLocaleString()}</dd></div></dl></article>
+        <article className="card pl-card pl-wide pl-clutch-card"><h2>{t("Clutch 1v1–1v5")}</h2>{d.clutches ? <><div className="pl-clutch-summary"><span>1vX</span><strong>{d.clutches.reduce((n, c) => n + c.attempts, 0) ? `${Math.round(d.clutches.reduce((n, c) => n + c.wins, 0) / d.clutches.reduce((n, c) => n + c.attempts, 0) * 100)}%` : "—"}</strong><small>{t("ชนะ")}</small></div><div className="pl-clutches">{d.clutches.map((clutch) => <MiniPie key={clutch.vs} label={`1v${clutch.vs}`} wins={clutch.wins} attempts={clutch.attempts} />)}</div></> : <p className="muted">{t("ไม่มีข้อมูล")}</p>}</article>
+        <article className="card pl-card pl-wide pl-entry-card"><h2>{t("Entry — First kill / First death")}</h2><div className="pl-donuts"><Donut label={t("รวม")} value={entryRate(d.entry.both)} won={d.entry.both.kills} lost={d.entry.both.deaths} /><Donut label={t("ฝั่ง CT")} value={entryRate(d.entry.ct)} won={d.entry.ct.kills} lost={d.entry.ct.deaths} tone="ct" /><Donut label={t("ฝั่ง T")} value={entryRate(d.entry.t)} won={d.entry.t.kills} lost={d.entry.t.deaths} tone="t" /></div><p className="muted small">{t("เปอร์เซ็นต์ = First kills / (First kills + First deaths)")}</p></article>
       </section>
 
-      <section className="pl-panels">
+      <section id="pl-details" className="pl-panels">
         <article className="card pl-panel-wide"><h2>{t("แมตช์ล่าสุด")}</h2><ul className="pl-matches">{d.recent_matches.map((match) => <li key={match.match_id} className={`r-${match.result}`}><Link to={`/matches/${encodeURIComponent(match.demo_file)}/rounds/1?p=${encodeURIComponent(d.player.steam_id)}`}><MapThumb map={match.map_name} className="pl-thumb" /><span className="pl-res">{match.result === "win" ? t("ชนะ") : match.result === "loss" ? t("แพ้") : t("เสมอ")}</span><span className="pl-mt">{match.team_a && match.team_b ? `${match.team_a} vs ${match.team_b}` : match.demo_file}<small>{match.map_name} · {isoDate(match.imported_at)} · {match.kills}/{match.deaths}/{match.assists}</small></span><span className="pl-rt">{valueOrData(match.rating, 2)}</span></Link></li>)}</ul></article>
-        <article className="card"><h2>{t("แมพที่เล่นบ่อย")}</h2><Bars rows={d.maps.map((map: PlayerMap & { kd: number | null }) => ({ key: map.map_name, label: map.map_name, value: map.matches, note: t("Win {win}% · Rating {rating} · K/D {kd}", { win: map.win_rate.toFixed(0), rating: valueOrData(map.rating, 2), kd: valueOrData(map.kd, 2) }), ratio: map.win_rate / 100 }))} empty={t("ยังไม่มีข้อมูลแมพ")} /></article>
+        <article id="pl-loadout" className="card pl-map-card"><h2>{t("แมพที่เล่นบ่อย")}</h2><Bars rows={d.maps.map((map: PlayerMap & { kd: number | null }) => ({ key: map.map_name, label: map.map_name, value: map.matches, note: t("Win {win}% · Rating {rating} · K/D {kd}", { win: map.win_rate.toFixed(0), rating: valueOrData(map.rating, 2), kd: valueOrData(map.kd, 2) }), ratio: map.win_rate / 100 }))} empty={t("ยังไม่มีข้อมูลแมพ")} /></article>
         <article className="card"><h2>{t("อาวุธที่ฆ่าบ่อย")}</h2><Bars rows={d.weapons.map((weapon: PlayerWeapon) => ({ key: weapon.weapon, label: weaponLabel(weapon.weapon), value: weapon.kills, note: `${t("HS {pct}%", { pct: weapon.hs_rate.toFixed(0) })} · ${t("Accuracy: ไม่มีข้อมูล")}`, ratio: weapon.hs_rate / 100 }))} empty={t("ยังไม่มีข้อมูลอาวุธ")} /></article>
         <BehaviorCard behavior={d.behavior} />
       </section>
 
       <details className="card pl-formulas"><summary>{t("สูตรและข้อจำกัดของข้อมูล")}</summary><dl>{Object.entries(d.formulas).map(([key, formula]) => <div key={key}><dt>{key}</dt><dd>{formula}</dd></div>)}</dl><p className="muted small">{t("วันที่ในตัวกรองคือวันที่นำเข้า demo เพราะ parser ยังไม่มีวันที่แข่งขัน")}</p><p className="muted small">{t("Accuracy ไม่มีข้อมูล เพราะ parser ยังไม่เก็บจำนวนกระสุนที่ยิงและโดน")}</p></details>
     </>}
+    </div>
   </div>;
 }
 

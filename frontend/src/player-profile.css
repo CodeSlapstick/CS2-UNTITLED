@@ -1,0 +1,88 @@
+/* Profile composition uses the application's existing theme and team colors. */
+.player { max-width: 1440px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 22px; align-items: start; }
+.player .pl-head { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; margin: 0; padding: 22px 18px; position: sticky; top: 100px; min-width: 0; background: linear-gradient(160deg, var(--card-2), var(--card)); }
+.pl-game-tag { color: var(--text); font: 700 15px/1.5 "Chakra Petch", sans-serif; letter-spacing: .05em; }
+.pl-game-tag span { display: block; color: var(--muted); font-size: 10px; letter-spacing: .16em; }
+.player .pl-avatar { width: 112px; height: 112px; border-radius: 8px; }
+.player .pl-identity h1 { font-size: 25px; margin-bottom: 8px; }
+.player .pl-identity p { overflow-wrap: anywhere; font-size: 12px; }
+.player .pl-source { margin: 4px 0 0; padding: 18px 0 0; border: 0; border-top: 1px solid var(--line); width: 100%; align-items: flex-start; }
+.player .pl-source strong { font-size: 38px; }
+.pl-sidebar-facts { width: 100%; display: grid; gap: 14px; }
+.pl-sidebar-facts div { display: grid; gap: 3px; }
+.pl-sidebar-facts span { color: var(--muted); font-size: 11px; }
+.pl-sidebar-facts b { font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+.pl-browse { font-size: 12px; padding-top: 16px; border-top: 1px solid var(--line); width: 100%; }
+.pl-content { min-width: 0; }
+.pl-section-nav { display: flex; gap: 26px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; }
+.pl-section-nav a { color: var(--muted); padding: 13px 0; white-space: nowrap; font-size: 13px; }
+.pl-section-nav a:first-child { color: var(--text); border-bottom: 2px solid var(--accent); }
+.pl-section-nav a:hover { color: var(--text); text-decoration: none; }
+.player .pl-filters { margin: 0 0 14px; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 12px; background: var(--card); }
+.player .pl-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin: 0 0 12px; }
+.player .pl-card { min-width: 0; min-height: 240px; padding: 18px 14px; align-items: stretch; text-align: left; border: 1px solid var(--line-2); background: var(--card); }
+.player .pl-card h2 { font-size: 11px; color: var(--muted); letter-spacing: .05em; line-height: 1.6; }
+.player .pl-kd, .player .pl-rating { grid-column: span 2; grid-row: 1; }
+.player .pl-clutch-card { grid-column: span 2; grid-row: 1; }
+.player .pl-entry-card { grid-column: span 3; grid-row: 2; }
+.player .pl-win, .player .pl-headshots, .player .pl-damage { grid-column: span 1; grid-row: 2; }
+.player .pl-card .pl-gauge { width: min(170px, 100%); height: auto; align-self: center; margin: auto 0; }
+.player .pl-track, .player .pl-arc { stroke-width: 3; }
+.player .pl-gauge-v { font-weight: 500; font-size: 30px; }
+.player .pl-card p { font-size: 10px; line-height: 1.6; }
+.pl-big-number { font: 500 clamp(28px, 3vw, 42px)/1.2 "Chakra Petch", sans-serif; margin: 22px 0; }
+.pl-big-number small { font-size: 22px; color: var(--muted); margin-left: 3px; }
+.pl-facts { display: grid; gap: 12px; margin: auto 0 0; }
+.pl-facts div { display: flex; justify-content: space-between; gap: 6px; font-size: 11px; }
+.pl-facts dt { color: var(--muted); }
+.pl-facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+.pl-clutch-summary { display: flex; gap: 8px; align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.pl-clutch-summary > span { color: var(--muted); font: 24px "Chakra Petch", sans-serif; }
+.pl-clutch-summary strong { font: 500 34px "Chakra Petch", sans-serif; }
+.pl-clutch-summary small { color: var(--muted); font-size: 11px; }
+.player .pl-clutches { flex-wrap: nowrap; gap: 6px; margin: auto 0; }
+.player .pl-pie { flex: 1; min-width: 0; }
+.player .pl-pie svg { width: 100%; max-width: 56px; height: auto; }
+.player .pl-pie .pl-gauge-v { font-size: 26px; }
+.player .pl-pie .small { font-size: 10px; }
+.player .pl-donuts { flex-wrap: nowrap; gap: 10px; margin: auto 0; }
+.player .pl-donut { flex: 1; min-width: 0; }
+.player .pl-donut svg { width: 100%; max-width: 100px; height: auto; }
+.player .pl-panels { gap: 12px; }
+.player .pl-panels > .card { margin: 0; padding: 18px; border-color: var(--line-2); }
+.player .pl-panels h2 { font-size: 13px; }
+.player .pl-matches li + li { border-top: 1px solid var(--line-2); }
+.player .pl-matches a { grid-template-columns: 48px 46px minmax(0, 1fr) auto; padding: 10px 0; }
+.player .pl-bars { gap: 16px; }
+.player .pl-bar { height: 3px; margin: 4px 0; }
+.player .pl-formulas { margin-top: 12px; }
+.player :is(#pl-overview, #pl-details, #pl-loadout) { scroll-margin-top: 110px; }
+@media (max-width: 1180px) {
+  .player { grid-template-columns: 180px minmax(0, 1fr); gap: 14px; }
+  .player .pl-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .player .pl-kd, .player .pl-rating, .player .pl-clutch-card { grid-column: span 2; }
+  .player .pl-win, .player .pl-headshots, .player .pl-damage { grid-column: span 2; grid-row: 2; }
+  .player .pl-entry-card { grid-column: 1 / -1; grid-row: 3; min-height: 190px; }
+  .player .pl-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .player { grid-template-columns: minmax(0, 1fr); }
+  .player .pl-head { position: static; display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 12px 18px; }
+  .pl-game-tag { grid-column: 1 / -1; }
+  .player .pl-avatar { width: 80px; height: 80px; }
+  .player .pl-source { grid-column: 1 / -1; }
+  .pl-sidebar-facts { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pl-browse { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .player .pl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .player .pl-kd, .player .pl-rating { grid-column: span 1; grid-row: auto; }
+  .player .pl-clutch-card, .player .pl-entry-card { grid-column: 1 / -1; grid-row: auto; }
+  .player .pl-win, .player .pl-headshots, .player .pl-damage { grid-column: span 1; grid-row: auto; }
+  .player .pl-damage { grid-column: 1 / -1; }
+  .player .pl-filters, .player .pl-panels, .player .pl-behavior { grid-template-columns: minmax(0, 1fr); }
+  .player .pl-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .player .pl-matches a { grid-template-columns: 38px 40px minmax(0, 1fr); }
+  .player .pl-matches .pl-rt { grid-column: 3; }
+  .pl-section-nav { gap: 18px; }
+}
