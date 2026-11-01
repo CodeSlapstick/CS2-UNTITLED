@@ -3,10 +3,13 @@ import "@fontsource/chakra-petch/700.css";
 import "@fontsource/anuphan/400.css";
 import "@fontsource/anuphan/500.css";
 import "@fontsource/anuphan/600.css";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LangToggle, useT } from "./i18n";
 import { ThemeToggle } from "./theme";
+import { MapView } from "./RoundView";
+import { SAMPLE_DURATION, sampleDeaths, sampleGrenades, sampleLiveAt, samplePeople, sampleRound, samplePositions, sampleDefuseAt } from "./homeReplay";
+import "./home-replay.css";
 
 const COPY = {
   th: {
@@ -99,47 +102,23 @@ function Arrow() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>;
 }
 
-const PREVIEW_DURATION = 48;
-const previewPlayers = [
-  { side: "ct", slot: "1", name: "CT-1", from: [31, 72], to: [48, 57], angle: -38, labelX: -12, labelY: -22 },
-  { side: "ct", slot: "2", name: "CT-2", from: [28, 78], to: [42, 70], angle: -22, labelX: -45, labelY: 2 },
-  { side: "ct", slot: "3", name: "CT-3", from: [34, 79], to: [55, 69], angle: -18, labelX: -38, labelY: 22 },
-  { side: "ct", slot: "4", name: "CT-4", from: [32, 83], to: [38, 52], angle: -65, labelX: 25, labelY: 8 },
-  { side: "ct", slot: "5", name: "CT-5", from: [30, 86], to: [51, 79], angle: -18, labelX: -24, labelY: 29 },
-  { side: "t", slot: "1", name: "T-1", from: [78, 30], to: [62, 47], angle: 142, labelX: -40, labelY: 4 },
-  { side: "t", slot: "2", name: "T-2", from: [82, 25], to: [69, 51], angle: 116, labelX: -14, labelY: -26 },
-  { side: "t", slot: "3", name: "T-3", from: [80, 33], to: [57, 54], angle: 138, labelX: -46, labelY: 22 },
-  { side: "t", slot: "4", name: "T-4", from: [84, 26], to: [73, 62], angle: 107, labelX: -48, labelY: -5 },
-  { side: "t", slot: "5", name: "T-5", from: [83, 36], to: [64, 68], angle: 121, labelX: -6, labelY: 35 },
-] as const;
-
-const previewEvents: ReadonlyArray<{
-  time: number;
-  side: "ct" | "t" | "bomb";
-  key?: "stageUtility" | "stageKill" | "stageEvent";
-  label?: string;
-}> = [
-  { time: 12, side: "ct", key: "stageUtility" },
-  { time: 19, side: "t", key: "stageKill" },
-  { time: 31, side: "bomb", key: "stageEvent" },
-  { time: 36, side: "ct", label: "Trade kill" },
-] as const;
-
+const PREVIEW_DURATION = SAMPLE_DURATION;
 function formatPreviewTime(value: number) {
-  return `00:${Math.floor(value).toString().padStart(2, "0")}`;
+  return `${Math.floor(value / 60).toString().padStart(2, "0")}:${Math.floor(value % 60).toString().padStart(2, "0")}`;
 }
 
 function ReplayPreview({ c }: { c: (typeof COPY)[keyof typeof COPY] }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const [time, setTime] = useState(8);
-  const [playing, setPlaying] = useState(true);
+  const [time, setTime] = useState(0);
+  const [playing, setPlaying] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [visible, setVisible] = useState(true);
-  const progress = time / PREVIEW_DURATION;
-  const activeEvent = previewEvents.reduce((active, event, index) => time >= event.time ? index : active, 0);
-  const events = useMemo(() => previewEvents.map((event) => ({
-    ...event,
-    label: event.label ?? (event.key ? c[event.key] : ""),
-  })), [c]);
+  const [mapView, setMapView] = useState<{ zoom: number; center: [number, number] | null }>({ zoom: 1, center: null });
+  const [highlight, setHighlight] = useState<string | null>(null);
+  const [speed, setSpeed] = useState(1);
+  const [reducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const live = sampleLiveAt(time);
+  const defuse = sampleDefuseAt(time);
+  const roundLabel = c.stageRound.replace("Mirage", "Dust2");
 
   useEffect(() => {
     const node = rootRef.current;
@@ -156,42 +135,41 @@ function ReplayPreview({ c }: { c: (typeof COPY)[keyof typeof COPY] }) {
     const advance = (now: number) => {
       const elapsed = Math.min((now - previous) / 1000, 0.1);
       previous = now;
-      setTime((current) => (current + elapsed) % PREVIEW_DURATION);
+      setTime((current) => (current + elapsed * speed) % PREVIEW_DURATION);
       frame = requestAnimationFrame(advance);
     };
     frame = requestAnimationFrame(advance);
     return () => cancelAnimationFrame(frame);
-  }, [playing, visible]);
+  }, [playing, visible, speed]);
 
   return (
-    <div className="home-stage" ref={rootRef} aria-label={c.stageRound}>
-      <div className="stage-head"><b>{c.stageRound}</b><span className="stage-live"><i /> {c.stageSample}</span></div>
+    <div className="home-stage" ref={rootRef} aria-label={roundLabel}>
+      <div className="stage-head"><b>{roundLabel}</b><span className="stage-live"><i /> {c.stageSample}</span></div>
       <div className="stage-body">
-        <div className="stage-map">
-          <img src="/assets/maps/de_mirage.png" alt="Mirage radar" draggable={false} />
-          {previewPlayers.map(({ side, slot, name, from, to, angle, labelX, labelY }) => {
-            const x = from[0] + (to[0] - from[0]) * progress;
-            const y = from[1] + (to[1] - from[1]) * progress;
-            return (
-              <span key={`${side}-${slot}`} className="stage-player-wrap" style={{ left: `${x}%`, top: `${y}%` }}>
-                <span className={`stage-player ${side}`} style={{ rotate: `${angle}deg` }}><i />{slot}</span>
-                <span className="stage-player-name" style={{ translate: `${labelX}px ${labelY}px` }}>{name}</span>
-              </span>
-            );
-          })}
+        <div className="stage-map map-stage">
+          <MapView radar={sampleRound.radar!}
+            deaths={sampleDeaths.filter((event) => (event.t_round ?? Infinity) <= time)} grenades={sampleGrenades} live={live}
+            bomb={time < (sampleRound.round.bomb_resolved_t ?? Infinity) ? sampleRound.round.bomb : null} bombPlantedT={sampleRound.round.bomb_planted_t}
+            positions={samplePositions} damages={sampleRound.damages} startTick={sampleRound.round.start_tick} tickrate={128}
+            defusingPlayer={defuse?.player} defuseProgressPercent={defuse?.progress}
+            playbackTime={time} reducedMotion={reducedMotion}
+            zoom={mapView.zoom} center={mapView.center}
+            onView={(zoom, center) => setMapView({ zoom, center })}
+            highlight={highlight} onHover={setHighlight} selected={null} onSelect={() => {}} />
+          <div className="stage-map-hud"><span>CT {live.filter((p) => p.side === "ct").length} : {live.filter((p) => p.side === "t").length} T</span><button type="button" onClick={() => setMapView({ zoom: 1, center: null })}>1:1</button></div>
         </div>
-        <ol className="stage-timeline">
-          {events.map((event, index) => (
-            <li key={event.time} className={index === activeEvent ? "active" : undefined}>
-              <time>{formatPreviewTime(event.time)}</time><i className={event.side} />{event.label}
-            </li>
-          ))}
-        </ol>
+        <div className="stage-sidebar">
+          <div className="stage-rosters">{(["ct", "t"] as const).map((side) => <section key={side} className={`stage-team ${side}`}><h3>{side.toUpperCase()}<span>{live.filter((p) => p.side === side).length} / 5</span></h3>{samplePeople.filter((p) => p.side === side).map((person) => {
+            const player = live.find((p) => p.steamid === person.steamid);
+            return <button type="button" key={person.steamid} className={!player ? "dead" : ""} onMouseEnter={() => setHighlight(person.steamid)} onMouseLeave={() => setHighlight(null)} onFocus={() => setHighlight(person.steamid)} onBlur={() => setHighlight(null)}><i>{person.slot}</i><span title={person.name}>{person.name}</span><b>{player ? `${player.hp} HP` : "×"}</b></button>;
+          })}</section>)}</div>
+        </div>
       </div>
       <div className="stage-controls">
         <button className={`stage-play${playing ? " playing" : ""}`} type="button" onClick={() => setPlaying((value) => !value)} aria-label={playing ? c.stagePause : c.stagePlay}><span /></button>
         <input aria-label={c.stageTimeline} type="range" min="0" max={PREVIEW_DURATION} step="0.1" value={time} onChange={(event) => setTime(Number(event.currentTarget.value))} />
-        <b>{formatPreviewTime(time)} / 00:48</b>
+        <select className="stage-speed" aria-label={c.stageSample + " speed"} value={speed} onChange={(event) => setSpeed(Number(event.target.value))}>{[.5, 1, 2].map((value) => <option key={value} value={value}>{value}x</option>)}</select>
+        <b>{formatPreviewTime(time)} / {formatPreviewTime(PREVIEW_DURATION)}</b>
       </div>
     </div>
   );
