@@ -29,25 +29,24 @@ const COPY = {
     stageEvent: "วางระเบิด",
     stageKill: "Opening duel",
     stageUtility: "Smoke กำลังทำงาน",
-    whyTitle: "สกอร์บอกผล\nแผนที่บอกว่าเกิดอะไรขึ้น",
-    whyBody: "สกอร์บอร์ดบอกว่าใครชนะ แต่ไม่บอกว่าทีมเสียพื้นที่ตรงไหนก่อน หรือเพื่อนอยู่ใกล้พอจะ trade หรือไม่ CS2 UNTITLED จึงรวมทุกเหตุการณ์ไว้บนแผนที่เดียว ให้โค้ชและผู้เล่นเห็นภาพเดียวกันและทบทวนแต่ละรอบได้เร็วขึ้น",
+    whyTitle: "รีวิวรอบบนแผนที่\nพร้อมข้อมูลทุกจังหวะ",
+    whyBody: "ดูว่าทีมเสียพื้นที่ตรงไหน เพื่อนอยู่ใกล้พอจะ trade หรือไม่ และ utility ใดกำลังทำงานในแต่ละวินาทีจากแผนที่เดียว",
     f1: "ย้อนดูทุกจังหวะบนแผนที่",
     f1d: "เลื่อน timeline เพื่อดูตำแหน่งผู้เล่น จุดตาย เส้นยิง และ utility ที่กำลังทำงานในขณะนั้น",
     f2: "เห็นพื้นที่ที่ปะทะบ่อย",
     f2d: "ดู heatmap ของทีม แล้วเปรียบเทียบตำแหน่งการตายกับข้อมูลจากทีมอาชีพ",
-    f3: "เห็นมากกว่าจำนวนคิลและเดธ",
+    f3: "ดูสถิติรอบในบริบท",
     f3d: "ดู opening, trade, clutch, ADR, KAST และภาพรวมเศรษฐกิจในแต่ละรอบได้จากเดโมเดียวกัน",
-    flowTitle: "จากไฟล์เดโมหนึ่งไฟล์\nสู่การรีวิวร่วมกันทั้งทีม",
+    flowTitle: "อัปโหลดเดโม\nแล้วเริ่มรีวิวกับทีม",
     step1: "อัปโหลด .dem",
     step1d: "เลือกไฟล์เดโมของทีม แล้วปล่อยให้ระบบประมวลผลอยู่เบื้องหลัง",
     step2: "เลือกแมตช์และรอบ",
     step2d: "ดูสกอร์บอร์ด ภาพรวมเศรษฐกิจ หรือเลือกเจาะรายละเอียดทีละรอบ",
     step3: "รีวิวรอบไปพร้อมกัน",
     step3d: "เลื่อนเวลา เลือกผู้เล่น แล้วแชร์ลิงก์มุมมองเดียวกันให้ทุกคนในทีม",
-    finalTitle: "เข้าใจรอบที่ผ่านมา เพื่อเล่นรอบต่อไปให้ดีขึ้น",
+    finalTitle: "เปิดเดโมแล้วเลือกรอบที่ต้องการทบทวน",
     finalBody: "ลองดูระบบได้ทันทีในโหมดผู้เยี่ยมชม หรือล็อกอินด้วย Steam เพื่อเชื่อมสถิติเข้ากับบัญชีของคุณ",
     finalCta: "ลองใช้งาน CS2 UNTITLED",
-    project: "โครงงาน SP-404 · UTCC STECH",
   },
   en: {
     navAbout: "About",
@@ -66,25 +65,24 @@ const COPY = {
     stageEvent: "Bomb planted",
     stageKill: "Opening duel",
     stageUtility: "Smoke active",
-    whyTitle: "From a scoreboard\nto a shared picture",
-    whyBody: "A scoreboard records the result, not which space was lost first or whether a teammate could trade. CS2 UNTITLED puts the events back on one map so coaches and players can review a round together, faster.",
+    whyTitle: "Review the round\nwith every event on the map",
+    whyBody: "See where the team lost space, whether a teammate was close enough to trade, and which utility was active at each second.",
     f1: "Replay player positions",
     f1d: "Scrub second by second with deaths, shot lines, and utility active at that moment.",
     f2: "Read fight patterns",
     f2d: "View your team's death heatmap and compare positional shares with a professional reference set.",
-    f3: "Go beyond kills and deaths",
+    f3: "Put round stats in context",
     f3d: "Break down openings, trades, clutches, ADR, KAST, and round economy from the same demo.",
-    flowTitle: "One demo becomes\nthe team's review room",
+    flowTitle: "Upload a demo\nand review it with your team",
     step1: "Upload a .dem",
     step1d: "Drop in your team's demo while parsing runs in the background.",
     step2: "Pick a match and round",
     step2d: "Open the scoreboard, economy overview, or inspect one round.",
     step3: "Review the same picture",
     step3d: "Scrub time, select a player, and share the exact view by URL.",
-    finalTitle: "The next round starts by understanding the last one",
+    finalTitle: "Open a demo and choose a round to review",
     finalBody: "Explore immediately as a guest, or sign in with Steam to connect stats to your account.",
     finalCta: "Explore CS2 UNTITLED",
-    project: "SP-404 Senior Project · UTCC STECH",
   },
 } as const;
 
@@ -230,7 +228,7 @@ export function HomePage() {
           <Link className="home-primary" to="/login?next=%2Fmatches">{c.finalCta}<Arrow /></Link>
         </section>
       </div>
-      <footer className="home-footer"><Link className="home-brand" to="/"><Mark /><span>CS2 UNTITLED</span></Link><span>{c.project}</span></footer>
+      <footer className="home-footer"><Link className="home-brand" to="/"><Mark /><span>CS2 UNTITLED</span></Link></footer>
     </div>
   );
 }

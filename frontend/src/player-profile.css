@@ -12,7 +12,6 @@
 .pl-sidebar-facts div { display: grid; gap: 3px; }
 .pl-sidebar-facts span { color: var(--muted); font-size: 11px; }
 .pl-sidebar-facts b { font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
-.pl-browse { font-size: 12px; padding-top: 16px; border-top: 1px solid var(--line); width: 100%; }
 .pl-content { min-width: 0; }
 .pl-section-nav { display: flex; gap: 26px; border-bottom: 1px solid var(--line); margin-bottom: 14px; overflow-x: auto; }
 .pl-section-nav a { color: var(--muted); padding: 13px 0; white-space: nowrap; font-size: 13px; }
@@ -72,7 +71,6 @@
   .player .pl-avatar { width: 80px; height: 80px; }
   .player .pl-source { grid-column: 1 / -1; }
   .pl-sidebar-facts { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .pl-browse { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
   .player .pl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

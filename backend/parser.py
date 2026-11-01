@@ -381,7 +381,8 @@ def _add_flash_remaining(positions: pl.DataFrame, blinds: pl.DataFrame | None, t
     """คำนวณเวลาตาบอดคงเหลือจาก player_blind เพราะ flash_duration ใน tick ไม่ได้นับถอยหลัง"""
     original_columns = [name for name in positions.columns if name != "flash_remaining"]
     base = positions.select(original_columns)
-    zero = lambda: base.with_columns(pl.lit(0.0, pl.Float32).alias("flash_remaining"))
+    def zero() -> pl.DataFrame:
+        return base.with_columns(pl.lit(0.0, pl.Float32).alias("flash_remaining"))
     victim_candidates = ("user_steamid", "victim_steamid", "target_steamid", "steam_id", "user_steam_id")
     victim_column = next((name for name in victim_candidates if blinds is not None and name in blinds.columns), None)
     if (base.is_empty() or blinds is None or blinds.is_empty() or tickrate <= 0

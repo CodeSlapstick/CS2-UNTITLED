@@ -118,6 +118,42 @@ h2 { font-size: var(--fs-lg); line-height: 1.3; margin: 0 0 10px; }
 .topbar nav a:hover { background: var(--line-2); color: var(--text); text-decoration: none; }
 .topbar nav a.active { color: #00e5ff; background: rgba(0, 229, 255, .07); border-bottom-color: #00e5ff; }
 
+/* ค้นหาผู้เล่นแบบย่อในแถบบน — ใช้ข้อมูลจริงจาก demo และเปิดโปรไฟล์ผู้เล่นโดยตรง */
+.player-search { position: relative; width: clamp(190px, 18vw, 280px); flex: 0 1 280px; }
+.ps-mobile-trigger { display: none; }
+.ps-field {
+  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 9px 0 11px;
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--bg); color: var(--muted);
+}
+.ps-field:focus-within { border-color: #00e5ff; color: #00e5ff; box-shadow: 0 0 0 3px rgba(0, 229, 255, .12); }
+.ps-field svg { width: 17px; height: 17px; flex: none; }
+.ps-field input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; font-size: var(--fs-sm); }
+.ps-field input::placeholder { color: var(--muted); }
+.ps-field kbd { padding: 1px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: var(--card); font: 600 11px/1.4 "Chakra Petch", sans-serif; }
+.ps-close { border: 0; background: transparent; color: #00e5ff; font: inherit; font-weight: 700; cursor: pointer; }
+.ps-panel {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: min(430px, calc(100vw - 32px));
+  overflow: hidden; border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
+  box-shadow: var(--shadow-2);
+}
+.ps-panel > p { margin: 0; padding: 14px; font-size: var(--fs-sm); }
+.ps-options { max-height: min(480px, 70vh); overflow-y: auto; }
+.ps-result {
+  display: grid; grid-template-columns: 38px minmax(0, 1fr) minmax(110px, auto); align-items: center; gap: 10px;
+  width: 100%; padding: 9px 11px; border: 0; border-bottom: 1px solid var(--line); background: transparent;
+  color: var(--text); text-align: left; cursor: pointer; font: inherit;
+}
+.ps-result:last-child { border-bottom: 0; }
+.ps-result:hover, .ps-result.active { background: var(--card-2); }
+.ps-result.active { box-shadow: inset 2px 0 #00e5ff; }
+.ps-result img { width: 38px; height: 38px; border-radius: 4px; object-fit: cover; }
+.ps-result-main, .ps-result-meta { min-width: 0; display: grid; }
+.ps-result strong, .ps-result small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ps-result small { color: var(--muted); font-size: var(--fs-xs); }
+.ps-result-meta { text-align: right; }
+.ps-result-meta strong { font-size: var(--fs-sm); }
+.ps-all { display: block; padding: 9px 12px; border-top: 1px solid var(--line); font-size: var(--fs-sm); font-weight: 700; }
+
 .players-search-page { max-width: 900px; margin: 0 auto; }
 .players-search-field { display: flex; align-items: center; gap: 10px; margin: 20px 0; padding: 0 14px; height: 48px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--muted); }
 .players-search-field:focus-within { border-color: #00e5ff; color: #00e5ff; }
@@ -194,6 +230,19 @@ a.btn-ghost { display: inline-block; font-weight: 600; }
   .topbar > .theme-toggle { order: 3; margin: 0 0 6px auto; }
   .lang-toggle { order: 3; margin: 0 0 6px; }
   .topbar nav a { white-space: nowrap; }
+  .player-search { order: 3; width: 34px; flex: none; }
+  .player-search:not(.mobile-open) .ps-field { display: none; }
+  .ps-mobile-trigger {
+    display: grid; place-items: center; width: 34px; height: 34px; padding: 0;
+    border: 1px solid var(--line); border-radius: 50%; background: var(--card); color: var(--muted); cursor: pointer;
+  }
+  .player-search.mobile-open { position: fixed; inset: 8px 8px auto; z-index: 50; width: auto; }
+  .player-search.mobile-open .ps-mobile-trigger { display: none; }
+  .player-search.mobile-open .ps-field { display: flex; height: 44px; background: var(--card); box-shadow: var(--shadow-2); }
+  .player-search.mobile-open .ps-panel { right: 0; width: 100%; }
+  .ps-field kbd { display: none; }
+  .ps-result { grid-template-columns: 38px minmax(0, 1fr); }
+  .ps-result-meta { grid-column: 2; text-align: left; }
 }
 
 /* ---------------- โครงหน้า ---------------- */
@@ -869,17 +918,10 @@ svg.radar.zoomed:active { cursor: grabbing; }
 .analysis-steps li[data-state="active"] i { border-color: var(--ct); background: color-mix(in srgb, var(--ct) 16%, var(--card)); }
 .analysis-steps li[data-state="done"] { color: var(--ok); }
 .analysis-steps li[data-state="done"] i { border-color: var(--ok); }
-.team-identity { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin: 0 0 14px; padding: 9px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--card-2); }
-.team-identity > span { margin-right: 3px; color: var(--muted); font-size: var(--fs-sm); }
-.team-identity button { padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
-.team-identity button.on { border-color: var(--ct); background: color-mix(in srgb, var(--ct) 15%, var(--card)); color: var(--ct-ink); }
-.team-identity small { margin-left: auto; color: var(--muted); }
 .behavior-side.is-ours h3 { color: var(--ct-ink); }
 .behavior-side.is-opponent h3 { color: var(--t-ink); }
-.team-kind { margin-left: 6px; color: var(--muted); font-size: var(--fs-xs); font-weight: 500; }
 .behavior-card.side-ct { border-left-color: var(--ct); }
 .behavior-card.side-t { border-left-color: var(--t); }
-@media (max-width: 760px) { .team-identity small { width: 100%; margin-left: 0; } }
 .an-no-match { display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center; padding:24px; }
 .an-no-match svg { width:28px; height:28px; color:var(--accent); }
 .an-no-match h2,.an-no-match p { margin:0; }
@@ -1155,7 +1197,6 @@ html[data-theme="light"] .lc-guest:hover:not(:disabled), html[data-theme="light"
   transition: border-color .15s ease-out, color .15s ease-out;
 }
 .channels a:hover, .channels a:focus-visible { border-color: var(--l-cyan); color: var(--l-text); text-decoration: none; }
-.login-foot { position: absolute; bottom: 16px; margin: 0; font-size: 13px; color: var(--l-muted); }
 
 /* laptop เตี้ย (สูง < 720): บีบระยะ ให้การ์ดทั้งใบอยู่ในจอเดียว */
 /* laptop เตี้ย (สูง < 760): ปุ่ม Steam + ข้อความ error ต้องอยู่ในจอเดียวโดยไม่ต้องเลื่อน */
@@ -1195,7 +1236,8 @@ html[data-theme="light"] .lc-guest:hover:not(:disabled), html[data-theme="light"
    หน้าเครื่องมือวิเคราะห์ /analysis — เอาแมตช์ของทีมไปเทียบกับชุดที่โมเดลเทรนจากมัน
    แผนที่อยู่ซ้าย (กล่องพื้นมืดเหมือนหน้ารอบ เพราะภาพเรดาร์เป็นภาพพื้นมืด) ตัวเลขอยู่ขวา
    ================================================================================================ */
-.analysis { max-width: 1280px; margin: 0 auto; }
+.page:has(.analysis) { max-width: 1440px; }
+.analysis { max-width: 1392px; margin: 0 auto; }
 .an-head { margin-bottom: 12px; }
 .an-head h1 { margin: 0 0 10px; }
 /* สามโหมดเป็นแท็บแถวเดียว ชื่อโหมดอยู่ที่เดียว — จอแคบเลื่อนข้าง */
@@ -1207,7 +1249,6 @@ html[data-theme="light"] .lc-guest:hover:not(:disabled), html[data-theme="light"
 }
 .an-tab:hover:not(.on) { color: var(--text); background: var(--line-2); }
 .an-tab.on { color: var(--ct-ink); border-bottom-color: var(--ct); }
-.an-blurb { margin: 10px 0 0; max-width: 78ch; font-size: var(--fs-sm); }
 .an-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .an-fixed { color: var(--text); font-weight: 700; }
 .an-select { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--muted); }
@@ -1219,7 +1260,7 @@ html[data-theme="light"] .lc-guest:hover:not(:disabled), html[data-theme="light"
 .an-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); margin-top: 14px; }
 .an-map-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .an-map { background: #0b0e14; border-radius: var(--r); display: grid; place-items: center; }
-.an-map .radar { width: 100%; height: auto; max-height: 68dvh; display: block; }
+.an-map .radar { width: 100%; height: auto; display: block; }
 .an-side { min-width: 0; }
 .an-side h2 { margin: 0 0 4px; }
 .an-tbl { margin-top: 10px; }
@@ -1228,11 +1269,18 @@ html[data-theme="light"] .lc-guest:hover:not(:disabled), html[data-theme="light"
 .an-note { margin-top: 10px; max-width: 46ch; }
 .an-empty { padding: 50px 20px; text-align: center; }
 @media (min-width: 900px) {
-  .an-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); align-items: start; }
+  /* แผนที่เป็นจัตุรัส จึงให้พื้นที่กว้างกว่าตารางเล็กน้อยเพื่อให้ความสูงของสองฝั่งใกล้กัน */
+  .an-grid { grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr); align-items: start; }
+  .an-grid > .hm-panel { grid-column: 1 / -1; }
+  /* ตารางจุดตายใช้ความสูงเต็มแถวเดียวกับแผนที่ แทนการทิ้งพื้นที่ว่างไว้ด้านล่าง */
+  .an-side { align-self: stretch; }
+  .an-summary { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; }
+  .an-summary .an-tbl { height: 100%; }
 }
 @media (min-width: 1150px) {
   /* สามคอลัมน์: แผงตั้งค่าซ้าย · แผนที่กลาง · ตารางขวา */
-  .an-grid { grid-template-columns: 220px minmax(0, 1fr) minmax(300px, 380px); }
+  .an-grid { grid-template-columns: 220px minmax(0, 1.25fr) minmax(380px, 1fr); }
+  .an-grid > .hm-panel { grid-column: auto; }
   /* ข้อความ "ยังไม่ได้เลือกรอบ/ผู้เล่น" กินพื้นที่แผนที่+ตารางแทน ไม่ใช่แค่คอลัมน์เดียว — แผงซ้ายยังอยู่เหมือนเดิม */
   .an-empty-fill { grid-column: 2 / -1; }
 }
@@ -1414,6 +1462,7 @@ a.an-tab:hover { text-decoration: none; }
 }
 .econ-chart { width: 100%; min-height: 40px; }
 .econ-chart svg { display: block; overflow: visible; }
+.econ-echart { width: 100%; height: 320px; min-width: 0; }
 .econ-chart .gl { stroke: var(--line-2); }
 .econ-chart .zero { stroke: #9aa4b5; }
 .econ-chart .half { stroke: #c3cddf; stroke-dasharray: 4 4; }
@@ -1540,7 +1589,6 @@ a.an-tab:hover { text-decoration: none; }
 .behavior-signals li { display: flex; justify-content: space-between; gap: 12px; color: var(--text); }
 .behavior-signals small { color: var(--muted); text-align: right; }
 .behavior-margin { margin: 9px 0 0; font-size: var(--fs-xs); }
-.behavior-note { margin: 16px 0 0; font-size: var(--fs-xs); line-height: 1.5; }
 .behavior-state { min-height: 72px; display: flex; align-items: center; }
 .behavior-empty { gap: 12px; }
 .behavior-empty svg { width: 32px; height: 32px; flex: none; }

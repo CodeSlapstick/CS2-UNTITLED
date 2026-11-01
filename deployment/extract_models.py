@@ -1,9 +1,8 @@
 """Extract the Windows-created model archive safely on Linux containers."""
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from zipfile import ZipFile
-
 
 archive = Path(sys.argv[1])
 destination = Path(sys.argv[2]).resolve()

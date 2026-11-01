@@ -1,6 +1,5 @@
 .opening-page { max-width: 1440px; margin: auto; }
 .page:has(.opening-page) { max-width: 1488px; }
-.opening-heading p { max-width: 75ch; margin: 0 0 24px; }
 .opening-filters.card { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; padding: 16px; }
 .opening-filters.filters label { display: grid; gap: 6px; flex: 1 1 180px; font-size: var(--fs-sm); color: var(--muted); }
 .opening-filters select { width: 100%; }
@@ -10,7 +9,6 @@
 .opening-side button:last-child[aria-pressed="true"] { color: var(--ct-ink); }
 .opening-summary { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 20px 0 8px; }
 .opening-summary span { color: var(--muted); font-size: var(--fs-sm); }
-.opening-note { color: var(--muted); font-size: var(--fs-xs); max-width: 100ch; margin: 8px 0; }
 .opening-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: 16px; margin-top: 16px; align-items: start; }
 .opening-main.card { min-width: 0; padding: 12px; margin-top: 0; }
 .opening-radar { display: block; width: 100%; max-height: clamp(280px, calc(100vh - 520px), 600px); background: var(--bg); border-radius: var(--r); }

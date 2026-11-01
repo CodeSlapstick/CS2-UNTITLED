@@ -168,7 +168,7 @@ export function LoginPage() {
           )}
 
           <p className="lc-note">
-            {t("โหมดเยี่ยมชมใช้งานได้ทุกอย่างเหมือนกัน แต่ไม่มีสถิติของตัวเอง เพราะยังไม่ได้ผูกกับบัญชี Steam — ล็อกอินภายหลังได้จากแถบบนของทุกหน้า")}
+            {t("โหมดเยี่ยมชมใช้ฟีเจอร์ทั้งหมดได้ สถิติส่วนตัวจะแสดงหลังล็อกอินด้วย Steam")}
           </p>
         </div>
 
@@ -182,7 +182,6 @@ export function LoginPage() {
             </li>
           ))}
         </ul>
-        <p className="login-foot">SP-404 Senior Project · UTCC STECH</p>
       </section>
     </div>
   );

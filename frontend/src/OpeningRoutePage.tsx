@@ -44,9 +44,7 @@ export function OpeningRoutePage({ embedded = false }: { embedded?: boolean }) {
     setParams(next);
   }
   return <section className={`opening-page${embedded ? " opening-page-embedded" : ""}`}>
-    {!embedded && <header className="opening-heading"><h1>Opening Route</h1>
-      <p className="muted">{t("เปรียบเทียบเส้นทางและ Utility ของผู้เล่นใน 30 วินาทีแรกของหลายรอบบน radar เดียวกัน")}</p>
-    </header>}
+    {!embedded && <header className="opening-heading"><h1>Opening Route</h1></header>}
     <div className="opening-filters filters card">
       <label>{t("ผู้เล่น")}<select value={player?.id ?? ""} onChange={(e) => change("player", e.target.value)} disabled={!players.length}>
         {!players.length && <option value="">—</option>}
@@ -120,7 +118,6 @@ export function OpeningRouteStage({ data, playerName, map, side }: { data: Openi
           <label className="opening-opacity">{t("ความทึบ")}<input type="range" min="0.1" max="1" step="0.05" value={opacity} onChange={(e) => setOpacity(Number(e.target.value))} /><output>{Math.round(opacity * 100)}%</output></label>
         </div>
         <div className="opening-utility-key" aria-label="Utility legend">{TYPES.map((type) => <span key={type}><i className={`opening-utility-${type}`} />{LABELS[type]}</span>)}</div>
-        <p className="opening-note">{t("จุด Utility คือจุดขว้างและจุดตกที่บันทึกไว้ เส้นบินแสดงเฉพาะ trajectory จริง ไม่เติมเวลาหรือเส้นทางที่ขาดหาย")}</p>
       </div>
       <aside className="opening-rounds card" aria-label={t("รายการรอบ")}><h2>{t("รายการรอบ")} <span className="muted">({data.rounds.length})</span></h2>
         <div className="opening-round-actions"><button type="button" className="btn-ghost" onClick={() => setHidden(new Set())}>{t("แสดงทุกรอบ")}</button><button type="button" className="btn-ghost" onClick={() => setHidden(new Set(data.rounds.map((r) => r.key)))}>{t("ซ่อนทุกรอบ")}</button></div>

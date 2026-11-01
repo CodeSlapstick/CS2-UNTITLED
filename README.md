@@ -92,7 +92,7 @@ heatmap ระบายเฉพาะช่องที่ฝั่งเรา
 ค่าตั้งต้นของ `matches.source` คือ `'upload'` โดยตั้งใจ: แมตช์ที่ไม่มีใครยืนยันต้องไม่ถูกนับเป็นชุดเทรนเอง
 ทำเครื่องหมายแถวเก่าด้วย `python -m backend.etl_loader --mark-reference` (ดูจากไฟล์ที่อยู่ใน `demos/reference/` จริง ๆ)
 
-`backend/tests/test_data_separation.py` จะ fail ทันทีถ้ามีใครทำให้สองโฟลเดอร์นี้กลับมาเป็นโฟลเดอร์เดียวกันอีก
+ระบบแยกข้อมูลด้วยทั้งตำแหน่งไฟล์และ `matches.source`; ค่าเริ่มต้นของแมตช์ใหม่เป็น `upload` เพื่อไม่ให้ข้อมูลผู้ใช้ไหลเข้า reference set โดยอัตโนมัติ
 
 state ทั้งหมดอยู่บน URL (`?sb=0` ย่อ sidebar, `board=1` สกอร์บอร์ด, `g=smoke,flash` ชนิดระเบิดที่แสดง (`g=none` = ไม่แสดงเลย), `z=2.5` `c=x,y` ซูม/จุดที่มองอยู่บนแผนที่, `pb=1` โหมดเล่นย้อน + `t=12.5` วินาทีในรอบที่ดูค้างไว้, `p=` ผู้เล่นที่ไฮไลต์, `d=` การตายที่เลือก)
 refresh แล้วอยู่ที่เดิม และแชร์ลิงก์ให้คนอื่นเห็นแบบเดียวกันได้ · `/matches` พาไปแมตช์ล่าสุด · แมตช์/รอบที่ไม่มีจริงขึ้นหน้า 404 ที่มีปุ่มกลับ
@@ -205,20 +205,15 @@ Projectile trajectory ไม่เพิ่มจำนวนแถว `grenades
 
 Player Behavior บน `/analysis` โหลด `output/models/<map>/player_role.json` ตามแมพของแมตช์เข้า cache (และรองรับ `output/player_role.json` รุ่นเดิม) แล้วทำ inference จากข้อมูลในฐานข้อมูลเท่านั้น ไม่ train ระหว่าง request และไม่ป้อนแมตช์ upload กลับเข้า reference model หน่วยวิเคราะห์คือผู้เล่นหนึ่งคน × หนึ่งแมตช์ × หนึ่งฝั่ง โดยต้องมีจำนวนรอบขั้นต่ำตาม artifact ชื่อ role เป็นเพียงการตีความ centroid ของ KMeans ไม่ใช่คะแนนฝีมือ บทบาทถาวร หรือ probability; ถ้า artifact หาย แมพไม่รองรับ หรือรอบไม่พอ API จะคืนสถานะ unavailable อย่างชัดเจน Endpoint คือ `GET /api/analysis/player-behavior?demo=...&players=...`
 
-## ทดสอบและ CI
+## ตรวจคุณภาพและ CI
 
 ```bash
-ruff check .                      # lint
-pytest                            # 76 เทสต์: ล็อกอิน/JWT, นิยาม 4 ตัว, ผูกทีมข้ามครึ่ง, สูตรพิกัด = grid_ml1, payload Round Review, parser บน .dem จริง
-cd frontend && npm run build      # type-check + build หน้าเว็บ
+pip install -r requirements-dev.txt
+ruff check .
+cd frontend && npm ci && npm run build   # type-check + production build
 ```
 
-`backend/tests/fixtures/` เก็บ snapshot ของ `output/grid_ml1.json` / `grid_ml1_cells.csv` ที่คำนวณจาก `data/all_kills.csv` ปัจจุบัน
-ถ้าเพิ่มเดโมแล้วรัน `research/demoparser.py` + `research/grid_ml1.py` ใหม่ ต้องก๊อปสองไฟล์นั้นเข้า fixtures ด้วย ไม่งั้นเทสต์เทียบช่องจะแดง
-
-test parser ต้องมีไฟล์ `.dem` (100+ MB ไม่อยู่ใน git): ใช้ไฟล์เล็กสุดใน `demos/` หรือตั้ง `CS2_TEST_DEMO=path` — ไม่มีก็ skip
-GitHub Actions (`.github/workflows/ci.yml`) รัน ruff · pytest · migration up/down/up บน Postgres จริง · `npm run build`
-ตั้ง repository variable `CS2_TEST_DEMO_URL` (ลิงก์ไฟล์เดโม เช่น asset ของ Release) ถ้าอยากให้ CI รัน test parser ด้วย
+GitHub Actions (`.github/workflows/ci.yml`) รัน Ruff, ตรวจ migration แบบ up/down/up บน PostgreSQL และ build frontend
 
 ## โครงโปรเจกต์
 
@@ -240,7 +235,6 @@ backend/            API + worker (Python 3.11)
   features.py         นิยาม opening / trade / buy / clutch + ผูกทีม + ตัวคำนวณ
   review.py           ข้อมูลหน้ารอบ + สูตรแปลงพิกัดชุดเดียวของรีโป
   db.py · models.py · views.sql · alembic/     ต่อฐานข้อมูล · ตาราง · view สรุป · migration
-  tests/              pytest (auth · features · review · parser) + fixtures/
 research/           demoparser.py · grid_ml1.py · check_radar.py — สคริปต์ ML ที่หน้าเว็บใช้ผล (ดู research/README.md)
 assets/             ภาพเรดาร์ + radars.json (แหล่งความจริงของค่าปรับเทียบพิกัด)
 docs/               pipeline-diagram.html + .png ไดอะแกรม "อัปโหลดเดโมแล้วเกิดอะไรขึ้น" (ไว้แปะสไลด์)

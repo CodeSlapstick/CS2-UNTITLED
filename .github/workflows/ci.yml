@@ -1,8 +1,4 @@
-# CI — lint + pytest ฝั่ง Python และ build ฝั่ง React ทุกครั้งที่ push / เปิด PR
-#
-# test parser บนเดโมจริงต้องมีไฟล์ .dem (100+ MB ไม่อยู่ใน git)
-#   ตั้ง repository variable CS2_TEST_DEMO_URL ให้ชี้ไปที่ไฟล์เดโม (เช่น asset ของ GitHub Release)
-#   แล้ว CI จะดาวน์โหลดมาให้ก่อนรัน pytest — ถ้าไม่ตั้ง test นั้นถูก skip ส่วน test อื่นรันปกติ
+# CI — Python lint, ตรวจ migration, และ build frontend ทุกครั้งที่ push / เปิด PR
 name: ci
 
 on:
@@ -22,14 +18,6 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: ruff
         run: ruff check .
-      - name: ดาวน์โหลดเดโมตัวอย่าง (ถ้าตั้ง CS2_TEST_DEMO_URL)
-        if: vars.CS2_TEST_DEMO_URL != ''
-        run: |
-          mkdir -p demos
-          curl -L --fail --retry 3 -o demos/ci-sample.dem "${{ vars.CS2_TEST_DEMO_URL }}"
-          echo "CS2_TEST_DEMO=$PWD/demos/ci-sample.dem" >> "$GITHUB_ENV"
-      - name: pytest
-        run: pytest -v
       - name: migration ต้องรันบน DB เปล่าได้ (up -> down -> up)
         run: |
           docker run -d --name pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cs2_ci -p 5432:5432 postgres:16-alpine

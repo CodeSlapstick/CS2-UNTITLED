@@ -8,7 +8,7 @@ import { MatchesPage } from "./MatchesPage";
 import { MatchPage } from "./MatchPage";
 import { RoundPage } from "./RoundPage";
 import { PlayerPage } from "./PlayerPage";
-import { PlayerSearchPage } from "./PlayerSearch";
+import { PlayerSearch, PlayerSearchPage } from "./PlayerSearch";
 import { AnalysisPage } from "./AnalysisPage";
 import { CoachPage } from "./CoachPage";
 import { HeatmapPage } from "./HeatmapPage";
@@ -223,6 +223,7 @@ function TopBar() {
           </NavLink>
         ))}
       </nav>
+      <PlayerSearch />
       <ThemeToggle />
       <LangToggle />
       <UserMenu />

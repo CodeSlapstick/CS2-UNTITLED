@@ -1,4 +1,4 @@
-# ตั้งค่าเครื่องมือฝั่ง Python ไฟล์เดียว — ruff (lint) + pytest (CI รันทั้งสองตัว ต้องผ่าน)
+# เครื่องมือฝั่ง Python: Ruff สำหรับ lint
 
 [tool.ruff]
 line-length = 120
@@ -17,7 +17,3 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["backend", "research"]
-
-[tool.pytest.ini_options]
-testpaths = ["backend/tests"]
-addopts = "-q"

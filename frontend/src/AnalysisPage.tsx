@@ -45,16 +45,14 @@ type Mode = "upload" | "diff" | "read" | "opening";
 type Side = "all" | "ct" | "t";
 
 // เครื่องมือเป็นแท็บแถวเดียว ชื่ออยู่ที่แท็บที่เดียว และมีประโยคสั้นใต้แท็บบอกหน้าที่ของเครื่องมือนั้น
-const MODES: { key: Mode; label: string; blurb: string }[] = [
+const MODES: { key: Mode; label: string }[] = [
   {
     key: "upload",
     label: "ทีมเราตายตรงไหน",
-    blurb: "จุดที่ผู้เล่นในแมตช์ของทีมตาย ยิ่งแดงเข้มยิ่งตายบ่อย — เลือกฝั่ง รอบ หรือผู้เล่นได้จากแผงซ้าย",
   },
   {
     key: "opening",
     label: "Opening Route",
-    blurb: "เปรียบเทียบเส้นทางและ Utility ของผู้เล่นใน 30 วินาทีแรกของหลายรอบบน radar เดียวกัน",
   },
 ];
 const SIDES: { key: Side; label: string }[] = [
@@ -87,14 +85,6 @@ export function AnalysisPage() {
   // null = ไม่กรอง (ทุกรอบ/ทุกคน) — ต่างจาก [] ที่แปลว่า "ไม่เลือกเลย" (ปุ่ม "ไม่เอาเลย")
   const [selRounds, setSelRounds] = useState<number[] | null>(null);
   const [selPlayers, setSelPlayers] = useState<string[] | null>(null);
-  const [ourTeam, setOurTeam] = useState<string>(() => params.get("team") ?? "");
-  function selectOurTeam(team: string) {
-    setOurTeam(team);
-    const next = new URLSearchParams(params);
-    if (team) next.set("team", team);
-    else next.delete("team");
-    setParams(next, { replace: true });
-  }
   const matches = useQuery(matchesQuery);
   // การวิเคราะห์แมตช์ที่อัปโหลดใช้ข้อมูลของแมตช์นั้นโดยตรง ไม่ควรถูกซ่อนเพียงเพราะ
   // ไม่มีชุดอ้างอิง ML สำหรับแผนที่นั้น ชุดอ้างอิงจำเป็นเฉพาะโหมดเปรียบเทียบเท่านั้น
@@ -164,7 +154,6 @@ export function AnalysisPage() {
   useEffect(() => setHovered(null), [mode, activeMap, side, selectedDemo]);
 
   if (mode === "opening") {
-    const copy = MODES.find((m) => m.key === mode)!;
     return (
       <div className="analysis" data-testid="analysis-page">
         <header className="an-head">
@@ -175,7 +164,6 @@ export function AnalysisPage() {
               {t(m.label)}
             </button>
           ))}</div>
-          <p className="muted an-blurb">{t(copy.blurb)}</p>
         </header>
         <OpeningRoutePage embedded />
       </div>
@@ -193,7 +181,6 @@ export function AnalysisPage() {
     </section>
   </div>;
 
-  const copy = MODES.find((m) => m.key === mode)!;
   const single = upload.data;
   const loading = mode === "read" ? readQ.isLoading : upload.isLoading || (mode === "diff" && reference.isLoading);
   const error = (mode === "read" ? readQ.error : (upload.error ?? reference.error)) as Error | null;
@@ -214,7 +201,6 @@ export function AnalysisPage() {
             </button>
           ))}
         </div>
-        <p className="muted an-blurb">{t(copy.blurb)}</p>
       </header>
 
       <div className="an-filters">
@@ -243,9 +229,9 @@ export function AnalysisPage() {
 
       {activeMatch && (
         <div className="analysis-context" aria-label={t("แมตช์ที่กำลังวิเคราะห์")}>
-          <span><small>{t("แมตช์")}</small><strong>{matchLabel(activeMatch)}</strong></span>
+          <span><small>{t("ทีม")}</small><strong>{t("ทีมเรา")} vs {t("ศัตรู")}</strong></span>
           <span><small>{t("แผนที่")}</small><strong>{activeMatch.map_name}</strong></span>
-          <span><small>{t("ทีม")}</small><strong>{activeMatch.team_a || t("ไม่ทราบทีม")} vs {activeMatch.team_b || t("ไม่ทราบทีม")}</strong></span>
+          <span><small>{t("แมตช์")}</small><strong>{matchLabel(activeMatch)}</strong></span>
         </div>
       )}
 
@@ -276,8 +262,8 @@ export function AnalysisPage() {
           {noRoundsPicked || noPlayersPicked ? (
             <p className="muted an-empty an-empty-fill" data-testid="analysis-nothing-picked">
               {noRoundsPicked
-                ? t('ยังไม่ได้เลือกรอบเลยสักคน/รอบ — เลือกอย่างน้อยหนึ่งอย่างในแผงซ้าย หรือกด "ทั้งหมด" เพื่อดูภาพรวมอีกครั้ง')
-                : t('ยังไม่ได้เลือกผู้เล่นเลยสักคน/รอบ — เลือกอย่างน้อยหนึ่งอย่างในแผงซ้าย หรือกด "ทั้งหมด" เพื่อดูภาพรวมอีกครั้ง')}
+                ? t('เลือกรอบอย่างน้อยหนึ่งรอบ หรือกด "ทั้งหมด"')
+                : t('เลือกผู้เล่นอย่างน้อยหนึ่งคน หรือกด "ทั้งหมด"')}
             </p>
           ) : (
             <>
@@ -308,8 +294,7 @@ export function AnalysisPage() {
           )}
         </div>
       )}
-      <PlayerBehaviorSection data={behaviorQ.data} loading={behaviorQ.isLoading} error={behaviorQ.error as Error | null}
-        ourTeam={ourTeam} onOurTeam={selectOurTeam} />
+      <PlayerBehaviorSection data={behaviorQ.data} loading={behaviorQ.isLoading} error={behaviorQ.error as Error | null} />
     </div>
   );
 }
@@ -339,22 +324,20 @@ function roleLabel(role: string): string {
   return names[role] ?? role;
 }
 
-export function PlayerBehaviorSection({ data, loading, error, ourTeam = "", onOurTeam = () => undefined }: {
-  data?: PlayerBehavior; loading: boolean; error: Error | null; ourTeam?: string; onOurTeam?: (team: string) => void;
+export function PlayerBehaviorSection({ data, loading, error }: {
+  data?: PlayerBehavior; loading: boolean; error: Error | null;
 }) {
   const { t } = useT();
   const teams = data?.teams ?? [...new Set((data?.players ?? []).map((player) => player.team).filter((team): team is string => !!team))];
   const teamGroups = teams.length > 0
     ? teams.map((team) => ({ team, profiles: (data?.players ?? []).filter((player) => player.team === team) }))
     : (["t", "ct"] as const).map((side) => ({ team: `${side.toUpperCase()} side`, profiles: (data?.players ?? []).filter((player) => player.side === side) }));
-  const teamNames = teamGroups.map((group) => group.team);
-  const selectedTeam = teamNames.includes(ourTeam) ? ourTeam : (teamNames[0] ?? "");
+  const selectedTeam = teamGroups[0]?.team ?? "";
   return <section className="behavior" aria-labelledby="behavior-title" data-testid="player-behavior">
     <header className="behavior-head">
       <div className="behavior-title-icon"><PlayerIcon /></div>
       <div>
         <h2 id="behavior-title">{t("รูปแบบการเล่นของผู้เล่น")}</h2>
-        <p className="muted">{t("จัดกลุ่มพฤติกรรมแยกฝั่ง T และ CT ของแมตช์ที่เลือก โดยเทียบกับรูปแบบจากชุดอ้างอิง")}</p>
       </div>
     </header>
     {loading && <p className="muted behavior-state">{t("กำลังคำนวณรูปแบบการเล่น…")}</p>}
@@ -363,23 +346,14 @@ export function PlayerBehaviorSection({ data, loading, error, ourTeam = "", onOu
       <DatabaseSearchIcon /><div><b>{t("ยังแสดงรูปแบบการเล่นไม่ได้")}</b><p className="muted">{t(`player_behavior_${data.reason ?? "unavailable"}`)}</p></div>
     </div>}
     {!loading && !error && data?.available && <>
-      {teams.length > 0 && <div className="team-identity" role="group" aria-label="เลือกทีมเรา">
-        <span>ทีมเรา</span>
-        {teams.map((team) => <button type="button" key={team} className={selectedTeam === team ? "on" : ""} aria-pressed={selectedTeam === team} onClick={() => onOurTeam(team)}>{team}</button>)}
-        {teams.length > 1 && <small>คู่แข่ง: {teams.find((team) => team !== selectedTeam)}</small>}
-      </div>}
       <div className="behavior-grid">
-        {teamGroups.map((group) => <BehaviorTeam key={group.team} team={group.team} ours={group.team === selectedTeam} profiles={group.profiles} />)}
+        {teamGroups.map((group) => <BehaviorTeam key={group.team} ours={group.team === selectedTeam} profiles={group.profiles} />)}
       </div>
-      <footer className="behavior-note muted">
-        {t("ชื่อบทบาทเป็นคำอธิบาย centroid ของโมเดล unsupervised ไม่ใช่ระดับฝีมือหรือบทบาทถาวร คะแนนระยะและ margin ไม่ใช่ความน่าจะเป็น")}
-        {data.source && <> · {t("ชุดอ้างอิง {n} แมตช์ · โมเดล v{v}", { n: data.source.matches, v: data.source.version })}</>}
-      </footer>
     </>}
   </section>;
 }
 
-function BehaviorTeam({ team, ours, profiles }: { team: string; ours: boolean; profiles: PlayerBehaviorProfile[] }) {
+function BehaviorTeam({ ours, profiles }: { ours: boolean; profiles: PlayerBehaviorProfile[] }) {
   const { t } = useT();
   const players = [...profiles.reduce((grouped, profile) => {
     const player = grouped.get(profile.steamid) ?? { steamid: profile.steamid, name: profile.name, profiles: [] as PlayerBehaviorProfile[] };
@@ -389,7 +363,7 @@ function BehaviorTeam({ team, ours, profiles }: { team: string; ours: boolean; p
   }, new Map<string, { steamid: string; name: string; profiles: PlayerBehaviorProfile[] }>()).values()]
     .sort((a, b) => a.name.localeCompare(b.name));
   return <div className={`behavior-side${ours ? " is-ours" : " is-opponent"}`}>
-    <h3>{team} <span className="team-kind">{ours ? "ทีมเรา" : "คู่แข่ง"}</span></h3>
+    <h3>{t(ours ? "ทีมเรา" : "ศัตรู")}</h3>
     {players.length === 0 ? <p className="muted">{t("ไม่มีผู้เล่นจากฝั่งนี้ในตัวกรอง")}</p> : players.map((player) =>
       <article className="behavior-card behavior-player-card" key={player.steamid}>
         <div className="behavior-player"><b title={player.name}>{player.name}</b></div>
@@ -546,7 +520,7 @@ function HeatmapControls({
  * ตัวเลขทีมอาชีพวัดแบบ out-of-fold (ทำนายรอบไหนใช้โมเดลที่ไม่เคยเห็นแมตช์นั้น) จึงเอามาเทียบกันได้
  */
 function ReadabilityReport({ data, demo }: { data: Readability; demo: string }) {
-  const { t, tn } = useT();
+  const { t } = useT();
   if (!data.available) {
     return (
       <div className="an-empty">
@@ -587,11 +561,9 @@ function ReadabilityReport({ data, demo }: { data: Readability; demo: string }) 
 
       {gap != null && (
         <p className="rr-verdict">
-          {gap > 0
-            ? tn("ทีมนี้ถูกอ่านออก{gap} — ยิ่งเร็ว ฝ่ายรับยิ่งมีเวลาหมุนไปตั้งรับทัน",
-                { gap: <b> {t("เร็วกว่าทีมอาชีพ {s} วินาที", { s: gap.toFixed(1) })}</b> })
-            : tn("ทีมนี้ถูกอ่านออก{gap} — ปกปิดทิศทางได้ดีกว่าค่าเฉลี่ยของชุดเทียบ",
-                { gap: <b> {t("ช้ากว่าทีมอาชีพ {s} วินาที", { s: Math.abs(gap).toFixed(1) })}</b> })}
+          <b>{gap > 0
+            ? t("ฝ่ายรับอ่านทางได้เร็วกว่าทีมอาชีพ {s} วินาที", { s: gap.toFixed(1) })
+            : t("ฝ่ายรับอ่านทางได้ช้ากว่าทีมอาชีพ {s} วินาที", { s: Math.abs(gap).toFixed(1) })}</b>
           {s.avg_lead != null && <> · {t("โดยเฉลี่ยรู้ทางก่อนบอมบ์ลงจริง {s} วินาที", { s: s.avg_lead })}</>}
         </p>
       )}
@@ -850,13 +822,13 @@ function DiffTable({ groups, upload, reference, hovered, onHover }:
     <>
       <h2>{t("จุดที่ทีมเราตายบ่อยกว่าทีมอาชีพ")}</h2>
       <p className="muted small">
-        {t("{a} · ตาย {ad} ครั้ง — เทียบกับ {b} · ตาย {bd} ครั้ง", {
+        {t("{a} · ตาย {ad} ครั้ง เทียบกับ {b} · ตาย {bd} ครั้ง", {
           a: overlayLabel(upload, t), ad: upload.deaths, b: overlayLabel(reference, t), bd: reference.deaths,
         })}
       </p>
       {worst.length === 0 ? (
         <p className="muted small">
-          {t("ยังไม่มีจุดไหนที่ทีมเราตายบ่อยกว่าทีมอาชีพถึง {near}× และมีจำนวนมากพอจะสรุป — อัปโหลดแมตช์เพิ่มแล้วตัวเลขจะชัดขึ้น",
+          {t("ข้อมูลยังไม่ถึงเกณฑ์ ต้องตายบ่อยกว่าทีมอาชีพอย่างน้อย {near}× และมีจำนวนครั้งเพียงพอ",
             { near: DIFF_STEPS.near })}
         </p>
       ) : (
@@ -886,7 +858,7 @@ function DiffTable({ groups, upload, reference, hovered, onHover }:
         </table>
       )}
       <p className="muted small an-note">
-        {t('"ของเรา" กับ "ทีมอาชีพ" คือสัดส่วนของจุดตายทั้งหมดในชุดนั้น ไม่ใช่จำนวนครั้งดิบ — ทีมอาชีพมี 50 แมตช์ ถ้าเอาจำนวนครั้งมาเทียบกันตรง ๆ ฝั่งที่มีแมตช์เยอะกว่าก็ตายเยอะกว่าเสมอ ซึ่งไม่ได้บอกอะไร')}
+        {t("ตารางใช้สัดส่วนจุดตายของแต่ละชุดข้อมูล เพื่อชดเชยจำนวนแมตช์ที่ไม่เท่ากัน ทีมอาชีพมี 50 แมตช์")}
       </p>
     </>
   );
@@ -999,11 +971,8 @@ function SingleSummary({ data, hovered, onHover }: { data: DeathsOverlay } & Tab
   const { t } = useT();
   const top = groupByPlace(data.cells).sort((a, b) => b.deaths - a.deaths).slice(0, 8);
   return (
-    <>
+    <section className="an-summary">
       <h2>{t("ช่องที่ตายบ่อยที่สุด")}</h2>
-      <p className="muted small">
-        {t("{label} · ตายรวม {d} ครั้ง ใน {n} ช่อง", { label: overlayLabel(data, t), d: data.deaths, n: data.cells.length })}
-      </p>
       <table className="tbl compact an-tbl">
         <thead>
           <tr>
@@ -1024,7 +993,7 @@ function SingleSummary({ data, hovered, onHover }: { data: DeathsOverlay } & Tab
           ))}
         </tbody>
       </table>
-    </>
+    </section>
   );
 }
 

@@ -2,8 +2,6 @@
 export const EN_ANALYSIS: Record<string, string> = {
   // โหมด + ฝั่ง (AnalysisPage MODES / SIDES / SIDE_NOTE)
   "ทีมเราตายตรงไหน": "Where we die",
-  "จุดที่ผู้เล่นในแมตช์ของทีมตาย ยิ่งแดงเข้มยิ่งตายบ่อย — เลือกฝั่ง รอบ หรือผู้เล่นได้จากแผงซ้าย":
-    "Where players died in the team's matches. Darker red = more deaths. Pick a side, rounds or players in the left panel.",
   "เทียบกับทีมอาชีพ": "Compared with pros",
   "ตรงไหนที่ทีมเราเสียคนบ่อยกว่าทีมอาชีพ เทียบเป็นสัดส่วนของจุดตายทั้งหมด เพราะสองชุดมีจำนวนแมตช์ไม่เท่ากัน":
     "Where we lose players more often than pro teams, compared as a share of all death spots because the two sets have different numbers of matches.",
@@ -28,10 +26,8 @@ export const EN_ANALYSIS: Record<string, string> = {
   "โหลดข้อมูลไม่ได้: {msg}": "Couldn't load data: {msg}",
   "กำลังอ่านทีละรอบ…": "Reading round by round…",
   "กำลังนับจุดตาย…": "Counting death spots…",
-  'ยังไม่ได้เลือกรอบเลยสักคน/รอบ — เลือกอย่างน้อยหนึ่งอย่างในแผงซ้าย หรือกด "ทั้งหมด" เพื่อดูภาพรวมอีกครั้ง':
-    'No rounds selected — pick at least one in the left panel, or press "All" to see the overview again.',
-  'ยังไม่ได้เลือกผู้เล่นเลยสักคน/รอบ — เลือกอย่างน้อยหนึ่งอย่างในแผงซ้าย หรือกด "ทั้งหมด" เพื่อดูภาพรวมอีกครั้ง':
-    'No players selected — pick at least one in the left panel, or press "All" to see the overview again.',
+  'เลือกรอบอย่างน้อยหนึ่งรอบ หรือกด "ทั้งหมด"': 'Select at least one round or press "All".',
+  'เลือกผู้เล่นอย่างน้อยหนึ่งคน หรือกด "ทั้งหมด"': 'Select at least one player or press "All".',
 
   // แผงควบคุม heatmap
   "ตั้งค่าการแสดงผล heatmap": "Heatmap display settings",
@@ -63,12 +59,8 @@ export const EN_ANALYSIS: Record<string, string> = {
     "Read in {read} of {rounds} planted rounds · median second {median}",
   "ทีมอาชีพ ถูกอ่านออกเฉลี่ยวินาทีที่": "Pro teams: read on average at second",
   "จาก {rounds} รอบ · มัธยฐานวินาทีที่ {median}": "From {rounds} rounds · median second {median}",
-  "ทีมนี้ถูกอ่านออก{gap} — ยิ่งเร็ว ฝ่ายรับยิ่งมีเวลาหมุนไปตั้งรับทัน":
-    "This team gets read{gap}. The earlier the read, the more time defenders have to rotate.",
-  "เร็วกว่าทีมอาชีพ {s} วินาที": "{s} s earlier than pro teams",
-  "ทีมนี้ถูกอ่านออก{gap} — ปกปิดทิศทางได้ดีกว่าค่าเฉลี่ยของชุดเทียบ":
-    "This team gets read{gap}. It hides its direction better than the comparison set's average.",
-  "ช้ากว่าทีมอาชีพ {s} วินาที": "{s} s later than pro teams",
+  "ฝ่ายรับอ่านทางได้เร็วกว่าทีมอาชีพ {s} วินาที": "Defenders read the site {s} s earlier than against pro teams",
+  "ฝ่ายรับอ่านทางได้ช้ากว่าทีมอาชีพ {s} วินาที": "Defenders read the site {s} s later than against pro teams",
   "โดยเฉลี่ยรู้ทางก่อนบอมบ์ลงจริง {s} วินาที": "on average the site is known {s} s before the bomb goes down",
   "ดูทีละรอบ": "Rounds",
   "เข้าไซต์": "Site",
@@ -95,16 +87,16 @@ export const EN_ANALYSIS: Record<string, string> = {
   "ต่ำกว่า {near}× หรือทีมเราตายในโซนนั้นไม่ถึง {min} ครั้ง = ไม่ระบาย (ต่างกันไม่ชัดพอจะสรุปอะไรได้)":
     "Below {near}×, or fewer than {min} of our deaths in the zone = not shaded (the gap is too unclear to conclude anything).",
   "จุดที่ทีมเราตายบ่อยกว่าทีมอาชีพ": "Where we die more often than pro teams",
-  "{a} · ตาย {ad} ครั้ง — เทียบกับ {b} · ตาย {bd} ครั้ง": "{a} · {ad} deaths — vs {b} · {bd} deaths",
-  "ยังไม่มีจุดไหนที่ทีมเราตายบ่อยกว่าทีมอาชีพถึง {near}× และมีจำนวนมากพอจะสรุป — อัปโหลดแมตช์เพิ่มแล้วตัวเลขจะชัดขึ้น":
-    "No spot yet where we die {near}× more often than pro teams with enough deaths to conclude anything. Upload more matches and the numbers will get clearer.",
+  "{a} · ตาย {ad} ครั้ง เทียบกับ {b} · ตาย {bd} ครั้ง": "{a} · {ad} deaths compared with {b} · {bd} deaths",
+  "ข้อมูลยังไม่ถึงเกณฑ์ ต้องตายบ่อยกว่าทีมอาชีพอย่างน้อย {near}× และมีจำนวนครั้งเพียงพอ":
+    "Not enough data. A spot must have at least {near}× the pro death share and enough deaths to qualify.",
   "ตรงไหนของแมพ": "Where on the map",
   "เราตาย": "Our deaths",
   "ของเรา": "Ours",
   "ทีมอาชีพ": "Pro teams",
   "ต่างกี่เท่า": "Times more",
-  '"ของเรา" กับ "ทีมอาชีพ" คือสัดส่วนของจุดตายทั้งหมดในชุดนั้น ไม่ใช่จำนวนครั้งดิบ — ทีมอาชีพมี 50 แมตช์ ถ้าเอาจำนวนครั้งมาเทียบกันตรง ๆ ฝั่งที่มีแมตช์เยอะกว่าก็ตายเยอะกว่าเสมอ ซึ่งไม่ได้บอกอะไร':
-    '"Ours" and "Pro teams" are each set\'s share of all death spots, not raw counts. The pro set has 50 matches; compare raw counts and the set with more matches always has more deaths, which tells you nothing.',
+  "ตารางใช้สัดส่วนจุดตายของแต่ละชุดข้อมูล เพื่อชดเชยจำนวนแมตช์ที่ไม่เท่ากัน ทีมอาชีพมี 50 แมตช์":
+    "The table compares each dataset's share of deaths to account for different match counts. The pro dataset contains 50 matches.",
   "ยังไม่มีช่องไหนตายถึง {min} ครั้ง (ตายมากสุด {max} ครั้ง) — ข้อมูลน้อยเกินกว่าจะระบายแผนที่":
     "No cell has {min} deaths yet (the most is {max}) — too little data to shade the map.",
   "จำนวนครั้งที่ตายในช่องนั้น ({note}) ยิ่งเข้มยิ่งตายบ่อย": "Deaths per cell ({note}). Darker = more deaths.",
@@ -130,7 +122,7 @@ export const EN_ANALYSIS: Record<string, string> = {
     "This page compares the team's matches with pro demos on the same map. {n} uploaded match(es), but none match the reference maps ({maps}).",
   "ไปหน้าแมตช์": "Go to matches",
   "รูปแบบการเล่นของผู้เล่น": "Player behavior",
-  "จัดกลุ่มพฤติกรรมแยกฝั่ง T และ CT ของแมตช์ที่เลือก โดยเทียบกับรูปแบบจากชุดอ้างอิง": "Groups T- and CT-side behavior in the selected match against patterns learned from the reference set.",
+  "ศัตรู": "Opponent",
   "กำลังคำนวณรูปแบบการเล่น…": "Calculating player behavior…",
   "โหลดรูปแบบการเล่นไม่ได้: {msg}": "Couldn't load player behavior: {msg}",
   "ยังแสดงรูปแบบการเล่นไม่ได้": "Player behavior isn't available yet",
@@ -138,8 +130,6 @@ export const EN_ANALYSIS: Record<string, string> = {
   "player_behavior_uploaded_matches_only": "Behavior inference is available only for uploaded matches.",
   "player_behavior_unsupported_map": "The current model does not support this map.",
   "player_behavior_unavailable": "There is not enough compatible data for this match.",
-  "ชื่อบทบาทเป็นคำอธิบาย centroid ของโมเดล unsupervised ไม่ใช่ระดับฝีมือหรือบทบาทถาวร คะแนนระยะและ margin ไม่ใช่ความน่าจะเป็น": "Role names describe unsupervised centroids; they are not skill grades or permanent roles. Distance and margin are not probabilities.",
-  "ชุดอ้างอิง {n} แมตช์ · โมเดล v{v}": "Reference set: {n} matches · model v{v}",
   "พฤติกรรมตามฝั่ง": "side behavior",
   "ไม่มีผู้เล่นจากฝั่งนี้ในตัวกรอง": "No players from this side match the filter.",
   "{n} รอบ": "{n} rounds",
