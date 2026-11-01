@@ -11,8 +11,8 @@ Outputs
     output/player_role_profiles.csv  assignments for the reference profiles
 
 Run from the repository root:
-    python research/player_role.py
-    python research/player_role.py --map de_mirage --min-rounds 6
+    python research/models/player_role.py
+    python research/models/player_role.py --map de_mirage --min-rounds 6
 """
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
 ALL_KILLS_CSV = ROOT / "data" / "all_kills.csv"
 sys.path.insert(0, str(ROOT))
@@ -381,7 +381,7 @@ def load_kills_csv(path: Path, map_name: str | None = None) -> pd.DataFrame:
     if missing:
         raise ValueError(
             "all_kills.csv ยังไม่ใช่ schema role-ready; ขาด " + ", ".join(missing)
-            + " — รัน python research/demoparser.py ก่อน"
+            + " — รัน python research/prep/demoparser.py ก่อน"
         )
     if map_name:
         kills = kills[kills["map_name"] == map_name].copy()
@@ -744,7 +744,7 @@ def main() -> None:
     except ValueError as exc:
         raise SystemExit(
             f"เทรนไม่ได้: {exc}\n"
-            "ถ้าใช้ CSV ให้รัน python research/demoparser.py ก่อน; ถ้าใช้ฐานข้อมูลให้ตรวจว่า "
+            "ถ้าใช้ CSV ให้รัน python research/prep/demoparser.py ก่อน; ถ้าใช้ฐานข้อมูลให้ตรวจว่า "
             "import เดโมด้วย --mark-reference และมี player_rounds อย่างน้อยตาม --min-rounds"
         ) from None
     args.output_dir.mkdir(parents=True, exist_ok=True)

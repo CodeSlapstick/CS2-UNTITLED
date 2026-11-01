@@ -3,7 +3,7 @@
 """
 Site ML (supervised) — ทายว่าฝั่ง T จะเอาบอมบ์ไปลงไซต์ไหน จากตำแหน่งที่ยืนกันอยู่
 
-    python research/site_ml.py
+    python research/models/site_ml.py
 
 ต่างจาก grid_ml1.py ตรงไหน
     grid_ml1.py เป็น unsupervised: ไม่มีเฉลย ถามว่า "การปะทะจัดกลุ่มตัวเองอย่างไร"
@@ -52,7 +52,7 @@ C_REG = 0.5               # ยิ่งน้อยยิ่งกันโม�
 N_SPLITS = 5
 SEED = 0
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
 sys.path.insert(0, str(ROOT))
 from backend.db import DATABASE_URL  # noqa: E402  ใช้ค่าเดียวกับทั้งระบบ

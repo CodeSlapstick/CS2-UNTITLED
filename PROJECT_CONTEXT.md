@@ -18,7 +18,9 @@
 - `frontend/src/api.ts`: Frontend API client
 - `frontend/src/`: React pages for matches, round review, analysis, player profiles, coaching, and reports
 - `assets/maps/` & `assets/radars.json`: radar images and calibrated coordinate bounds used by the app
-- `research/`: offline parsing, radar validation, clustering, coaching, and player-role research scripts
+- `research/prep/`: เตรียมชุดข้อมูลจากเดโมอ้างอิง
+- `research/tools/`: ตรวจเรดาร์และนำเข้า asset สำหรับงานวิจัย
+- `research/models/`: เทรนโมเดล grid, site, coach และ player role แบบ offline
 - `data/` & `output/`: local reference datasets and generated JSON/model artifacts
 
 ## Rules for AI Agent

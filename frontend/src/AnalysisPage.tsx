@@ -229,7 +229,7 @@ export function AnalysisPage() {
 
       {activeMatch && (
         <div className="analysis-context" aria-label={t("แมตช์ที่กำลังวิเคราะห์")}>
-          <span><small>{t("ทีม")}</small><strong>{t("ทีมเรา")} vs {t("ศัตรู")}</strong></span>
+          <span><small>{t("ทีม")}</small><strong>{t("ศัตรู")} vs {t("ทีมเรา")}</strong></span>
           <span><small>{t("แผนที่")}</small><strong>{activeMatch.map_name}</strong></span>
           <span><small>{t("แมตช์")}</small><strong>{matchLabel(activeMatch)}</strong></span>
         </div>
@@ -329,10 +329,12 @@ export function PlayerBehaviorSection({ data, loading, error }: {
 }) {
   const { t } = useT();
   const teams = data?.teams ?? [...new Set((data?.players ?? []).map((player) => player.team).filter((team): team is string => !!team))];
-  const teamGroups = teams.length > 0
-    ? teams.map((team) => ({ team, profiles: (data?.players ?? []).filter((player) => player.team === team) }))
+  const orderedTeams = data?.own_team && teams.includes(data.own_team)
+    ? [data.own_team, ...teams.filter((team) => team !== data.own_team)]
+    : teams;
+  const teamGroups = orderedTeams.length > 0
+    ? orderedTeams.map((team) => ({ team, profiles: (data?.players ?? []).filter((player) => player.team === team) }))
     : (["t", "ct"] as const).map((side) => ({ team: `${side.toUpperCase()} side`, profiles: (data?.players ?? []).filter((player) => player.side === side) }));
-  const selectedTeam = teamGroups[0]?.team ?? "";
   return <section className="behavior" aria-labelledby="behavior-title" data-testid="player-behavior">
     <header className="behavior-head">
       <div className="behavior-title-icon"><PlayerIcon /></div>
@@ -347,13 +349,16 @@ export function PlayerBehaviorSection({ data, loading, error }: {
     </div>}
     {!loading && !error && data?.available && <>
       <div className="behavior-grid">
-        {teamGroups.map((group) => <BehaviorTeam key={group.team} ours={group.team === selectedTeam} profiles={group.profiles} />)}
+        {teamGroups.map((group) => <BehaviorTeam key={group.team} team={group.team}
+          ours={data.own_team ? group.team === data.own_team : null} profiles={group.profiles} />)}
       </div>
     </>}
   </section>;
 }
 
-function BehaviorTeam({ ours, profiles }: { ours: boolean; profiles: PlayerBehaviorProfile[] }) {
+function BehaviorTeam({ team, ours, profiles }: {
+  team: string; ours: boolean | null; profiles: PlayerBehaviorProfile[];
+}) {
   const { t } = useT();
   const players = [...profiles.reduce((grouped, profile) => {
     const player = grouped.get(profile.steamid) ?? { steamid: profile.steamid, name: profile.name, profiles: [] as PlayerBehaviorProfile[] };
@@ -362,8 +367,9 @@ function BehaviorTeam({ ours, profiles }: { ours: boolean; profiles: PlayerBehav
     return grouped;
   }, new Map<string, { steamid: string; name: string; profiles: PlayerBehaviorProfile[] }>()).values()]
     .sort((a, b) => a.name.localeCompare(b.name));
-  return <div className={`behavior-side${ours ? " is-ours" : " is-opponent"}`}>
-    <h3>{t(ours ? "ทีมเรา" : "ศัตรู")}</h3>
+  const ownershipClass = ours === null ? "" : ours ? " is-ours" : " is-opponent";
+  return <div className={`behavior-side${ownershipClass}`}>
+    <h3>{ours === null ? team : t(ours ? "ทีมเรา" : "ศัตรู")}</h3>
     {players.length === 0 ? <p className="muted">{t("ไม่มีผู้เล่นจากฝั่งนี้ในตัวกรอง")}</p> : players.map((player) =>
       <article className="behavior-card behavior-player-card" key={player.steamid}>
         <div className="behavior-player"><b title={player.name}>{player.name}</b></div>
@@ -615,7 +621,7 @@ function readReason(reason: string | undefined, t: TFn): string {
   return m ? t("ยังไม่มีโมเดลทายไซต์ของแมพ {map}", { map: m[1] }) : t(reason);
 }
 
-/** ประกอบป้ายชุดเทียบใหม่จากตัวเลขที่ส่งมา (สูตรเดียวกับ research/site_ml.py) แทนการแสดงข้อความไทยจาก backend ตรง ๆ */
+/** ประกอบป้ายชุดเทียบใหม่จากตัวเลขที่ส่งมา (สูตรเดียวกับ research/models/site_ml.py) แทนการแสดงข้อความไทยจาก backend ตรง ๆ */
 function sourceLabel(data: Readability, t: TFn): string {
   const src = data.source;
   if (!src) return "";

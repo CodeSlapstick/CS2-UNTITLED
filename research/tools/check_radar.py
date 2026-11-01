@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 # ---- จุดตายจริง: ลอง PostgreSQL ก่อน (มีทุกแมตช์ที่อัปโหลด) ต่อไม่ได้ค่อยถอยไป data/all_kills.csv

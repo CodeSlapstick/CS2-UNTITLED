@@ -76,7 +76,7 @@ session เป็น JWT ในคุกกี้ httpOnly อายุ 7 วั
 - **ทีมเราตายตรงไหน** — heatmap จุดตายในแมตช์ของทีม กรองฝั่ง CT/T และเจาะจงแมตช์/รอบ/ผู้เล่นได้ ตารางข้างแผนที่บอกชื่อตำแหน่งในแมพ (BombsiteA, Catwalk, …) สีจาง = ตายน้อย สีเข้ม = ตายบ่อย
 - **Opening Route** — เปรียบเทียบเส้นทางและ Utility ของผู้เล่นใน 30 วินาทีแรกของหลายรอบบน radar และเวลาเดียวกัน เดิมเป็นหน้าแยก ปัจจุบันอยู่ใน Analysis; URL `/opening-route` เดิมจะ redirect มาที่แท็บนี้
 
-**ผลของโมเดลไม่ขึ้นหน้าจอผู้ใช้ที่ไหนเลย** (ตัดสินใจ 18 ก.ย. 2026 — "เอา ML ไว้หลังบ้าน") `research/grid_ml1.py` ยังเป็นตัวกำหนดว่าชุดอ้างอิงคืออะไรและกริดแบ่งยังไง แต่ไม่มีหน้า ไม่มีปุ่ม และไม่มี endpoint ให้ดูจุดปะทะ/ประเภทพื้นที่/อัตราชนะดวลของโมเดลอีกต่อไป — เรื่องโมเดลอยู่ใน `research/` กับเอกสารนี้เท่านั้น
+**ผลของโมเดลไม่ขึ้นหน้าจอผู้ใช้ที่ไหนเลย** (ตัดสินใจ 18 ก.ย. 2026 — "เอา ML ไว้หลังบ้าน") `research/models/grid_ml1.py` ยังเป็นตัวกำหนดว่าชุดอ้างอิงคืออะไรและกริดแบ่งยังไง แต่ไม่มีหน้า ไม่มีปุ่ม และไม่มี endpoint ให้ดูจุดปะทะ/ประเภทพื้นที่/อัตราชนะดวลของโมเดลอีกต่อไป — เรื่องโมเดลอยู่ใน `research/` กับเอกสารนี้เท่านั้น
 ภาษาบนหน้าจอ: ห้ามเรียกตัวเลขของโมเดลว่าโอกาสชนะรอบ และไม่มีคำตัดสินผู้เล่น (มีเทสต์สแกนไฟล์ `.tsx` ดักไว้)
 
 heatmap ระบายเฉพาะช่องที่ฝั่งเราตายตั้งแต่ 3 ครั้งขึ้นไป เพื่อลดสัญญาณรบกวนจากตัวอย่างที่น้อยมาก
@@ -85,7 +85,7 @@ heatmap ระบายเฉพาะช่องที่ฝั่งเรา
 
 | | อยู่ที่ไหน | ใครอ่าน |
 |---|---|---|
-| ชุดอ้างอิง (เทรนโมเดล) | `demos/reference/` · `matches.source = 'reference'` | `research/demoparser.py` → `data/all_kills.csv` → `grid_ml1.py` |
+| ชุดอ้างอิง (เทรนโมเดล) | `demos/reference/` · `matches.source = 'reference'` | `research/prep/demoparser.py` → `data/all_kills.csv` → `research/models/grid_ml1.py` |
 | เดโมที่ผู้ใช้อัปโหลด | `demos/uploads/` · `matches.source = 'upload'` | worker แกะเข้า PostgreSQL เท่านั้น |
 
 แยกกันทั้งระดับไฟล์บนดิสก์และระดับแถวในฐานข้อมูล — ไม่มีสคริปต์เทรนตัวไหนอ่าน `demos/uploads/`
@@ -235,11 +235,14 @@ backend/            API + worker (Python 3.11)
   features.py         นิยาม opening / trade / buy / clutch + ผูกทีม + ตัวคำนวณ
   review.py           ข้อมูลหน้ารอบ + สูตรแปลงพิกัดชุดเดียวของรีโป
   db.py · models.py · views.sql · alembic/     ต่อฐานข้อมูล · ตาราง · view สรุป · migration
-research/           demoparser.py · grid_ml1.py · check_radar.py — สคริปต์ ML ที่หน้าเว็บใช้ผล (ดู research/README.md)
+research/           งาน offline (ดู research/README.md)
+  prep/               เตรียมข้อมูลจากเดโมอ้างอิง
+  tools/              ตรวจเรดาร์และดูแล asset
+  models/             เทรน grid, site, coach และ player role
 assets/             ภาพเรดาร์ + radars.json (แหล่งความจริงของค่าปรับเทียบพิกัด)
 docs/               pipeline-diagram.html + .png ไดอะแกรม "อัปโหลดเดโมแล้วเกิดอะไรขึ้น" (ไว้แปะสไลด์)
 data/               all_kills.csv ชุดคิล 50 แมตช์ที่ grid_ml1 ใช้
-demos/reference/    เดโมชุดตั้งต้นที่โมเดลเทรนจากมัน — research/demoparser.py อ่านเฉพาะที่นี่
+demos/reference/    เดโมชุดตั้งต้นที่โมเดลเทรนจากมัน — research/prep/demoparser.py อ่านเฉพาะที่นี่
 demos/uploads/      เดโมที่ผู้ใช้อัปโหลด — ไม่มีสคริปต์เทรนตัวไหนอ่านโฟลเดอร์นี้
 output/             ผล parse (json) · ผลของ research — ไม่เข้า git
 ```

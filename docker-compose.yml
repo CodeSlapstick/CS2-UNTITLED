@@ -22,7 +22,7 @@ x-backend: &backend
     QUEUE_BACKEND: rq
   volumes:
     - ./demos:/app/demos            # ไฟล์ .dem ที่อัปโหลด — api เขียน worker อ่าน ต้องเห็นโฟลเดอร์เดียวกัน
-    - ./output:/app/output          # ผล parse (json) และผลจาก research/ ที่รันในเครื่อง
+    - ./output:/app/output          # ผล parse และ artifact จาก research/ ที่รันในเครื่อง
   depends_on:
     db:
       condition: service_healthy

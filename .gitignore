@@ -11,11 +11,11 @@ demos/
 # ผลลัพธ์ที่โปรแกรมสร้างเอง รันใหม่ก็ได้ใหม่ (json, png, html, แคชรายไฟล์)
 output/
 
-# ตารางที่ parse ออกมาเอง — สร้างใหม่ได้ด้วย python research/demoparser.py
+# ตารางที่ parse ออกมาเอง — สร้างใหม่ได้ด้วย python research/prep/demoparser.py
 *.csv
 
 # ...ยกเว้นชุดคิลตั้งต้น 2.6 MB (50 แมตช์ Mirage)
-# ต้องเข้า git ไม่งั้นโคลนใหม่แล้ว research/grid_ml1.py รันไม่ได้เลย
+# ต้องเข้า git ไม่งั้นโคลนใหม่แล้ว research/models/grid_ml1.py รันไม่ได้เลย
 !data/all_kills.csv
 # ...และ snapshot ที่เทสต์ใช้เทียบ (grid_ml1_cells.csv) ไม่งั้น CI หาไฟล์ไม่เจอ
 !backend/tests/fixtures/*.csv
@@ -61,6 +61,15 @@ skills-lock.json
 .pytest_cache/
 .ruff_cache/
 *.bak            # ไฟล์สำรองชั่วคราว เช่น .env.bak — ห้ามเข้า git เด็ดขาด
+
+# ผลงานชั่วคราวและไฟล์ตรวจจากเครื่องมือในเครื่อง
+.archify/
+artifacts/
+tmp/
+*.inspect.ndjson
+
+# ไฟล์ต้นฉบับของภาพ Coach ถูกคัดเฉพาะรูปที่เว็บใช้ไปไว้ใน frontend/public แล้ว
+assets/site prediction/
 
 # ไฟล์ล็อกที่ PowerPoint สร้างตอนเปิดไฟล์ค้างไว้
 ~$*

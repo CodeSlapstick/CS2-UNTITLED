@@ -33,11 +33,36 @@ def load_role_model(path: str | None = None, *, map_name: str | None = None) -> 
         resolved = Path(path)
     try:
         model = json.loads(resolved.read_text(encoding="utf-8"))
-        if model.get("unit") != "player-match-side" or not isinstance(model.get("models"), dict):
+        if model.get("unit") != "player-match-side" or not _valid_models(model.get("models")):
             return None
         return model
     except (OSError, ValueError, TypeError):
         return None
+
+
+def _valid_models(models: Any) -> bool:
+    """Reject malformed artifacts at load time instead of failing during a request."""
+    if not isinstance(models, dict):
+        return False
+    for side in ("t", "ct"):
+        spec = models.get(side)
+        if not isinstance(spec, dict):
+            return False
+        features = spec.get("features")
+        preprocess = spec.get("preprocess")
+        clusters = spec.get("clusters")
+        if not isinstance(features, list) or not features or not isinstance(preprocess, dict):
+            return False
+        if not isinstance(clusters, list) or not clusters:
+            return False
+        if any(not isinstance(preprocess.get(key), dict) for key in ("median", "mean", "scale")):
+            return False
+        if any(feature not in preprocess[key] for key in ("median", "mean", "scale") for feature in features):
+            return False
+        if any(not isinstance(cluster, dict) or not isinstance(cluster.get("center_z"), dict)
+               or any(feature not in cluster["center_z"] for feature in features) for cluster in clusters):
+            return False
+    return True
 
 
 def _finite(value: Any) -> float | None:
@@ -83,7 +108,7 @@ def assign_profile(profile: dict[str, Any], side: str, model: dict[str, Any]) ->
 
 
 def build_match_profiles(round_rows: Iterable[Any], kill_rows: Iterable[Any], tickrate: float) -> list[dict[str, Any]]:
-    """Build the same kill-event proxy features used by research/player_role.py."""
+    """Build the same kill-event proxy features used by research/models/player_role.py."""
     stats: dict[tuple[int, str], dict[str, Any]] = {}
     side_at: dict[tuple[int, int], str] = {}
     for raw in round_rows:
@@ -108,7 +133,8 @@ def build_match_profiles(round_rows: Iterable[Any], kill_rows: Iterable[Any], ti
         attacker, victim = row.get("attacker_id"), row.get("victim_id")
         a_side, v_side = row.get("attacker_side"), row.get("victim_side")
         start, tick = row.get("start_tick"), row.get("tick")
-        if attacker is None or a_side not in ("ct", "t") or v_side not in ("ct", "t") or a_side == v_side:
+        if (attacker is None or victim is None or a_side not in ("ct", "t")
+                or v_side not in ("ct", "t") or a_side == v_side):
             continue
         if start is None or tick is None or tick < start:
             continue

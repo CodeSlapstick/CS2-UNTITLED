@@ -311,7 +311,7 @@ export interface DeathsOverlay {
 }
 
 /**
- * "อ่านทางออกง่ายแค่ไหน" — โมเดลทายไซต์ (research/site_ml.py) มาอ่านแมตช์ของทีมทีละรอบ
+ * "อ่านทางออกง่ายแค่ไหน" — โมเดลทายไซต์ (research/models/site_ml.py) มาอ่านแมตช์ของทีมทีละรอบ
  * read_at = วินาทีแรกที่โมเดลมั่นใจ ≥ 80% ไปทางไซต์ที่เกิดขึ้นจริง · ยิ่งเร็ว = คู่แข่งยิ่งอ่านออกเร็ว
  */
 export interface ReadRound {
@@ -366,6 +366,7 @@ export interface PlayerBehavior {
   minimum_rounds?: number;
   players?: PlayerBehaviorProfile[];
   teams?: string[];
+  own_team?: string | null;
   source?: { kind: "reference_only"; matches: number; version: number; model: string };
   note?: string;
 }

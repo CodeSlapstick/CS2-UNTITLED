@@ -3,9 +3,9 @@
 """
 import_overviews.py — เติมค่าปรับเทียบเรดาร์ของทุกแมพลง assets/radars.json จากไฟล์เกม CS2 โดยตรง
 
-    python research/import_overviews.py                 ดูว่าจะเปลี่ยนอะไรบ้าง (ไม่เขียนไฟล์)
-    python research/import_overviews.py --write         เขียน radars.json + คัดลอกภาพเรดาร์ที่ขาด
-    python research/import_overviews.py --vpk "D:/.../game/csgo/pak01_dir.vpk"
+    python research/tools/import_overviews.py                 ดูว่าจะเปลี่ยนอะไรบ้าง (ไม่เขียนไฟล์)
+    python research/tools/import_overviews.py --write         เขียน radars.json + คัดลอกภาพเรดาร์ที่ขาด
+    python research/tools/import_overviews.py --vpk "D:/.../game/csgo/pak01_dir.vpk"
 
 ทำไมต้องมีสคริปต์นี้
     radars.json เขียนไว้ว่า "อย่าเดาค่าเอง และอย่าหาค่าด้วยการ fit จากข้อมูล"
@@ -36,7 +36,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 RADARS = ROOT / "assets" / "radars.json"
 MAPS_DIR = ROOT / "assets" / "maps"
 SOURCE_IMAGES = ROOT / "images" / "maps" / "cs2" / "radars"
@@ -85,7 +85,7 @@ def fix_readme(lines: list[str]) -> list[str]:
         run = []
         if x is not None:
             out.append(x)
-    note = "เพิ่ม/อัปเดตหลายแมพพร้อมกันจากไฟล์เกม: python research/import_overviews.py --write"
+    note = "เพิ่ม/อัปเดตหลายแมพพร้อมกันจากไฟล์เกม: python research/tools/import_overviews.py --write"
     return out if note in out else [*out, note]
 
 
@@ -124,7 +124,7 @@ def main() -> None:
             "pos_y": int(pos_y) if pos_y.is_integer() else pos_y,
             "scale": scale, "grid": old.get("grid", GRID),
             "source_note": old.get("source_note") or (
-                f"ค่าทางการจาก resource/overviews/{m}.txt ของ CS2 (research/import_overviews.py) — "
+                f"ค่าทางการจาก resource/overviews/{m}.txt ของ CS2 (research/tools/import_overviews.py) — "
                 "ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด"),
         }
         if "sites" in old:

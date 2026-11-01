@@ -29,11 +29,11 @@ from backend.features import other_side
 #
 #     from backend.review import radar_frame, cells_of, cell_of, world_to_pixel
 #     frame = radar_frame("de_mirage")
-#     cx, cy = cell_of(x, y, frame, grid_n=32)        # ช่องไหนของกริด (เหมือน research/grid_ml1.py เป๊ะ)
+#     cx, cy = cell_of(x, y, frame, grid_n=32)        # ช่องไหนของกริด (เหมือน research/models/grid_ml1.py เป๊ะ)
 #     px, py = world_to_pixel(x, y, frame)            # พิกเซลบนภาพเรดาร์ (มุมบนซ้าย = 0, 0)
 #
 # ที่มาของสูตร
-#     ยกมาจาก research/grid_ml1.py (STEP 5) ซึ่งตรวจแล้วว่าถูก — ตอนนี้ grid_ml1.py import จากที่นี่แทน
+#     ยกมาจาก research/models/grid_ml1.py (STEP 5) ซึ่งตรวจแล้วว่าถูก — ตอนนี้ grid_ml1.py import จากที่นี่แทน
 #     ขอบเขตกริดเอาจากภาพเรดาร์ (assets/radars.json) ไม่ใช่จากค่าต่ำสุด-สูงสุดของข้อมูล
 #     ช่องจึงไม่ขยับเมื่อเพิ่มเดโม และช่องที่ API คำนวณตรงกับช่องใน grid_ml1.json เสมอ
 #
@@ -118,7 +118,7 @@ def radar_frame(map_name: str) -> RadarFrame | None:
 
 
 def cells_of(xs, ys, frame: RadarFrame, grid_n: int) -> tuple[np.ndarray, np.ndarray]:
-    """พิกัดเกม -> ช่องกริด (cx, cy) แบบ vectorized — สูตรเดียวกับ research/grid_ml1.py
+    """พิกัดเกม -> ช่องกริด (cx, cy) แบบ vectorized — สูตรเดียวกับ research/models/grid_ml1.py
 
     (พิกัด - ขอบ) // ขนาดช่อง = อยู่ช่องที่เท่าไร
     np.clip บีบให้อยู่ในช่วง 0 ถึง grid_n-1 กันจุดที่ตกริมขอบพอดีหลุดออกนอกตาราง

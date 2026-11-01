@@ -1,6 +1,6 @@
 """Train opening-pattern discovery + winning-reference imitation policy.
 
-python research/coach_ml.py --map de_mirage
+python research/models/coach_ml.py --map de_mirage
 No causal optimal-tactic claim. Reference only; match-disjoint validation.
 """
 import argparse
@@ -18,7 +18,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.preprocessing import StandardScaler
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from backend.coach import CONTEXT_FEATURES, OPENING_FEATURES, VERSION, build_coach_samples  # noqa: E402
 from backend.coach_data import load_coach_facts  # noqa: E402

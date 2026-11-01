@@ -1,8 +1,8 @@
 {
   "_readme": [
     "ค่าปรับเทียบภาพเรดาร์ของแต่ละแมพ — แหล่งความจริงแหล่งเดียวของทั้งระบบ",
-    "อ่านโดย backend/review.py (แปลงพิกัดให้หน้าเว็บ) และ research/grid_ml1.py",
-    "และ research/check_radar.py (ไว้ตรวจว่าค่าถูก)",
+    "อ่านโดย backend/review.py (แปลงพิกัดให้หน้าเว็บ) และ research/models/grid_ml1.py",
+    "และ research/tools/check_radar.py (ไว้ตรวจว่าค่าถูก)",
     "",
     "image     path ของภาพ อ้างอิงจากรากของโฟลเดอร์ assets/",
     "size      ขนาดภาพเป็นพิกเซล (ภาพต้องเป็นจัตุรัส)",
@@ -11,14 +11,14 @@
     "grid      ขนาดช่องกริดเป็นหน่วยเกม (300 ~ 5.7 เมตรในเกม)",
     "",
     "ค่าพวกนี้ผิดแล้วจับยาก เพราะภาพยังดูปกติ แค่จุดไปตกผิดที่",
-    "เพิ่มแมพใหม่แล้วต้องรัน: python research/check_radar.py <map>",
+    "เพิ่มแมพใหม่แล้วต้องรัน: python research/tools/check_radar.py <map>",
     "สคริปต์นั้นฉายจุดตายจริงลงภาพแล้วนับว่ากี่ % ตกบนพื้นที่เดินได้ (ส่วนที่ทึบของ png)",
     "ค่าที่ถูกจะได้ 99%+ ค่าที่ผิดจะร่วงลงมาชัดเจน เช่นค่าเก่าของ CSGO ได้แค่ 80%",
     "",
     "ที่มาของค่าที่ถูกต้อง: ไฟล์ resource/overviews/<map>.txt ในตัวเกม CS2",
     "อย่าเดาเอง และอย่าหาค่าด้วยการ fit จากข้อมูล — จะได้ค่าที่พอดีกับชุดข้อมูลชุดเดียว",
     "sites = ศูนย์กลางไซต์ A/B ไว้ตัดสินว่าบอมบ์ลงไซต์ไหนจากพิกัดจุดวาง (awpy ส่ง bomb_site มาผิด ลง bombsite_b ทุกแถว)",
-    "เพิ่ม/อัปเดตหลายแมพพร้อมกันจากไฟล์เกม: python research/import_overviews.py --write"
+    "เพิ่ม/อัปเดตหลายแมพพร้อมกันจากไฟล์เกม: python research/tools/import_overviews.py --write"
   ],
   "de_ancient": {
     "image": "/maps/de_ancient.png",
@@ -27,7 +27,7 @@
     "pos_y": 2164,
     "scale": 5.0,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_ancient.txt ของ CS2 (research/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
+    "source_note": "ค่าทางการจาก resource/overviews/de_ancient.txt ของ CS2 (research/tools/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
     "sites": {
       "A": [
         -1366,
@@ -47,7 +47,7 @@
     "pos_y": 3328,
     "scale": 5.22,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_anubis.txt ของ CS2 (research/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด"
+    "source_note": "ค่าทางการจาก resource/overviews/de_anubis.txt ของ CS2 (research/tools/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด"
   },
   "de_cache": {
     "image": "/maps/de_cache.png",
@@ -56,7 +56,7 @@
     "pos_y": 3250,
     "scale": 5.5,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_cache.txt ของ CS2 (research/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
+    "source_note": "ค่าทางการจาก resource/overviews/de_cache.txt ของ CS2 (research/tools/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
     "sites": {
       "A": [
         -170,
@@ -76,7 +76,7 @@
     "pos_y": 3239,
     "scale": 4.4,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_dust2.txt ของ CS2 — ตรวจด้วย research/check_radar.py: จุดตาย 122 จุดตกบนพื้นที่เดินได้ 100.0% (ค่าเก่าสมัย CSGO -2400/3383 ได้แค่ 80.3%)",
+    "source_note": "ค่าทางการจาก resource/overviews/de_dust2.txt ของ CS2 — ตรวจด้วย research/tools/check_radar.py: จุดตาย 122 จุดตกบนพื้นที่เดินได้ 100.0% (ค่าเก่าสมัย CSGO -2400/3383 ได้แค่ 80.3%)",
     "sites": {
       "A": [
         1131,
@@ -96,7 +96,7 @@
     "pos_y": 3870,
     "scale": 4.9,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_inferno.txt ของ CS2 (research/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
+    "source_note": "ค่าทางการจาก resource/overviews/de_inferno.txt ของ CS2 (research/tools/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
     "sites": {
       "A": [
         1977,
@@ -136,7 +136,7 @@
     "pos_y": 2887,
     "scale": 7.0,
     "grid": 300,
-    "source_note": "ค่าทางการจาก resource/overviews/de_nuke.txt ของ CS2 (research/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
+    "source_note": "ค่าทางการจาก resource/overviews/de_nuke.txt ของ CS2 (research/tools/import_overviews.py) — ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด",
     "sites": {
       "A": [
         704,

@@ -8,7 +8,7 @@ import polars as pl
 from awpy import Demo
 from awpy.parsers.rounds import create_round_df
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 
 DEMO_DIR = ROOT / "demos" / "reference"
 CACHE_DIR = ROOT / "output" / "kills_cache"

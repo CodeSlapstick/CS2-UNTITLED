@@ -897,7 +897,7 @@ svg.radar.zoomed:active { cursor: grabbing; }
   .viewer2d .review-grid { grid-template-columns: 1fr; grid-template-areas: "map" "roster"; }
   .viewer2d .map-col { min-height: 70dvh; }
   .viewer2d .roster-col { display: flex; flex-direction: column; min-height: 0; }
-  .viewer2d .roster { width: min(274px, 100%); margin-inline: auto; flex-direction: column; flex-wrap: nowrap; }
+  .viewer2d .roster { width: 100%; margin-inline: 0; flex-direction: column; flex-wrap: nowrap; }
   .viewer-player-backdrop { padding: 12px; }
   .viewer-player-details { max-height: calc(100dvh - 24px); }
   .viewer-map-toolbar { left:8px; right:8px; top:8px; }

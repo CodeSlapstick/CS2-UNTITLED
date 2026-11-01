@@ -26,7 +26,7 @@ redis>=5                 # ที่เก็บคิวของ RQ
 pandas>=2.2
 numpy>=1.26
 
-# --- research: โมเดลกับการวาดภาพ — research/*.py (ไม่จำเป็นต่อการรันเว็บ) ---
+# --- research/models: โมเดลกับการวาดภาพ (ไม่จำเป็นต่อการรันเว็บ) ---
 scikit-learn>=1.5
 matplotlib>=3.8
 pillow>=10.0

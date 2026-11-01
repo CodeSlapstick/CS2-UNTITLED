@@ -883,7 +883,7 @@ async def api_upload_demo(
 
 
 # ---------------------------------------------------------------------------
-# ส่วนที่ 7 — Round Review: ไล่ดูทีละรอบว่าใครตายที่ไหนเมื่อไหร่ + บริบทจาก research/grid_ml1.py
+# ส่วนที่ 7 — Round Review: ไล่ดูทีละรอบว่าใครตายที่ไหนเมื่อไหร่ + บริบทจาก research/models/grid_ml1.py
 #
 # คีย์ของแมตช์คือชื่อไฟล์เดโม (ตาม brief)
 # ข้อมูลกริดอ่านจาก output/grid_ml1.json ที่ cache ไว้ในหน่วยความจำ (backend/review.py) ไม่รันโมเดลตอน request
@@ -1025,7 +1025,7 @@ async def api_analysis_deaths(
 async def api_player_behavior(
     demo: str = Query(..., description="Uploaded demo filename"),
     players: str | None = Query(None, description="Optional comma-separated SteamID64 values"),
-    _: dict = Depends(require_viewer),
+    viewer: dict = Depends(require_viewer),
     conn: asyncpg.Connection = Depends(db),
 ):
     """Infer per-match, per-side behaviour from a cached reference-only KMeans artifact."""
@@ -1062,6 +1062,15 @@ async def api_player_behavior(
         FROM match_players WHERE match_id = $1
     """, match["id"])
     team_by_player = {row["steamid"]: row["team_clan"] for row in identities}
+    own_team = None
+    if viewer["type"] == auth.STEAM:
+        own_steam_id = await conn.fetchval("""
+            SELECT COALESCE(l.steam_id, a.steam_id)::text
+            FROM accounts a
+            LEFT JOIN account_player_links l ON l.account_id = a.id
+            WHERE a.id = $1
+        """, viewer["id"])
+        own_team = team_by_player.get(own_steam_id)
     for result in results:
         result["team"] = team_by_player.get(result["steamid"])
     teams = sorted({team for team in team_by_player.values() if team})
@@ -1073,6 +1082,7 @@ async def api_player_behavior(
         "minimum_rounds": model.get("min_rounds_per_profile", 5),
         "players": results,
         "teams": teams,
+        "own_team": own_team,
         "source": {
             "kind": "reference_only",
             "matches": model.get("source_matches"),

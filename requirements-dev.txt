@@ -4,4 +4,4 @@
 -r requirements.txt
 
 ruff>=0.5
-vpk>=1.4          # research/import_overviews.py อ่านค่าปรับเทียบเรดาร์จากไฟล์เกม CS2
+vpk>=1.4          # research/tools/import_overviews.py อ่านค่าปรับเทียบเรดาร์จากไฟล์เกม CS2

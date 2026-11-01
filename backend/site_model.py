@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-backend/site_model.py — ใช้โมเดลทายไซต์ที่ research/site_ml.py เทรนไว้
+backend/site_model.py — ใช้โมเดลทายไซต์ที่ research/models/site_ml.py เทรนไว้
 
 โมเดลเป็น logistic regression หนึ่งชุดต่อหนึ่งวินาที เก็บเป็น JSON (น้ำหนักต่อ callout + intercept)
 จึงคำนวณได้ด้วยเลขคณิตธรรมดา ไม่ต้องมี sklearn ตอนรันเซิร์ฟเวอร์ และเปิดไฟล์อ่านน้ำหนักได้เลย
 
 ไฟล์ถูกอ่านครั้งเดียวแล้วเก็บในหน่วยความจำ (อ่านใหม่เฉพาะเมื่อไฟล์ถูกเขียนทับ) — เหมือน grid_ml1.json
-ยังไม่เคยรัน research/site_ml.py = ไม่มีไฟล์ = API ตอบว่า available: false ไม่ใช่พัง
+ยังไม่เคยรัน research/models/site_ml.py = ไม่มีไฟล์ = API ตอบว่า available: false ไม่ใช่พัง
 """
 import json
 import math

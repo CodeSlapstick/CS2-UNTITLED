@@ -47,7 +47,7 @@ from awpy.parsers.rounds import apply_round_num, create_round_df
 from backend.review import site_of  # บอมบ์ลงไซต์ไหน — สูตรเดียวกับที่ backfill ใช้
 
 # ==================================================================================================
-# ค่าคงที่: event / prop ที่ขอจาก demoparser2 (ชุดเดียวกับ research/demoparser.py)
+# ค่าคงที่: event / prop ที่ขอจาก demoparser2 (ชุดเดียวกับ research/prep/demoparser.py)
 # backend/parser.py — ค่าคงที่ที่ parser ใช้ร่วมกับสคริปต์ใน research/
 #
 # แยกออกมาไฟล์เดียวเพื่อให้ service.py (ตัวจริงที่ระบบใช้) กับ research/prep/demoparser.py

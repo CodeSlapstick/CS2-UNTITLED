@@ -47,7 +47,7 @@ from sklearn.preprocessing import StandardScaler
 # ===========================================================================
 # CONFIG
 # ===========================================================================
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 _ap = argparse.ArgumentParser(description="Train the per-map unsupervised grid model")
 _ap.add_argument("--map", default="de_ancient", help="map name, e.g. de_ancient")
 _ap.add_argument("--csv", type=Path, default=ROOT / "data" / "all_kills.csv")
@@ -75,7 +75,7 @@ SEED = 0                # ให้รันซ้ำแล้วได้ผล
 
 SNIPERS = {"awp", "ssg08"}      # ปืนซุ่ม — ใช้แยก "เลนซุ่มระยะไกล" ออกจากพื้นที่ปะทะประชิด
 
-CSV = _args.csv                              # สร้างด้วย python research/demoparser.py
+CSV = _args.csv                              # สร้างด้วย python research/prep/demoparser.py
 OUT = _args.output_dir or ROOT / "output" / "models" / MAP
 
 sys.path.insert(0, str(ROOT))           # ให้ import backend.* ได้เมื่อรันจากรากโปรเจกต์
