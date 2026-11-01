@@ -29,7 +29,7 @@ export function CoachPage() {
     setParams(next);
   }
   return <section className="coach-page">
-    <h1>Coach <span className="small muted">{t("ทดลอง ML")}</span></h1>
+    <h1>{t("โค้ช")} <span className="small muted">{t("ทดลอง ML")}</span></h1>
     <p className="muted">{t("เลือก tactic ที่น่าลองจาก pattern ของรอบอาชีพที่ชนะในบริบทอุปกรณ์คล้ายกัน พร้อมรอบอ้างอิง")}</p>
     <div className="filters card coach-filters">
       <label>{t("แมตช์")}<select value={match?.demo_file ?? ""} onChange={(e) => change("demo", e.target.value)}>{ready.map((m) => <option key={m.id} value={m.demo_file}>{m.demo_file} · {m.map_name ?? "—"} · {m.source === "upload" ? t("ทีมเรา") : t("ทีมอาชีพ")}</option>)}</select></label>

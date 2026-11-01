@@ -178,7 +178,7 @@ const NAV = [
   { to: "/player", label: "สถิติของฉัน", end: false, steamOnly: true },
   { to: "/matches", label: "แมตช์", end: false, steamOnly: false },
   { to: "/analysis", label: "เครื่องมือวิเคราะห์", end: false, steamOnly: false },
-  { to: "/coach", label: "Coach", end: false, steamOnly: false },
+  { to: "/coach", label: "โค้ช", end: false, steamOnly: false },
 ];
 
 /** โหมดเยี่ยมชมไม่มี "ฉัน" — ไม่ต้องโชว์แท็บที่เปิดแล้วเจอแต่หน้าว่าง และหน้าแรกพาไปหน้าแมตช์แทน */

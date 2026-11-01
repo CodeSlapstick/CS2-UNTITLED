@@ -1,4 +1,5 @@
 export const EN_COACH: Record<string, string> = {
+  "โค้ช": "Coach",
   "ยังไม่มีโมเดล Coach สำหรับแมพนี้": "No Coach model is available for this map yet",
   "CS2 Performance Report ใช้ได้กับแมตช์ที่ทีมอัปโหลดเท่านั้น ชุดอ้างอิงใช้สำหรับฝึกโมเดล": "CS2 Performance Report is available for uploaded team matches only. Reference matches are used for model training.",
   "ดาวน์โหลดรายงาน": "Download reports",
