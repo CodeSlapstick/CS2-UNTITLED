@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { ApiError, auth, isGuest, playerApi, type PlayerMap, type PlayerProfileFilters, type PlayerWeapon } from "./api";
 import { MapThumb, weaponLabel } from "./utils";
 import "./player-profile.css";
@@ -24,24 +24,11 @@ export function PlayerPage() {
   const who = steamId ?? "me";
   const { t } = useT();
   const valueOrData = (value: number | null | undefined, digits = 1, suffix = "") => value == null ? t("ไม่มีข้อมูล") : `${value.toFixed(digits)}${suffix}`;
-  const [params, setParams] = useSearchParams();
-  const recentRaw = Number(params.get("recent") ?? 0);
-  const filters: PlayerProfileFilters = {
-    recent: ([0, 5, 10, 20].includes(recentRaw) ? recentRaw : 0) as 0 | 5 | 10 | 20,
-    date_from: params.get("from") || undefined, date_to: params.get("to") || undefined,
-    map: params.get("map") || undefined,
-    side: params.get("side") === "ct" ? "ct" : params.get("side") === "t" ? "t" : "all",
-  };
+  const filters: PlayerProfileFilters = { recent: 0, side: "all" };
   const profile = useQuery({
     queryKey: ["player-profile", who, filters.recent, filters.date_from, filters.date_to, filters.map, filters.side],
     queryFn: () => playerApi.profile(who, filters), retry: false,
   });
-
-  function change(key: "recent" | "from" | "to" | "map" | "side", value: string) {
-    const next = new URLSearchParams(params);
-    if (!value || value === "0" || value === "all") next.delete(key); else next.set(key, value);
-    setParams(next, { replace: true });
-  }
 
   if (profile.isLoading) return <p className="muted">{t("กำลังโหลดสถิติ…")}</p>;
   if (profile.error instanceof ApiError) return <PlayerEmpty status={profile.error.status} message={profile.error.message} mine={!steamId} />;
@@ -60,15 +47,6 @@ export function PlayerPage() {
       <div className="pl-sidebar-facts"><div><span>Steam ID</span><b>{d.player.steam_id}</b></div><div><span>{t("ทีม")}</span><b>{d.player.latest_team || "—"}</b></div><div><span>{t("รอบ")}</span><b>{d.source.selected_rounds.toLocaleString()}</b></div></div><Link className="pl-browse" to="/players">{t("ค้นหาผู้เล่น")} ↗</Link>
     </header>
     <div className="pl-content">
-    <nav className="pl-section-nav" aria-label={t("สถิติผู้เล่น")}><a href="#pl-overview">{t("สถิติภาพรวม")}</a><a href="#pl-details">{t("แมตช์ล่าสุด")}</a><a href="#pl-loadout">{t("แผนที่และอาวุธ")}</a></nav>
-    <section className="pl-filters card" aria-label={t("ตัวกรองข้อมูลผู้เล่น")}>
-      <label>{t("ช่วงแมตช์")}<select value={filters.recent} onChange={(event) => change("recent", event.target.value)}><option value={0}>{t("ทุกแมตช์")}</option><option value={5}>{t("5 แมตช์ล่าสุด")}</option><option value={10}>{t("10 แมตช์ล่าสุด")}</option><option value={20}>{t("20 แมตช์ล่าสุด")}</option></select></label>
-      <label>{t("ตั้งแต่วันที่นำเข้า")}<input type="date" value={filters.date_from ?? ""} max={filters.date_to} onChange={(event) => change("from", event.target.value)} /></label>
-      <label>{t("ถึงวันที่นำเข้า")}<input type="date" value={filters.date_to ?? ""} min={filters.date_from} onChange={(event) => change("to", event.target.value)} /></label>
-      <label>{t("แผนที่")}<select value={filters.map ?? ""} onChange={(event) => change("map", event.target.value)}><option value="">{t("ทุกแผนที่")}</option>{d.filters.available_maps.map((map) => <option key={map} value={map}>{map}</option>)}</select></label>
-      <label>{t("ฝั่ง")}<select value={filters.side} onChange={(event) => change("side", event.target.value)}><option value="all">{t("ทั้งสองฝั่ง")}</option><option value="ct">CT</option><option value="t">T</option></select></label>
-    </section>
-
     {!tot ? <section className="card pl-filter-empty"><h2>{t("ไม่มีข้อมูลตามตัวกรองนี้")}</h2><p className="muted">{t("ลองขยายช่วงแมตช์ วันที่ แผนที่ หรือเลือกทั้งสองฝั่ง")}</p></section> : <>
       <section id="pl-overview" className="pl-grid" aria-label={t("สถิติหลัก")}>
         <article className="card pl-card pl-kd"><h2>K/D</h2><Gauge value={tot.kd ?? 0} max={2} label={valueOrData(tot.kd, 2)} /><p className="muted small">{t("{k} คิล · {d} ตาย · {a} ช่วย", { k: tot.kills, d: tot.deaths, a: tot.assists })}</p></article>
@@ -87,7 +65,7 @@ export function PlayerPage() {
         <BehaviorCard behavior={d.behavior} />
       </section>
 
-      <details className="card pl-formulas"><summary>{t("สูตรและข้อจำกัดของข้อมูล")}</summary><dl>{Object.entries(d.formulas).map(([key, formula]) => <div key={key}><dt>{key}</dt><dd>{formula}</dd></div>)}</dl><p className="muted small">{t("วันที่ในตัวกรองคือวันที่นำเข้า demo เพราะ parser ยังไม่มีวันที่แข่งขัน")}</p><p className="muted small">{t("Accuracy ไม่มีข้อมูล เพราะ parser ยังไม่เก็บจำนวนกระสุนที่ยิงและโดน")}</p></details>
+
     </>}
     </div>
   </div>;
