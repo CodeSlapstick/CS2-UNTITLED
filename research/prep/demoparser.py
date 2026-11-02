@@ -26,8 +26,7 @@ EVENTS = [
     "bomb_planted",
 ]
 
-PLAYER_PROPS = ["last_place_name", "X", "Y", "Z", "health", "team_name",
-                "team_clan_name"]
+PLAYER_PROPS = ["last_place_name", "X", "Y", "team_name", "team_clan_name"]
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -47,8 +46,6 @@ def parse_one(path: Path) -> pl.DataFrame:
         pl.col("round_num"),
         pl.coalesce(pl.col("freeze_end"), pl.col("start")).alias("round_start_tick"),
         pl.col("bomb_plant").alias("bomb_plant_tick"),
-        pl.col("winner").alias("round_winner"),
-        pl.col("reason").alias("round_end_reason"),
     )
 
     kills = dem.kills.join(ctx, on="round_num", how="left").with_columns(
@@ -78,8 +75,6 @@ def add_round_review_columns(kills: pl.DataFrame) -> pl.DataFrame:
     raw_clan = [c for c in kills.columns if c.endswith("_team_clan_name")]
     return kills.with_columns(
         team_col("attacker"), team_col("victim"), team_col("assister"),
-        pl.col("round_winner").alias("round_winner_side"),
-        pl.col("attackerblind").alias("attacker_blind"),
     ).drop(raw_clan)
 
 
@@ -92,57 +87,32 @@ ROLE_EVENT_COLUMNS = [
     "is_opening_death",
     "is_early_engagement",
     "is_postplant_kill",
-    "round_phase",
     "trade_kill_count",
-    "is_trade_kill",
     "victim_was_traded",
     "is_site_engagement",
     "is_flash_assisted_kill",
-    "attacker_won_round",
 ]
 
-ALL_KILLS_COLUMN_GROUPS = {
-    "Match & Round": [
-        "demo_file", "map_name", "tickrate", "round_num", "tick", "round_start_tick",
-        "round_time_seconds", "bomb_plant_tick", "round_phase", "round_winner_side",
-        "round_winner", "round_end_reason", "ct_side", "t_side",
-    ],
-    "Role Signals": [
-        "is_enemy_kill", "is_live_round_kill", "round_kill_order", "is_opening_kill",
-        "is_opening_death", "is_early_engagement", "is_postplant_kill",
-        "is_site_engagement", "is_flash_assisted_kill", "attacker_won_round",
-        "trade_kill_count", "victim_was_traded", "is_trade_kill",
-    ],
-    "Attacker": [
-        "attacker_name", "attacker_steamid", "attacker_side", "attacker_team_clan",
-        "attacker_place", "attacker_X", "attacker_Y", "attacker_Z", "attacker_health",
-        "attackerblind", "attacker_blind", "attackerinair",
-    ],
-    "Victim": [
-        "victim_name", "victim_steamid", "victim_side", "victim_team_clan", "victim_place",
-        "victim_X", "victim_Y", "victim_Z", "victim_health",
-    ],
-    "Assister / Support": [
-        "assister_name", "assister_steamid", "assister_side", "assister_team_clan",
-        "assister_place", "assister_X", "assister_Y", "assister_Z", "assister_health",
-        "assistedflash",
-    ],
-    "Combat": [
-        "weapon", "headshot", "hitgroup", "distance", "dmg_health", "dmg_armor",
-        "penetrated", "thrusmoke", "noscope", "dominated", "revenge", "wipe",
-    ],
-    "Technical": [
-        "weapon_fauxitemid", "weapon_itemid", "weapon_originalowner_xuid", "noreplay",
-    ],
-}
+MODEL_KILL_COLUMNS = [
+    "demo_file", "map_name", "round_num", "tick", "tickrate", "round_start_tick",
+    "bomb_plant_tick", "round_time_seconds",
+    "attacker_name", "attacker_steamid", "attacker_side", "attacker_team_clan",
+    "attacker_place", "attacker_X", "attacker_Y",
+    "victim_name", "victim_steamid", "victim_side", "victim_team_clan",
+    "victim_place", "victim_X", "victim_Y",
+    "assister_name", "assister_steamid", "assister_side", "assister_team_clan",
+    "weapon", "is_live_round_kill", "is_opening_kill", "is_opening_death",
+    "is_early_engagement", "is_postplant_kill", "is_site_engagement",
+    "is_flash_assisted_kill", "trade_kill_count", "victim_was_traded",
+]
 
 
-def order_all_kills_columns(kills: pl.DataFrame) -> pl.DataFrame:
-    """เรียง schema เป็นหมวด และเก็บคอลัมน์จาก parser รุ่นใหม่ที่ยังไม่รู้จักไว้ท้ายไฟล์"""
-    grouped = [column for columns in ALL_KILLS_COLUMN_GROUPS.values() for column in columns]
-    known = [column for column in grouped if column in kills.columns]
-    extra = [column for column in kills.columns if column not in grouped]
-    return kills.select(known + extra)
+def select_model_columns(kills: pl.DataFrame) -> pl.DataFrame:
+    """Keep only columns consumed by Player Role and Grid ML1."""
+    missing = [column for column in MODEL_KILL_COLUMNS if column not in kills.columns]
+    if missing:
+        raise ValueError(f"all_kills is missing model columns: {', '.join(missing)}")
+    return kills.select(MODEL_KILL_COLUMNS)
 
 
 def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
@@ -163,7 +133,7 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
     required = {
         "demo_file", "round_num", "tick", "tickrate", "round_start_tick", "bomb_plant_tick",
         "attacker_steamid", "victim_steamid", "attacker_side", "victim_side",
-        "attacker_place", "victim_place", "assistedflash", "round_winner_side",
+        "attacker_place", "victim_place", "assistedflash",
     }
     missing = sorted(required - set(kills.columns))
     if missing:
@@ -203,17 +173,11 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
             & (pl.col("tick") >= pl.col("bomb_plant_tick"))
         ).alias("is_postplant_kill"),
     ).with_columns(
-        pl.when(pl.col("is_postplant_kill")).then(pl.lit("postplant")).otherwise(pl.lit("preplant"))
-        .alias("round_phase"),
         (
             pl.col("attacker_place").fill_null("").str.starts_with("Bombsite")
             | pl.col("victim_place").fill_null("").str.starts_with("Bombsite")
         ).alias("is_site_engagement"),
         pl.col("assistedflash").fill_null(False).cast(pl.Boolean).alias("is_flash_assisted_kill"),
-        (
-            pl.col("is_enemy_kill")
-            & (pl.col("attacker_side") == pl.col("round_winner_side"))
-        ).alias("attacker_won_round"),
     ).with_columns(
         (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_kill"),
         (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_death"),
@@ -244,8 +208,6 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
     return ordered.with_columns(
         pl.Series("trade_kill_count", trade_count, dtype=pl.Int64),
         pl.Series("victim_was_traded", victim_traded, dtype=pl.Boolean),
-    ).with_columns(
-        (pl.col("trade_kill_count") > 0).alias("is_trade_kill"),
     ).drop("_role_row")
 
 
@@ -290,7 +252,7 @@ def main() -> None:
         sys.exit("ไม่มีไฟล์ไหนอ่านสำเร็จเลย")
 
 
-    final = order_all_kills_columns(add_role_event_columns(pl.concat(frames, how="diagonal_relaxed")))
+    final = select_model_columns(add_role_event_columns(pl.concat(frames, how="diagonal_relaxed")))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     final.write_csv(args.out)
 

@@ -66,7 +66,6 @@ from backend.review import (
     load_grid_model,
     radar_frame,
 )
-from backend.site_model import available_times, load_site_model, predict_a, read_at
 
 # ---------------------------------------------------------------------------
 # ส่วนที่ 1 — ค่าตั้งต้น (CONFIG) อยากแก้อะไรแก้ตรงนี้ที่เดียว
@@ -1090,84 +1089,6 @@ async def api_player_behavior(
             "model": model.get("model"),
         },
         "note": model.get("interpretation_note"),
-    }
-
-
-@app.get("/api/analysis/readability")
-async def api_readability(demo: str = Query(..., description="ชื่อไฟล์เดโมของแมตช์ที่ทีมอัปโหลด"),
-                          _: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
-    """แมตช์นี้ "อ่านทางออกง่าย" แค่ไหน — โมเดลที่เทรนจากเดโมทีมอาชีพมาอ่านทีละรอบ
-
-    ต่อหนึ่งรอบ: ไล่ดูทีละวินาทีว่าโมเดลมั่นใจไปทางไซต์ที่เกิดขึ้นจริงถึง 80% เมื่อไร
-    วินาทีนั้นคือ "วินาทีที่ถูกอ่านออก" — ยิ่งเร็วยิ่งแปลว่าคู่แข่งก็อ่านออกเร็วเหมือนกัน
-
-    นับเฉพาะรอบที่ T ได้วางบอมบ์ เพราะรอบที่โดนสกัดก่อนวางไม่มีเฉลยว่าจะไปไซต์ไหน
-    """
-    model = load_site_model()
-    m = await _review_match(conn, demo)
-    if model is None or model.get("map") != m["map_name"]:
-        return {"available": False, "reason": f"ยังไม่มีโมเดลทายไซต์ของแมพ {m['map_name']}"}
-
-    tickrate = m["tickrate"] or 128
-    rounds = await conn.fetch("""
-        SELECT round_num, start_tick, bomb_plant_tick, bomb_site, winner_side FROM rounds
-        WHERE match_id = $1 AND bomb_site IS NOT NULL AND start_tick IS NOT NULL
-        ORDER BY round_num""", m["id"])
-    if not rounds:
-        return {"available": False, "reason": "แมตช์นี้ไม่มีรอบที่ T วางบอมบ์ได้ จึงไม่มีเฉลยให้วัด"}
-
-    pos = await conn.fetch("""
-        SELECT round_num, tick, place FROM player_positions
-        WHERE match_id = $1 AND side = 't' AND health > 0 AND place IS NOT NULL""", m["id"])
-    counts: dict[int, dict[int, dict[str, int]]] = {}
-    starts = {r["round_num"]: r["start_tick"] for r in rounds}
-    for r in pos:
-        start = starts.get(r["round_num"])
-        if start is None:
-            continue
-        sec = round((r["tick"] - start) / tickrate)
-        if sec < 0:
-            continue
-        at = counts.setdefault(r["round_num"], {}).setdefault(sec, {})
-        at[r["place"]] = at.get(r["place"], 0) + 1
-
-    times = available_times(model)
-    out = []
-    for r in rounds:
-        plant_t = (r["bomb_plant_tick"] - r["start_tick"]) / tickrate if r["bomb_plant_tick"] else None
-        series = []
-        for sec in times:
-            if plant_t is not None and sec >= plant_t:
-                break
-            at = counts.get(r["round_num"], {}).get(sec)
-            if not at:
-                continue
-            p = predict_a(model, sec, at)
-            if p is not None:
-                series.append({"t": sec, "p_a": round(p, 4)})
-        first = read_at(series, r["bomb_site"])
-        out.append({
-            "round_num": r["round_num"], "site": r["bomb_site"],
-            "plant_t": round(plant_t, 1) if plant_t is not None else None,
-            "read_at": first,
-            "lead": round(plant_t - first, 1) if first is not None and plant_t is not None else None,
-            "winner_side": r["winner_side"],
-        })
-
-    seen = [r["read_at"] for r in out if r["read_at"] is not None]
-    leads = [r["lead"] for r in out if r["lead"] is not None]
-    summary = {
-        "rounds": len(out),
-        "read": len(seen),
-        "avg_read_at": round(sum(seen) / len(seen), 1) if seen else None,
-        "median_read_at": sorted(seen)[len(seen) // 2] if seen else None,
-        "avg_lead": round(sum(leads) / len(leads), 1) if leads else None,
-    }
-    return {
-        "available": True, "map": m["map_name"], "demo": demo,
-        "rounds_detail": out, "summary": summary,
-        "benchmark": model.get("metrics", {}).get("readability"),
-        "source": model.get("source"), "note": model.get("note"),
     }
 
 

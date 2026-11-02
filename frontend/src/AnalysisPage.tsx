@@ -9,8 +9,6 @@ import {
   matchesQuery,
   type PlayerBehavior,
   type PlayerBehaviorProfile,
-  type ReadRound,
-  type Readability,
   type ScoreRow,
 } from "./api";
 import {
@@ -41,8 +39,9 @@ import { OpeningRoutePage } from "./OpeningRoutePage";
  * ประเด็นสำคัญ: เดโมที่ผู้ใช้อัปโหลดไม่เคยถูกใช้เทรนโมเดล (คนละโฟลเดอร์ คนละ source ในฐานข้อมูล)
  * หน้านี้จึงเป็นการ "วัดของเราเทียบกับชุดอ้างอิง" ไม่ใช่การเอาข้อมูลตัวเองไปสอนแล้ววัดกับตัวเอง
  */
-type Mode = "upload" | "diff" | "read" | "opening";
+type Mode = "upload" | "diff" | "opening";
 type Side = "all" | "ct" | "t";
+type TFn = (s: string, vars?: Record<string, string | number>) => string;
 
 // เครื่องมือเป็นแท็บแถวเดียว ชื่ออยู่ที่แท็บที่เดียว และมีประโยคสั้นใต้แท็บบอกหน้าที่ของเครื่องมือนั้น
 const MODES: { key: Mode; label: string }[] = [
@@ -134,15 +133,7 @@ export function AnalysisPage() {
     staleTime: 5 * 60_000,
     placeholderData: keepPreviousData,
   });
-  // โหมด "อ่านทางเราออกไหม" ดูได้ทีละแมตช์ — ไม่ได้เลือกไว้ก็ใช้แมตช์แรกของแมพนั้น
   const target = selectedDemo;
-  const readQ = useQuery({
-    queryKey: ["readability", target],
-    queryFn: () => api.readability(target),
-    enabled: mode === "read" && !!target,
-    staleTime: 5 * 60_000,
-    placeholderData: keepPreviousData,
-  });
   const behaviorQ = useQuery({
     queryKey: ["player-behavior", target, selPlayers],
     queryFn: () => api.playerBehavior(target, selPlayers),
@@ -182,8 +173,8 @@ export function AnalysisPage() {
   </div>;
 
   const single = upload.data;
-  const loading = mode === "read" ? readQ.isLoading : upload.isLoading || (mode === "diff" && reference.isLoading);
-  const error = (mode === "read" ? readQ.error : (upload.error ?? reference.error)) as Error | null;
+  const loading = upload.isLoading || (mode === "diff" && reference.isLoading);
+  const error = (upload.error ?? reference.error) as Error | null;
   const rows = mode === "diff" && upload.data && reference.data ? compare(upload.data, reference.data) : [];
   // รวมตามชื่อ callout ครั้งเดียว ใช้ทั้งตาราง (top 8 ที่แย่สุด) และ heatmap ทีละโซน (ทุกโซน) จะได้ไม่มี
   // ทางแยกกันจนตัวเลข/เกณฑ์ไม่ตรงกันระหว่างสองที่
@@ -236,13 +227,9 @@ export function AnalysisPage() {
       )}
 
       {error && <p className="err">{t("โหลดข้อมูลไม่ได้: {msg}", { msg: error.message })}</p>}
-      {loading && <p className="muted">{mode === "read" ? t("กำลังอ่านทีละรอบ…") : t("กำลังนับจุดตาย…")}</p>}
+      {loading && <p className="muted">{t("กำลังนับจุดตาย…")}</p>}
 
-      {!loading && !error && mode === "read" && readQ.data && (
-        <ReadabilityReport data={readQ.data} demo={target} />
-      )}
-
-      {!loading && !error && mode !== "read" && (
+      {!loading && !error && (
         <div className="an-grid">
           {/* แผงนี้อยู่เสมอไม่ว่าจะเลือกรอบ/ผู้เล่นไว้กี่คน — กด "ไม่เอาเลย" แล้วต้องยังเห็นปุ่ม "ทั้งหมด"
               เพื่อย้อนกลับได้ ไม่ใช่ทั้งแผงหายไปพร้อมกับแผนที่จนหาทางกลับไม่เจอ */}
@@ -516,122 +503,6 @@ function HeatmapControls({
     </aside>
   );
 }
-
-// ================================================================================================
-// "อ่านทางเราออกไหม" — ผลจากโมเดลทายไซต์ (supervised) ที่เทรนจากเดโมทีมอาชีพ
-// ================================================================================================
-/**
- * โมเดลไม่เคยเห็นแมตช์นี้ ถ้ามันเดาไซต์ที่ทีมจะเข้าได้ตั้งแต่วินาทีต้น ๆ
- * แปลว่าคู่แข่งที่ดูเทปก็อ่านออกเหมือนกัน — "วินาทีที่ถูกอ่านออก" จึงเป็นตัวชี้วัดที่เอาไปแก้ได้จริง
- * ตัวเลขทีมอาชีพวัดแบบ out-of-fold (ทำนายรอบไหนใช้โมเดลที่ไม่เคยเห็นแมตช์นั้น) จึงเอามาเทียบกันได้
- */
-function ReadabilityReport({ data, demo }: { data: Readability; demo: string }) {
-  const { t } = useT();
-  if (!data.available) {
-    return (
-      <div className="an-empty">
-        <h2>{t("ยังอ่านแมตช์นี้ไม่ได้")}</h2>
-        <p className="muted">{readReason(data.reason, t)}</p>
-      </div>
-    );
-  }
-  const s = data.summary!;
-  const b = data.benchmark!;
-  const ours = s.avg_read_at;
-  const pro = b.avg_read_at;
-  const gap = ours != null && pro != null ? pro - ours : null;
-  const scale = Math.max(ours ?? 0, pro ?? 0, 1);
-  const rows = data.rounds_detail ?? [];
-
-  return (
-    <div className="read-report" data-testid="readability">
-      <section className="rr-hero">
-        <div className="rr-stat">
-          <span className="rr-label">{t("ทีมเรา ถูกอ่านออกเฉลี่ยวินาทีที่")}</span>
-          <b className="num">{ours ?? "—"}</b>
-          <span className="rr-bar"><i style={{ width: `${((ours ?? 0) / scale) * 100}%` }} /></span>
-          <span className="muted small">
-            {t("อ่านออก {read} จาก {rounds} รอบที่วางบอมบ์ · มัธยฐานวินาทีที่ {median}",
-              { read: s.read, rounds: s.rounds, median: s.median_read_at ?? "—" })}
-          </span>
-        </div>
-        <div className="rr-stat pro">
-          <span className="rr-label">{t("ทีมอาชีพ ถูกอ่านออกเฉลี่ยวินาทีที่")}</span>
-          <b className="num">{pro?.toFixed(1) ?? "—"}</b>
-          <span className="rr-bar"><i style={{ width: `${((pro ?? 0) / scale) * 100}%` }} /></span>
-          <span className="muted small">
-            {t("จาก {rounds} รอบ · มัธยฐานวินาทีที่ {median}", { rounds: b.rounds, median: b.median_read_at ?? "—" })}
-          </span>
-        </div>
-      </section>
-
-      {gap != null && (
-        <p className="rr-verdict">
-          <b>{gap > 0
-            ? t("ฝ่ายรับอ่านทางได้เร็วกว่าทีมอาชีพ {s} วินาที", { s: gap.toFixed(1) })
-            : t("ฝ่ายรับอ่านทางได้ช้ากว่าทีมอาชีพ {s} วินาที", { s: Math.abs(gap).toFixed(1) })}</b>
-          {s.avg_lead != null && <> · {t("โดยเฉลี่ยรู้ทางก่อนบอมบ์ลงจริง {s} วินาที", { s: s.avg_lead })}</>}
-        </p>
-      )}
-
-      <h2>{t("ดูทีละรอบ")}</h2>
-      <table className="tbl compact rr-tbl">
-        <thead>
-          <tr>
-            <th>{t("รอบ")}</th>
-            <th>{t("เข้าไซต์")}</th>
-            <th className="num">{t("ถูกอ่านออกวินาทีที่")}</th>
-            <th className="num">{t("ก่อนบอมบ์ลง")}</th>
-            <th>{t("ผลรอบ")}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.round_num} className={r.read_at != null && r.read_at <= 8 ? "rr-early" : ""}>
-              <td className="num">{r.round_num}</td>
-              <td><span className="rr-site">{r.site}</span></td>
-              <td className="num">{r.read_at ?? t("อ่านไม่ออก")}</td>
-              <td className="num">{r.lead != null ? t("{s} วิ", { s: r.lead }) : "—"}</td>
-              <td>{r.winner_side ? <span className={`side-tag ${r.winner_side}`}>{t("{side} ชนะ", { side: sideLabel(r.winner_side) })}</span> : "—"}</td>
-              <td>
-                <Link className="link-btn" to={roundLink(demo, r)}>{t("ดูรอบนี้")}</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <p className="muted small rr-note">
-        {t('แถวที่เน้น = ถูกอ่านออกภายใน 8 วินาทีแรก · กด "ดูรอบนี้" แล้วหน้ารอบจะเปิดโหมดเล่นย้อนค้างไว้ที่วินาทีนั้นพอดี')}
-      </p>
-      <p className="muted small">
-        {t("{note} · เทียบกับ{source}", { note: data.note ? t(data.note) : "", source: sourceLabel(data, t) })}
-      </p>
-    </div>
-  );
-}
-
-type TFn = (s: string, vars?: Record<string, string | number>) => string;
-
-/** เหตุผลที่อ่านแมตช์ไม่ได้ มาจาก backend เป็นภาษาไทย — ข้อความที่มีชื่อแมพฝังอยู่ ดึงชื่อแมพออกมาแล้วแปลทั้งประโยค */
-function readReason(reason: string | undefined, t: TFn): string {
-  if (!reason) return "";
-  const m = /^ยังไม่มีโมเดลทายไซต์ของแมพ (.+)$/.exec(reason);
-  return m ? t("ยังไม่มีโมเดลทายไซต์ของแมพ {map}", { map: m[1] }) : t(reason);
-}
-
-/** ประกอบป้ายชุดเทียบใหม่จากตัวเลขที่ส่งมา (สูตรเดียวกับ research/models/site_ml.py) แทนการแสดงข้อความไทยจาก backend ตรง ๆ */
-function sourceLabel(data: Readability, t: TFn): string {
-  const src = data.source;
-  if (!src) return "";
-  if (!data.map) return t(src.label);
-  return t("เดโมทีมอาชีพ {n} แมตช์ ({rounds} รอบที่วางบอมบ์บน {map})", { n: src.matches, rounds: src.rounds, map: data.map });
-}
-
-/** เปิดหน้ารอบในโหมดเล่นย้อน ค้างไว้ที่วินาทีที่โมเดลอ่านออก — เห็นเลยว่าตอนนั้นทุกคนยืนตรงไหน */
-const roundLink = (demo: string, r: ReadRound) =>
-  `/matches/${encodeURIComponent(demo)}/rounds/${r.round_num}?pb=1${r.read_at != null ? `&t=${r.read_at}` : ""}`;
 
 // ================================================================================================
 // รวมช่องที่มีชื่อ callout เดียวกันเป็นแถวเดียว — ใช้ทั้งในตารางและตอนปักป้ายชื่อบนแผนที่

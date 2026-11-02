@@ -17,7 +17,6 @@ Run from the repository root:
 from __future__ import annotations
 
 import argparse
-import asyncio
 import itertools
 import json
 import math
@@ -34,13 +33,8 @@ from sklearn.preprocessing import StandardScaler
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "output"
 ALL_KILLS_CSV = ROOT / "data" / "all_kills.csv"
-sys.path.insert(0, str(ROOT))
-
-from backend.db import DATABASE_URL  # noqa: E402
-
 SEED = 42
-N_CLUSTERS = 5
-CSV_N_CLUSTERS = 6
+N_CLUSTERS = 6
 N_BOOTSTRAPS = 40
 MIN_ROUNDS = 5
 
@@ -51,96 +45,9 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 
-# Every query contains the hard boundary m.source = 'reference'.  Uploaded
-# matches must never influence this model.
-FACTS_SQL = """
-SELECT m.demo_file, m.map_name, r.match_id, r.id AS round_id, r.round_num,
-       r.start_tick, r.bomb_plant_tick, r.bomb_plant_x, r.bomb_plant_y,
-       m.tickrate, pr.steam_id, p.name, pr.side, pr.survived, pr.kills,
-       pr.deaths, pr.assists, pr.damage, pr.opening_kill, pr.opening_death,
-       pr.trade_kills, pr.was_traded
-FROM player_rounds pr
-JOIN rounds r ON r.id = pr.round_id
-JOIN matches m ON m.id = r.match_id
-JOIN players p ON p.steam_id = pr.steam_id
-WHERE m.source = 'reference' AND m.status = 'done'
-  AND ($1::text IS NULL OR m.map_name = $1)
-"""
-
-POSITIONS_SQL = """
-SELECT pp.match_id, pp.round_num, pp.tick, pp.steam_id, pp.side,
-       pp.x, pp.y, pp.place
-FROM player_positions pp
-JOIN matches m ON m.id = pp.match_id
-WHERE m.source = 'reference' AND m.status = 'done'
-  AND ($1::text IS NULL OR m.map_name = $1)
-  AND pp.health > 0
-"""
-
-GRENADES_SQL = """
-SELECT g.round_id, g.thrower_id AS steam_id, g.type, COUNT(*) AS n
-FROM grenades g
-JOIN rounds r ON r.id = g.round_id
-JOIN matches m ON m.id = r.match_id
-WHERE m.source = 'reference' AND m.status = 'done'
-  AND ($1::text IS NULL OR m.map_name = $1)
-  AND g.thrower_id IS NOT NULL
-GROUP BY g.round_id, g.thrower_id, g.type
-"""
-
-KILLS_SQL = """
-SELECT r.match_id, r.round_num, r.start_tick, r.bomb_plant_tick, m.tickrate,
-       k.tick, k.attacker_id, k.victim_id, k.attacker_side, k.victim_side
-FROM kills k
-JOIN rounds r ON r.id = k.round_id
-JOIN matches m ON m.id = r.match_id
-WHERE m.source = 'reference' AND m.status = 'done'
-  AND ($1::text IS NULL OR m.map_name = $1)
-  AND k.attacker_id IS NOT NULL AND k.attacker_side <> k.victim_side
-"""
-
-
-T_FEATURES = [
-    "opening_attempt_rate", "opening_kill_rate", "opening_death_rate",
-    "early_engagement_rate", "trade_kills_per_round", "traded_death_rate",
-    "assists_per_round", "utility_per_round", "flash_per_round",
-    "smoke_per_round", "damage_per_round", "survival_rate",
-    "team_separation", "path_length", "place_diversity",
-    "plant_proxy_rate", "postplant_kills_per_plant", "postplant_movement_per_plant",
-]
-
-CT_FEATURES = [
-    "opening_attempt_rate", "opening_kill_rate", "opening_death_rate",
-    "early_engagement_rate", "trade_kills_per_round", "assists_per_round",
-    "utility_per_round", "flash_per_round", "smoke_per_round",
-    "damage_per_round", "survival_rate", "team_separation", "path_length",
-    "early_displacement", "place_diversity", "alive_at_plant_rate",
-    "postplant_kills_per_plant", "postplant_movement_per_plant",
-]
-
 ROLE_ORDER = {
     "t": ["Entry", "Support", "Lurker", "Trader", "Bomb carrier / Site executor"],
     "ct": ["Site Anchor", "Rotator", "Aggressive Defender", "Utility Support", "Retake Player"],
-}
-
-# Positive values mean "characteristically high" and negative values mean
-# "characteristically low".  These weights only name discovered centroids;
-# they never alter cluster membership.
-ROLE_SIGNATURES: dict[str, dict[str, dict[str, float]]] = {
-    "t": {
-        "Entry": {"opening_attempt_rate": 2, "early_engagement_rate": 1.5, "opening_kill_rate": 1},
-        "Support": {"utility_per_round": 1.5, "flash_per_round": 1.5, "smoke_per_round": 1, "assists_per_round": 1},
-        "Lurker": {"team_separation": 2, "place_diversity": 0.5, "plant_proxy_rate": -1, "survival_rate": 0.5},
-        "Trader": {"trade_kills_per_round": 2, "traded_death_rate": 0.5, "damage_per_round": 0.5},
-        "Bomb carrier / Site executor": {"plant_proxy_rate": 2.5, "postplant_movement_per_plant": 0.5, "smoke_per_round": 0.5},
-    },
-    "ct": {
-        "Site Anchor": {"path_length": -1.5, "early_displacement": -1, "place_diversity": -1, "survival_rate": 0.5},
-        "Rotator": {"path_length": 1.5, "early_displacement": 1, "place_diversity": 1},
-        "Aggressive Defender": {"opening_attempt_rate": 2, "early_engagement_rate": 1.5, "opening_kill_rate": 0.75},
-        "Utility Support": {"utility_per_round": 1.5, "flash_per_round": 1.5, "smoke_per_round": 1, "assists_per_round": 1},
-        "Retake Player": {"alive_at_plant_rate": 1.5, "postplant_kills_per_plant": 1.5, "postplant_movement_per_plant": 1},
-    },
 }
 
 # all_kills.csv ใช้หกกลุ่ม: ห้าบทบาทที่ต้องการและหนึ่ง Hybrid / Unresolved
@@ -161,205 +68,22 @@ CSV_CT_FEATURES = [
     "place_diversity", "place_concentration",
 ]
 
-CSV_ROLE_SIGNATURES: dict[str, dict[str, dict[str, float]]] = {
+ROLE_SIGNATURES: dict[str, dict[str, dict[str, float]]] = {
     "t": {
         "Entry": {"opening_attempt_rate": 2, "early_engagement_rate": 1.5, "opening_kill_rate": 1, "avg_kill_time": -0.5},
-        "Support": {"assists_per_round": 1.5, "flash_assists_per_round": 2, "kills_per_round": -0.25},
-        "Lurker": {"avg_kill_time": 1.5, "survival_rate": 0.75, "site_engagement_rate": -0.75, "opening_attempt_rate": -0.5},
-        "Trader": {"trade_kills_per_round": 2, "traded_death_rate": 0.5, "kills_per_round": 0.5},
+        "Support": {"assists_per_round": 1.5, "flash_assists_per_round": 2},
+        "Lurker": {"avg_kill_time": 1.5, "site_engagement_rate": -0.75, "opening_attempt_rate": -0.5},
+        "Trader": {"trade_kills_per_round": 2, "traded_death_rate": 0.5},
         "Bomb carrier / Site executor": {"site_engagement_rate": 1.5, "postplant_kills_per_round": 1.5, "place_concentration": 0.5},
     },
     "ct": {
         "Site Anchor": {"place_concentration": 1.5, "site_engagement_rate": 1, "place_diversity": -1},
         "Rotator": {"place_diversity": 1.5, "place_concentration": -1, "site_engagement_rate": 0.5},
-        "Aggressive Defender": {"opening_attempt_rate": 2, "early_engagement_rate": 1.5, "opening_kill_rate": 0.75},
-        "Utility Support": {"assists_per_round": 1.5, "flash_assists_per_round": 2, "kills_per_round": -0.25},
-        "Retake Player": {"postplant_kills_per_round": 2, "avg_kill_time": 0.75, "survival_rate": 0.5},
+        "Aggressive Defender": {"opening_attempt_rate": 2, "early_engagement_rate": 1.5},
+        "Utility Support": {"assists_per_round": 1.5, "flash_assists_per_round": 2},
+        "Retake Player": {"postplant_kills_per_round": 2, "avg_kill_time": 0.75},
     },
 }
-
-
-async def load_frames(database_url: str, map_name: str | None) -> dict[str, pd.DataFrame]:
-    """Load all training tables from the reference partition only."""
-    import asyncpg
-
-    conn = await asyncpg.connect(database_url)
-    try:
-        result: dict[str, pd.DataFrame] = {}
-        for name, query in (
-            ("facts", FACTS_SQL), ("positions", POSITIONS_SQL),
-            ("grenades", GRENADES_SQL), ("kills", KILLS_SQL),
-        ):
-            result[name] = pd.DataFrame([dict(row) for row in await conn.fetch(query, map_name)])
-        return result
-    finally:
-        await conn.close()
-
-
-def _empty_position_features() -> pd.DataFrame:
-    return pd.DataFrame(columns=[
-        "match_id", "round_num", "steam_id", "team_separation", "path_length",
-        "early_displacement", "place_diversity", "alive_at_plant",
-        "postplant_movement", "plant_proxy",
-    ])
-
-
-def position_features(positions: pd.DataFrame, facts: pd.DataFrame) -> pd.DataFrame:
-    """Summarise movement without relying on map-specific hand-labelled zones."""
-    if positions.empty:
-        return _empty_position_features()
-
-    round_meta = facts[[
-        "match_id", "round_num", "start_tick", "bomb_plant_tick",
-        "bomb_plant_x", "bomb_plant_y", "tickrate",
-    ]].drop_duplicates(["match_id", "round_num"])
-    p = positions.merge(round_meta, on=["match_id", "round_num"], how="inner")
-    p["tickrate"] = p["tickrate"].fillna(128).clip(lower=1)
-    p["time_s"] = (p["tick"] - p["start_tick"]) / p["tickrate"]
-    p = p.sort_values(["match_id", "round_num", "steam_id", "tick"])
-
-    keys = ["match_id", "round_num", "steam_id"]
-    g = p.groupby(keys, sort=False)
-    p["dx"] = g["x"].diff()
-    p["dy"] = g["y"].diff()
-    p["dt"] = g["tick"].diff() / p["tickrate"]
-    p["step"] = np.hypot(p["dx"], p["dy"]).where(p["dt"].between(0, 2.5), 0.0)
-    p["postplant"] = p["bomb_plant_tick"].notna() & (p["tick"] >= p["bomb_plant_tick"])
-
-    team_keys = ["match_id", "round_num", "tick", "side"]
-    centroid = p.groupby(team_keys)[["x", "y"]].transform("mean")
-    p["team_distance"] = np.hypot(p["x"] - centroid["x"], p["y"] - centroid["y"])
-
-    base = g.agg(
-        team_separation=("team_distance", "mean"),
-        path_length=("step", "sum"),
-        place_diversity=("place", "nunique"),
-        alive_at_plant=("postplant", "max"),
-    ).reset_index()
-    post = (p[p["postplant"]].groupby(keys)["step"].sum()
-            .rename("postplant_movement").reset_index())
-
-    early = p[p["time_s"].between(0, 30)].copy()
-    if early.empty:
-        displacement = pd.DataFrame(columns=keys + ["early_displacement"])
-    else:
-        first = early.groupby(keys, sort=False).first()[["x", "y"]]
-        last = early.groupby(keys, sort=False).last()[["x", "y"]]
-        displacement = np.hypot(last["x"] - first["x"], last["y"] - first["y"])
-        displacement = displacement.rename("early_displacement").reset_index()
-
-    # The schema has the plant location but not the planter id.  The closest
-    # living T within two seconds of the plant is an explicit proxy, not a fact.
-    near_plant = p[
-        (p["side"] == "t") & p["bomb_plant_tick"].notna()
-        & ((p["tick"] - p["bomb_plant_tick"]).abs() <= 2 * p["tickrate"])
-        & p["bomb_plant_x"].notna() & p["bomb_plant_y"].notna()
-    ].copy()
-    if near_plant.empty:
-        planter = pd.DataFrame(columns=keys + ["plant_proxy"])
-    else:
-        near_plant["plant_distance"] = np.hypot(
-            near_plant["x"] - near_plant["bomb_plant_x"],
-            near_plant["y"] - near_plant["bomb_plant_y"],
-        )
-        nearest_sample = near_plant.loc[near_plant.groupby(keys)["plant_distance"].idxmin()]
-        winners = nearest_sample.loc[
-            nearest_sample.groupby(["match_id", "round_num"])["plant_distance"].idxmin(), keys
-        ].copy()
-        winners["plant_proxy"] = 1.0
-        planter = winners
-
-    out = base.merge(post, on=keys, how="left").merge(displacement, on=keys, how="left")
-    out = out.merge(planter, on=keys, how="left")
-    for col in ("postplant_movement", "early_displacement", "plant_proxy"):
-        out[col] = out[col].fillna(0.0)
-    return out
-
-
-def combat_features(kills: pd.DataFrame) -> pd.DataFrame:
-    """Count early engagements and post-plant kills per player-round."""
-    cols = ["match_id", "round_num", "steam_id", "early_engagement", "postplant_kills"]
-    if kills.empty:
-        return pd.DataFrame(columns=cols)
-    k = kills.copy()
-    k["tickrate"] = k["tickrate"].fillna(128).clip(lower=1)
-    k["time_s"] = (k["tick"] - k["start_tick"]) / k["tickrate"]
-    k["is_early"] = k["time_s"].between(0, 25)
-    k["is_postplant"] = k["bomb_plant_tick"].notna() & (k["tick"] >= k["bomb_plant_tick"])
-
-    attack = (k.groupby(["match_id", "round_num", "attacker_id"])
-              .agg(early_attack=("is_early", "max"), postplant_kills=("is_postplant", "sum"))
-              .reset_index().rename(columns={"attacker_id": "steam_id"}))
-    victim = (k.groupby(["match_id", "round_num", "victim_id"])["is_early"].max()
-              .rename("early_death").reset_index().rename(columns={"victim_id": "steam_id"}))
-    out = attack.merge(victim, on=["match_id", "round_num", "steam_id"], how="outer")
-    out["early_engagement"] = out[["early_attack", "early_death"]].fillna(False).max(axis=1).astype(float)
-    out["postplant_kills"] = out["postplant_kills"].fillna(0.0)
-    return out[cols]
-
-
-def build_profiles(frames: dict[str, pd.DataFrame], min_rounds: int = MIN_ROUNDS) -> pd.DataFrame:
-    """Create player-match-side profiles used as independent clustering rows."""
-    facts = frames["facts"].copy()
-    if facts.empty:
-        return pd.DataFrame()
-
-    keys = ["match_id", "round_num", "steam_id"]
-    grenade = frames["grenades"].copy()
-    if grenade.empty:
-        util = pd.DataFrame(columns=["round_id", "steam_id", "utility", "flash", "smoke"])
-    else:
-        grenade["kind"] = grenade["type"].str.lower()
-        util = grenade.pivot_table(
-            index=["round_id", "steam_id"], columns="kind", values="n", aggfunc="sum", fill_value=0,
-        ).reset_index()
-        util["utility"] = util.drop(columns=["round_id", "steam_id"]).sum(axis=1)
-        for col in ("flash", "smoke"):
-            if col not in util:
-                util[col] = 0
-
-    facts = facts.merge(util[["round_id", "steam_id", "utility", "flash", "smoke"]],
-                        on=["round_id", "steam_id"], how="left")
-    facts = facts.merge(position_features(frames["positions"], facts), on=keys, how="left")
-    facts = facts.merge(combat_features(frames["kills"]), on=keys, how="left")
-    numeric_fill = [
-        "utility", "flash", "smoke", "team_separation", "path_length", "early_displacement",
-        "place_diversity", "alive_at_plant", "postplant_movement", "plant_proxy",
-        "early_engagement", "postplant_kills",
-    ]
-    for col in numeric_fill:
-        facts[col] = pd.to_numeric(facts[col], errors="coerce").fillna(0.0)
-    facts["plant_round"] = facts["bomb_plant_tick"].notna().astype(float)
-    facts["opening_attempt"] = facts["opening_kill"].astype(float) + facts["opening_death"].astype(float)
-
-    profile_keys = ["match_id", "demo_file", "map_name", "steam_id", "name", "side"]
-    sums = {
-        "round_num": "count", "opening_attempt": "sum", "opening_kill": "sum", "opening_death": "sum",
-        "early_engagement": "sum", "trade_kills": "sum", "was_traded": "sum", "assists": "sum",
-        "utility": "sum", "flash": "sum", "smoke": "sum", "damage": "sum", "survived": "sum",
-        "plant_round": "sum", "plant_proxy": "sum", "postplant_kills": "sum",
-        "alive_at_plant": "sum", "postplant_movement": "sum",
-        "team_separation": "mean", "path_length": "mean",
-        "early_displacement": "mean", "place_diversity": "mean",
-    }
-    out = facts.groupby(profile_keys, dropna=False).agg(sums).reset_index().rename(columns={"round_num": "rounds"})
-    r = out["rounds"].clip(lower=1)
-    plants = out["plant_round"].clip(lower=1)
-    rates = {
-        "opening_attempt_rate": ("opening_attempt", r), "opening_kill_rate": ("opening_kill", r),
-        "opening_death_rate": ("opening_death", r), "early_engagement_rate": ("early_engagement", r),
-        "trade_kills_per_round": ("trade_kills", r), "traded_death_rate": ("was_traded", r),
-        "assists_per_round": ("assists", r), "utility_per_round": ("utility", r),
-        "flash_per_round": ("flash", r), "smoke_per_round": ("smoke", r),
-        "damage_per_round": ("damage", r), "survival_rate": ("survived", r),
-        "plant_proxy_rate": ("plant_proxy", plants),
-        "alive_at_plant_rate": ("alive_at_plant", plants),
-        "postplant_kills_per_plant": ("postplant_kills", plants),
-        "postplant_movement_per_plant": ("postplant_movement", plants),
-    }
-    for target, (source, denom) in rates.items():
-        out[target] = out[source] / denom
-    return out[out["rounds"] >= min_rounds].reset_index(drop=True)
 
 
 def load_kills_csv(path: Path, map_name: str | None = None) -> pd.DataFrame:
@@ -652,33 +376,6 @@ def fit_side(profiles: pd.DataFrame, side: str, seed: int = SEED,
     return rows, payload
 
 
-def train(frames: dict[str, pd.DataFrame], map_name: str | None, min_rounds: int,
-          n_bootstraps: int) -> tuple[pd.DataFrame, dict[str, Any]]:
-    profiles = build_profiles(frames, min_rounds=min_rounds)
-    if profiles.empty:
-        raise ValueError("ไม่พบ player profiles ที่ผ่านเกณฑ์ขั้นต่ำในชุดอ้างอิง")
-    assigned, models = [], {}
-    for side in ("t", "ct"):
-        side_rows, models[side] = fit_side(profiles, side, n_bootstraps=n_bootstraps)
-        assigned.append(side_rows)
-    result = pd.concat(assigned, ignore_index=True)
-    payload = {
-        "model": "separate-side-player-role-kmeans",
-        "version": 1,
-        "map": map_name or "all",
-        "unit": "player-match-side",
-        "n_clusters_per_side": N_CLUSTERS,
-        "min_rounds_per_profile": min_rounds,
-        "training_source": "matches.source='reference' only",
-        "interpretation_note": (
-            "Role names interpret unsupervised centroids; they are not training labels, "
-            "performance grades, or permanent identities. Bomb carrier uses the nearest-T-to-plant proxy."
-        ),
-        "models": models,
-    }
-    return result, payload
-
-
 def train_from_kills_csv(kills: pd.DataFrame, csv_path: Path, map_name: str | None,
                          min_rounds: int, n_bootstraps: int) -> tuple[pd.DataFrame, dict[str, Any]]:
     profiles = build_profiles_from_kills(kills, min_rounds=min_rounds)
@@ -689,7 +386,7 @@ def train_from_kills_csv(kills: pd.DataFrame, csv_path: Path, map_name: str | No
         features = CSV_T_FEATURES if side == "t" else CSV_CT_FEATURES
         side_rows, models[side] = fit_side(
             profiles, side, n_bootstraps=n_bootstraps, features=features,
-            signatures_by_side=CSV_ROLE_SIGNATURES, n_clusters=CSV_N_CLUSTERS,
+            signatures_by_side=ROLE_SIGNATURES, n_clusters=N_CLUSTERS,
         )
         assigned.append(side_rows)
     result = pd.concat(assigned, ignore_index=True)
@@ -698,7 +395,7 @@ def train_from_kills_csv(kills: pd.DataFrame, csv_path: Path, map_name: str | No
         "version": 2,
         "map": map_name or "all",
         "unit": "player-match-side",
-        "n_clusters_per_side": CSV_N_CLUSTERS,
+        "n_clusters_per_side": N_CLUSTERS,
         "min_rounds_per_profile": min_rounds,
         "training_source": str(csv_path),
         "source_matches": int(kills["demo_file"].nunique()),
@@ -717,15 +414,12 @@ def train_from_kills_csv(kills: pd.DataFrame, csv_path: Path, map_name: str | No
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train separate T/CT player-role clusters")
-    parser.add_argument("--source", choices=("csv", "database"), default="csv",
-                        help="training source (default: csv)")
     parser.add_argument("--csv", type=Path, default=ALL_KILLS_CSV,
                         help=f"role-ready all_kills.csv (default: {ALL_KILLS_CSV})")
     parser.add_argument("--map", dest="map_name", default=None, help="optional map filter, e.g. de_mirage")
     parser.add_argument("--min-rounds", type=int, default=MIN_ROUNDS)
     parser.add_argument("--bootstraps", type=int, default=N_BOOTSTRAPS)
     parser.add_argument("--output-dir", type=Path, default=OUT)
-    parser.add_argument("--database-url", default=DATABASE_URL, help=argparse.SUPPRESS)
     return parser.parse_args()
 
 
@@ -734,18 +428,13 @@ def main() -> None:
     if args.min_rounds < 1 or args.bootstraps < 0:
         raise SystemExit("--min-rounds ต้องไม่น้อยกว่า 1 และ --bootstraps ต้องไม่ติดลบ")
     try:
-        if args.source == "csv":
-            kills = load_kills_csv(args.csv, args.map_name)
-            profiles, payload = train_from_kills_csv(
-                kills, args.csv, args.map_name, args.min_rounds, args.bootstraps)
-        else:
-            frames = asyncio.run(load_frames(args.database_url, args.map_name))
-            profiles, payload = train(frames, args.map_name, args.min_rounds, args.bootstraps)
+        kills = load_kills_csv(args.csv, args.map_name)
+        profiles, payload = train_from_kills_csv(
+            kills, args.csv, args.map_name, args.min_rounds, args.bootstraps)
     except ValueError as exc:
         raise SystemExit(
             f"เทรนไม่ได้: {exc}\n"
-            "ถ้าใช้ CSV ให้รัน python research/prep/demoparser.py ก่อน; ถ้าใช้ฐานข้อมูลให้ตรวจว่า "
-            "import เดโมด้วย --mark-reference และมี player_rounds อย่างน้อยตาม --min-rounds"
+            "รัน python research/prep/demoparser.py ก่อน และตรวจว่ามีข้อมูลอย่างน้อยตาม --min-rounds"
         ) from None
     args.output_dir.mkdir(parents=True, exist_ok=True)
     json_path = args.output_dir / "player_role.json"
@@ -754,7 +443,7 @@ def main() -> None:
     profiles.to_csv(csv_path, index=False, encoding="utf-8-sig")
 
     scope = args.map_name or "ทุกแมพ"
-    print(f"Player role model · {scope} · {args.source} · reference only")
+    print(f"Player role model · {scope} · csv · reference only")
     for side in ("t", "ct"):
         model = payload["models"][side]
         print(f"\n{side.upper()} · {model['profiles']} profiles · silhouette {model['metrics']['silhouette']:.3f} "

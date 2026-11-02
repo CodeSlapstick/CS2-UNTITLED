@@ -290,7 +290,7 @@ Solid, weighty, one per view.
 ### Navigation
 - **Links:** Anuphan 600 15px in Reticle Cyan, underline on hover (3px offset). The quiet variant is 14px 500 muted steel and brightens to white on hover or when expanded.
 - **Inline note:** disclosed help appears as a 6% cyan-tinted block with a 28% cyan border, 4px corners, fading down 4px in.
-- **Analysis ownership:** Opening Route lives as a tab inside `/analysis`, beside "ทีมเราตายตรงไหน". It is not a separate top-level navigation item. The comparison and site-readability tabs are intentionally absent.
+- **Analysis ownership:** Opening Route lives as a tab inside `/analysis`, beside "ทีมเราตายตรงไหน". It is not a separate top-level navigation item. The comparison tab is intentionally absent.
 
 ### Briefing Radar (signature)
 The real de_mirage radar as a cyan wireframe raster at 80% opacity, masked to a circle and faded toward the text side, overlaid with eight range rings and a crosshair at 14–16% cyan, and a conic sweep rotating every 7s linear. Under `prefers-reduced-motion` the sweep is removed and all entrance animations and transitions are off.

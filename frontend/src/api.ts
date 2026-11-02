@@ -310,31 +310,6 @@ export interface DeathsOverlay {
   radar: { image: string; size: number; map: string };
 }
 
-/**
- * "อ่านทางออกง่ายแค่ไหน" — โมเดลทายไซต์ (research/models/site_ml.py) มาอ่านแมตช์ของทีมทีละรอบ
- * read_at = วินาทีแรกที่โมเดลมั่นใจ ≥ 80% ไปทางไซต์ที่เกิดขึ้นจริง · ยิ่งเร็ว = คู่แข่งยิ่งอ่านออกเร็ว
- */
-export interface ReadRound {
-  round_num: number;
-  site: "A" | "B";
-  plant_t: number | null;
-  read_at: number | null; // null = โมเดลอ่านไม่ออกเลยจนถึงวินาทีที่วางบอมบ์
-  lead: number | null; // อ่านออกก่อนบอมบ์ลงจริงกี่วินาที
-  winner_side: Side | null;
-}
-
-export interface Readability {
-  available: boolean;
-  reason?: string;
-  map?: string;
-  demo?: string;
-  rounds_detail?: ReadRound[];
-  summary?: { rounds: number; read: number; avg_read_at: number | null; median_read_at: number | null; avg_lead: number | null };
-  benchmark?: { threshold: number; rounds: number; read_share: number; avg_read_at: number | null; median_read_at: number | null };
-  source?: { matches: number; rounds: number; label: string };
-  note?: string;
-}
-
 export interface PlayerBehaviorSignal {
   feature: string;
   direction: "higher" | "lower";
@@ -455,7 +430,6 @@ export const api = {
     ),
   // --- หน้าเครื่องมือวิเคราะห์ ---
   referenceMaps: () => request<string[]>("/api/analysis/reference-maps"),
-  readability: (demo: string) => request<Readability>(`/api/analysis/readability?demo=${enc(demo)}`),
   playerBehavior: (demo: string, players?: string[] | null) => request<PlayerBehavior>(
     `/api/analysis/player-behavior?demo=${enc(demo)}${players?.length ? `&players=${players.join(",")}` : ""}`,
   ),

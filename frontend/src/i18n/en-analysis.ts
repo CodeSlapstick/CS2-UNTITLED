@@ -5,9 +5,6 @@ export const EN_ANALYSIS: Record<string, string> = {
   "เทียบกับทีมอาชีพ": "Compared with pros",
   "ตรงไหนที่ทีมเราเสียคนบ่อยกว่าทีมอาชีพ เทียบเป็นสัดส่วนของจุดตายทั้งหมด เพราะสองชุดมีจำนวนแมตช์ไม่เท่ากัน":
     "Where we lose players more often than pro teams, compared as a share of all death spots because the two sets have different numbers of matches.",
-  "อ่านทางเราออกไหม": "Can they read us?",
-  "ดูจากตำแหน่งผู้เล่นฝั่ง T ทีละวินาที ว่าเดาได้เร็วแค่ไหนว่าทีมจะเข้าไซต์ไหน — เดาออกเร็ว คู่แข่งที่ดูเทปก็อ่านทางออกเร็ว":
-    "From T-side player positions second by second: how early can you guess which site the team will hit? If it's easy to guess early, opponents watching the demo can read you early too.",
   "ทั้งสองฝั่ง": "Both sides",
   "ตอนเป็น CT": "As CT",
   "ตอนเป็น T": "As T",
@@ -24,7 +21,6 @@ export const EN_ANALYSIS: Record<string, string> = {
   "แมตช์ของทีม": "Team matches",
   "ทุกแมตช์ที่อัปโหลด ({n})": "All uploaded matches ({n})",
   "โหลดข้อมูลไม่ได้: {msg}": "Couldn't load data: {msg}",
-  "กำลังอ่านทีละรอบ…": "Reading round by round…",
   "กำลังนับจุดตาย…": "Counting death spots…",
   'เลือกรอบอย่างน้อยหนึ่งรอบ หรือกด "ทั้งหมด"': 'Select at least one round or press "All".',
   'เลือกผู้เล่นอย่างน้อยหนึ่งคน หรือกด "ทั้งหมด"': 'Select at least one player or press "All".',
@@ -48,35 +44,6 @@ export const EN_ANALYSIS: Record<string, string> = {
   "ความเบลอเพิ่มเติม": "Extra blur",
   "ความทึบ": "Opacity",
   "ความทึบของชั้นสี": "Color layer opacity",
-
-  // อ่านทางเราออกไหม
-  "ยังอ่านแมตช์นี้ไม่ได้": "Can't read this match yet",
-  "ยังไม่มีโมเดลทายไซต์ของแมพ {map}": "No site model for {map} yet",
-  "แมตช์นี้ไม่มีรอบที่ T วางบอมบ์ได้ จึงไม่มีเฉลยให้วัด":
-    "This match has no rounds where T planted the bomb, so there is no answer to check against.",
-  "ทีมเรา ถูกอ่านออกเฉลี่ยวินาทีที่": "Our team: read on average at second",
-  "อ่านออก {read} จาก {rounds} รอบที่วางบอมบ์ · มัธยฐานวินาทีที่ {median}":
-    "Read in {read} of {rounds} planted rounds · median second {median}",
-  "ทีมอาชีพ ถูกอ่านออกเฉลี่ยวินาทีที่": "Pro teams: read on average at second",
-  "จาก {rounds} รอบ · มัธยฐานวินาทีที่ {median}": "From {rounds} rounds · median second {median}",
-  "ฝ่ายรับอ่านทางได้เร็วกว่าทีมอาชีพ {s} วินาที": "Defenders read the site {s} s earlier than against pro teams",
-  "ฝ่ายรับอ่านทางได้ช้ากว่าทีมอาชีพ {s} วินาที": "Defenders read the site {s} s later than against pro teams",
-  "โดยเฉลี่ยรู้ทางก่อนบอมบ์ลงจริง {s} วินาที": "on average the site is known {s} s before the bomb goes down",
-  "ดูทีละรอบ": "Rounds",
-  "เข้าไซต์": "Site",
-  "ถูกอ่านออกวินาทีที่": "Read at second",
-  "ก่อนบอมบ์ลง": "Before plant",
-  "ผลรอบ": "Result",
-  "อ่านไม่ออก": "Not read",
-  "{s} วิ": "{s} s",
-  "{side} ชนะ": "{side} won",
-  "ดูรอบนี้": "View round",
-  'แถวที่เน้น = ถูกอ่านออกภายใน 8 วินาทีแรก · กด "ดูรอบนี้" แล้วหน้ารอบจะเปิดโหมดเล่นย้อนค้างไว้ที่วินาทีนั้นพอดี':
-    'Highlighted rows = read within the first 8 seconds · press "View round" to open the round in playback, paused at that exact second.',
-  "{note} · เทียบกับ{source}": "{note} · compared with {source}",
-  "ทำนายเฉพาะรอบที่ T ได้วางบอมบ์ · เทรนจากชุดอ้างอิงเท่านั้น ไม่เคยเห็นแมตช์ที่ผู้ใช้อัปโหลด":
-    "Only rounds where T planted the bomb are predicted · trained on the reference set only, never on uploaded matches",
-  "เดโมทีมอาชีพ {n} แมตช์ ({rounds} รอบที่วางบอมบ์บน {map})": "{n} pro demos ({rounds} planted rounds on {map})",
 
   // ตาราง + คำอธิบายสี
   "{n} ช่อง": "{n} cells",
