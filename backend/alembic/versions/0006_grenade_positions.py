@@ -11,7 +11,7 @@ Create Date: 2026-09-12
     end_tick            tick ที่ควัน/ไฟหมด (smokegrenade_expired / inferno_expire) — แฟลชกับ HE = land_tick
 แถวเก่าเป็น NULL ทั้งหมดจนกว่าจะแกะเดโมใหม่ (อัปโหลดทับ หรือส่งงาน parse ซ้ำ)
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0006"
 down_revision = "0005"

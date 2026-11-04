@@ -9,7 +9,7 @@ Create Date: 2026-09-12
 avatar เก็บ URL รูปโปรไฟล์จาก Steam Web API (ว่างได้ ถ้าไม่ได้ตั้ง STEAM_API_KEY)
 ตาราง users เดิมของ Steam login รุ่นแรกยังไม่ลบ ตามกฎห้ามลบของเก่า
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0007"
 down_revision = "0006"

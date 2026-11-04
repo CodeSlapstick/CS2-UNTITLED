@@ -8,7 +8,7 @@ matches.source  'reference' = เดโมชุดตั้งต้นที�
 ต้องไม่ถูกนับเป็นชุดเทรนโดยอัตโนมัติ  แถวเก่าที่เป็นชุดอ้างอิงจริงทำเครื่องหมายด้วย
     python -m backend.etl_loader --mark-reference
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0012"
 down_revision = "0011"

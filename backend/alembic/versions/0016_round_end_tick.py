@@ -3,7 +3,7 @@
 Revision ID: 0016_round_end
 Revises: 0015
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0016_round_end"
 down_revision = "0015"

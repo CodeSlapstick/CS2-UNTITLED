@@ -7,15 +7,13 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from backend.db import sqlalchemy_url
+from backend.config.database import sqlalchemy_url
 from backend.models import Base
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# ที่อยู่ DB มาจาก .env (DATABASE_URL) ไม่ใช่จาก alembic.ini — จะได้มีที่ตั้งค่าที่เดียว
-# escape % เพราะ configparser ของ alembic ตีความ % เป็น interpolation
 config.set_main_option("sqlalchemy.url", sqlalchemy_url().replace("%", "%%"))
 
 target_metadata = Base.metadata   # ให้ alembic revision --autogenerate เทียบกับ models.py ได้

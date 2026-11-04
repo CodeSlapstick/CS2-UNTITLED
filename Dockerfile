@@ -5,8 +5,8 @@
 #
 # ปกติไม่ต้อง build เอง — docker compose up -d ทำให้หมด
 
-# 3.11 ตามข้อกำหนดของ Sprint 2 (awpy 2.0.2 / demoparser2 0.41.4 มี wheel สำเร็จรูปสำหรับรุ่นนี้)
-FROM python:3.11-slim
+# Python 3.12 matches development/CI and supports the pinned NumPy/parser wheels.
+FROM python:3.12-slim
 
 # libgomp1 — scikit-learn ต้องใช้ตอนรัน แต่ไม่มีมากับ image แบบ slim
 RUN apt-get update \
@@ -22,20 +22,21 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Bundle the trained ML artifacts used by analysis and Coach in deployments.
-# The archive contains paths rooted at output/.
-RUN python deployment/extract_models.py cs2-models-2026-10-24.zip /app \
- && mkdir -p /app/output/models/de_mirage \
- && cp /app/output/coach_model.json /app/output/models/de_mirage/coach_model.json \
- && rm cs2-models-2026-10-24.zip
+RUN groupadd --system app \
+ && useradd --system --gid app --home-dir /app app \
+ && mkdir -p /app/demos /tmp/matplotlib \
+ && chown -R app:app /app /tmp/matplotlib
 
 # Agg = วาดภาพลงไฟล์โดยไม่ต้องมีจอ (ใน container ไม่มีอยู่แล้ว)
 # MPLCONFIGDIR ชี้ไป /tmp กัน matplotlib เตือนว่าเขียน cache ลง HOME ไม่ได้
 ENV MPLBACKEND=Agg \
     MPLCONFIGDIR=/tmp/matplotlib \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 VOLUME ["/app/output", "/app/demos"]
+
+USER app
 
 # พอร์ตของ API ภายใน container — compose ไม่เปิดออกมานอกเครื่อง หน้าเว็บ (nginx) ต่อเข้ามาทางเครือข่ายของ compose
 EXPOSE 8000

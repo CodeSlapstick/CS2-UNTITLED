@@ -58,15 +58,10 @@ _args = _ap.parse_args()
 MAP = _args.map       # csv จะถูกกรองเหลือเฉพาะแมพนี้ก่อนใช้งาน
 GRID_N = 32         # แบ่งแมพเป็นกี่ช่องต่อด้าน — ใช้ค่าเดียวกับ grid_ml.py ช่องจะได้ตรงกัน เทียบกันได้
 MIN_KILLS = _args.min_kills  # ช่องต้องมีดวลอย่างน้อยเท่านี้ถึงจะสร้างโปรไฟล์
-                    #   เพราะโปรไฟล์เป็นสัดส่วน ถ้ามีแค่ 5 ดวล ค่าจะกระโดดทีละ 0.2 หยาบเกินจะจัดกลุ่ม
-                    #   ที่ 10: เหลือ 192 จาก 341 ช่อง แต่ยังครอบคลุม 93% ของการดวลทั้งหมด
 
-# --- คำถามที่ 1: จุดปะทะ (MeanShift) ---
 BANDWIDTH = 300     # รัศมีที่ถือว่า "จุดตายอยู่ใกล้กัน" หน่วยเกม (300 ≈ 5.7 เมตร เท่ากับ grid ใน radars.json)
-                    #   ยิ่งเล็กยิ่งซอยละเอียด: 200 -> 30 จุด | 250 -> 22 | 300 -> 17 | 350 -> 11
 MIN_BIN_FREQ = 15   # ยอดที่มีจุดตายไม่ถึงเท่านี้ในรัศมี ไม่นับเป็นจุดปะทะ กันจุดตายโดด ๆ กลายเป็นยอด
 
-# --- คำถามที่ 2: ประเภทช่อง (KMeans) ---
 FEATURES = ["t_mean", "planted_share", "dist_mean", "awp_share"]   # โปรไฟล์ของช่อง — ไม่มีตัวไหนบอกฝั่ง
 K_RANGE = range(2, 9)   # ไล่ลองจำนวนกลุ่มช่วงนี้
 K_CLUSTERS = None       # None = เลือก k ที่ silhouette สูงสุดให้เอง | ใส่ตัวเลขถ้าจะล็อก
@@ -79,7 +74,7 @@ CSV = _args.csv                              # สร้างด้วย pytho
 OUT = _args.output_dir or ROOT / "output" / "models" / MAP
 
 sys.path.insert(0, str(ROOT))           # ให้ import backend.* ได้เมื่อรันจากรากโปรเจกต์
-from backend.review import cells_of, radar_frame  # noqa: E402  สูตรพิกัดชุดเดียวของทั้งรีโป
+from backend.services.review import cells_of, radar_frame  # noqa: E402  สูตรพิกัดชุดเดียวของทั้งรีโป
 
 for _s in (sys.stdout, sys.stderr):     # ให้คอนโซล Windows พิมพ์ไทยได้
     try:
@@ -89,12 +84,10 @@ for _s in (sys.stdout, sys.stderr):     # ให้คอนโซล Windows �
 
 
 # ===========================================================================
-# STEP 1 — โหลดข้อมูล
 # ===========================================================================
 df = pd.read_csv(CSV)
 n_raw = len(df)
 
-# กรองให้เหลือแมพเดียว เพราะกริดกับจุดปะทะผูกกับภาพเรดาร์ของแมพนั้น
 if "map_name" in df.columns:
     df = df[df["map_name"] == MAP]
     if df.empty:
@@ -102,10 +95,7 @@ if "map_name" in df.columns:
 
 
 # ===========================================================================
-# STEP 2 — หาว่าแต่ละแถวมาจากเดโมไฟล์ไหน
 # ===========================================================================
-# ใช้แบ่งกลุ่มตอนวัดเสถียรภาพ: สุ่มเป็น "แมตช์" ไม่ใช่รายแถว
-# เหตุผลเดียวกับ GroupKFold ใน grid_ml.py — แถวจากแมตช์เดียวกันไม่ได้เป็นอิสระต่อกัน
 if "demo_file" in df.columns:
     df["match_id"] = df["demo_file"]
 else:
@@ -113,9 +103,7 @@ else:
 
 
 # ===========================================================================
-# STEP 3 — บริบทของรอบ ณ ตอนที่การดวลเกิด
 # ===========================================================================
-# สองอย่างนี้เป็นฟีเจอร์หลักของโปรไฟล์ช่อง ถ้า csv ไม่มีก็ทำต่อไม่ได้ ต้อง parse ใหม่
 if "round_start_tick" not in df.columns:
     sys.exit("csv ไม่มีคอลัมน์บริบทรอบ (round_start_tick) — รัน python research/prep/demoparser.py --force ก่อน")
 
@@ -125,26 +113,18 @@ df["planted"] = (df["bomb_plant_tick"].notna() & (df["tick"] >= df["bomb_plant_t
 
 
 # ===========================================================================
-# STEP 4 — เก็บเฉพาะการดวลจริง แล้ว "ซ่อน" เฉลยไว้
 # ===========================================================================
-#   ไม่มีคนยิง   = ตายเพราะ C4 ระเบิด หรือตกที่สูง -> attacker_side ว่าง
-#   ฝั่งเดียวกัน = ทีมคิล
 has_attacker = df["attacker_side"].notna()
 enemy_duel = df["attacker_side"] != df["victim_side"]
 df = df[has_attacker & enemy_duel].copy()
 
-# นี่คือเฉลยของ grid_ml.py — ในไฟล์นี้ห้ามเข้าโมเดลเด็ดขาด
-# เก็บไว้ใช้ครั้งเดียวใน STEP 8 เพื่อตรวจว่ากลุ่มที่โมเดลหาเองสอดคล้องกับของจริงไหม
 df["ct_won"] = (df["attacker_side"] == "ct").astype(int)
 
 
 # ===========================================================================
-# STEP 5 — หย่อนลงกริด และคำนวณลักษณะของแต่ละดวล
 # ===========================================================================
-# ขอบเขตกริดเอาจากภาพเรดาร์ ไม่ใช่จากค่าต่ำสุด-สูงสุดของข้อมูล (เหตุผลเดียวกับ grid_ml.py)
 radar = json.loads((ROOT / "assets" / "radars.json").read_text(encoding="utf-8"))[MAP]   # ไว้ใส่ payload + path รูป
 
-# สูตรแปลงพิกัด -> ช่องกริดอยู่ที่ backend/review.py ที่เดียว (API หน้า Round Review ใช้ตัวเดียวกัน ช่องจึงตรงกันเสมอ)
 frame = radar_frame(MAP)
 span = frame.span                          # 1024 พิกเซล x 5.0 = 5120 หน่วยในเกม
 x_left, x_right, y_bottom, y_top = frame.extent
@@ -152,7 +132,6 @@ cell_size = frame.cell_size(GRID_N)        # 5120 / 32 = 160 หน่วยต�
 
 df["cx"], df["cy"] = cells_of(df["victim_X"], df["victim_Y"], frame, GRID_N)
 
-# ระยะดวลคิดจากพิกัดเอง ให้อยู่ในหน่วยเกมเดียวกับกริด (คอลัมน์ distance ของ parser คนละหน่วย)
 df["dist_xy"] = np.hypot(df["attacker_X"] - df["victim_X"], df["attacker_Y"] - df["victim_Y"])
 df["awp"] = df["weapon"].isin(SNIPERS).astype(int)
 
@@ -172,18 +151,13 @@ def resample_matches(d, rng):
     return pd.concat([d[d["match_id"] == m] for m in picked], ignore_index=True)
 
 
-# สุ่มชุดแมตช์ไว้ชุดเดียว ใช้วัดเสถียรภาพทั้งสองคำถาม จะได้เทียบกันบนชุดเดียวกัน
 BOOT_COLS = ["match_id", "victim_X", "victim_Y", "cx", "cy", "t_round", "planted", "dist_xy", "awp"]
 rng = np.random.default_rng(SEED)
 boots = [resample_matches(df[BOOT_COLS], rng) for _ in range(N_BOOT)]
 
 
 # ===========================================================================
-# STEP 6 — คำถามที่ 1: จุดปะทะอยู่ตรงไหน (MeanShift)
 # ===========================================================================
-# MeanShift มองจุดตายทั้งหมดเป็นภูเขาความหนาแน่น แล้วให้ทุกจุดไต่ขึ้นยอดที่ใกล้ที่สุด
-# จุดที่ไต่ไปถึงยอดเดียวกัน = จุดปะทะเดียวกัน จำนวนยอดจึงมาจากข้อมูล ไม่ใช่จากคนตั้ง
-# ต่างจาก KMeans ที่ต้องบอก k ล่วงหน้า และมักหั่นแมพเป็นโซนเท่า ๆ กันแม้ตรงนั้นไม่มีใครตาย
 def find_hotspots(d):
     ms = MeanShift(bandwidth=BANDWIDTH, bin_seeding=True, min_bin_freq=MIN_BIN_FREQ,
                    cluster_all=False)   # จุดที่ห่างจากทุกยอดเกิน BANDWIDTH ให้เป็น -1 ไม่ยัดเข้ากลุ่มไหน
@@ -193,7 +167,6 @@ def find_hotspots(d):
 
 labels, centers = find_hotspots(df)
 
-# เรียงยอดตามจำนวนดวล มาก -> น้อย แล้วให้เบอร์ใหม่ เบอร์ 1 ในรูปคือจุดที่ปะทะหนักสุดเสมอ
 order = np.argsort(-np.bincount(labels[labels >= 0]))
 remap = {old: new for new, old in enumerate(order)}
 df["hotspot"] = np.array([remap.get(lab, -1) for lab in labels])
@@ -215,7 +188,6 @@ for i, (hx, hy) in enumerate(centers):
 hotspots = pd.DataFrame(rows)
 noise_share = float((df["hotspot"] < 0).mean())
 
-# เสถียรภาพ: สุ่มชุดแมตช์ใหม่แล้วหายอดอีกรอบ ยอดของจริงกี่ % ที่ยังมียอดคู่กันในระยะครึ่ง bandwidth
 found = []
 for b in boots:
     _, cb = find_hotspots(b)
@@ -233,10 +205,7 @@ print("  ct_win = สัดส่วนที่ CT ชนะดวลในจ�
 
 
 # ===========================================================================
-# STEP 7 — คำถามที่ 2: แต่ละช่องเป็นการปะทะแบบไหน (KMeans บนโปรไฟล์ช่อง)
 # ===========================================================================
-# หนึ่งแถว = หนึ่งช่องกริด สรุปจากทุกดวลที่จบในช่องนั้น
-# ทุกฟีเจอร์เป็น "ลักษณะของการปะทะ" ไม่ใช่ "ใครชนะ" — ไม่มีคอลัมน์ไหนบอกฝั่ง
 def cell_profiles(d):
     g = d.groupby(["cx", "cy"])
     p = pd.DataFrame({
@@ -253,20 +222,14 @@ cells = cell_profiles(df)
 print(f"\nคำถามที่ 2 — ช่องที่มีดวล >= {MIN_KILLS}: {len(cells)} จาก {df.groupby(['cx', 'cy']).ngroups} ช่อง "
       f"(ครอบคลุม {cells['kills'].sum() / len(df):.0%} ของการดวล)")
 
-# ทุกฟีเจอร์คนละหน่วย (วินาที / สัดส่วน / หน่วยเกม) ต้องดึงมาสเกลเดียวกันก่อน
-# ไม่งั้น KMeans จะฟังแต่ dist_mean ที่ตัวเลขเป็นร้อย แล้วมองข้ามสัดส่วนที่อยู่ระหว่าง 0-1
 scaler = StandardScaler().fit(cells[FEATURES])
 Z = scaler.transform(cells[FEATURES])
 
 
 def fit_kmeans(X, k):
-    # n_init=20 คือลองจุดเริ่มต้น 20 ชุดแล้วเอาชุดที่ดีสุด กัน KMeans ติดคำตอบแย่ ๆ จากจุดเริ่มที่โชคร้าย
     return KMeans(n_clusters=k, n_init=20, random_state=SEED).fit(X)
 
 
-# ไล่ลอง k แล้ววัดสองอย่างต่อค่า
-#   silhouette  ช่องอยู่ใกล้กลุ่มตัวเองมากกว่ากลุ่มข้างเคียงแค่ไหน (1 = แยกชัด, 0 = ก้ำกึ่ง, ติดลบ = จัดผิดกลุ่ม)
-#   ARI         จัดกลุ่มบนชุดแมตช์ที่สุ่มใหม่ แล้วดูว่าช่องเดิมยังอยู่กลุ่มเดียวกันไหม (1 = เหมือนเดิมเป๊ะ, 0 = เท่าสุ่ม)
 boot_profiles = [cell_profiles(b) for b in boots]
 ks = sorted(set(K_RANGE) | ({K_CLUSTERS} if K_CLUSTERS else set()))   # k ที่ล็อกไว้ต้องโผล่ในตารางด้วย
 max_k = min([len(cells) - 1, *(len(bp) for bp in boot_profiles)])
@@ -295,13 +258,11 @@ for r in scan.itertuples():
 
 km = fit_kmeans(Z, k_best)
 
-# เรียงกลุ่มตามเวลาเฉลี่ยในรอบ ต้นรอบ -> ท้ายรอบ เบอร์กลุ่มจะได้อ่านเป็นลำดับเหตุการณ์ได้
 order = np.argsort(km.cluster_centers_[:, FEATURES.index("t_mean")])
 remap = {old: new for new, old in enumerate(order)}
 cells["cluster"] = [remap[lab] for lab in km.labels_]
 centers_z = km.cluster_centers_[order]   # ค่ากลางแต่ละกลุ่มในหน่วย z-score (0 = เท่าค่าเฉลี่ยของทุกช่อง)
 
-# ตั้งชื่อกลุ่มจากสองฟีเจอร์ที่เบี่ยงจากค่าเฉลี่ยมากสุด — ชื่อมาจากตัวเลข ไม่ได้นั่งตั้งเอง
 WORDS = {   # (ต่ำกว่าค่าเฉลี่ย, สูงกว่าค่าเฉลี่ย)
     "t_mean": ("early round", "late round"),
     "planted_share": ("pre-plant", "post-plant"),
@@ -318,16 +279,12 @@ def name_cluster(z):
 
 cluster_names = [name_cluster(z) for z in centers_z]
 
-# แปะข้อมูลอ่านประกอบ (ไม่ใช่ฟีเจอร์): callout ที่พบบ่อยสุด และเฉลยที่ซ่อนไว้
 extra = df.groupby(["cx", "cy"]).agg(place=("victim_place", top_place), ct_win=("ct_won", "mean"))
 cells = cells.join(extra)
 
 
 # ===========================================================================
-# STEP 8 — เปิดเฉลย: กลุ่มที่โมเดลหาเองสอดคล้องกับ "ใครชนะ" ไหม
 # ===========================================================================
-# ถ้ากลุ่มเป็นแค่ noise ทุกกลุ่มจะมี CT ชนะใกล้ค่ารวม (~0.54) เท่า ๆ กัน
-# ถ้าต่างกันชัด แปลว่าลักษณะการปะทะที่โมเดลเจอเอง สัมพันธ์กับความได้เปรียบจริง
 duel_cluster = df.join(cells[["cluster"]], on=["cx", "cy"])       # ดวลไหนอยู่ช่องที่ถูกจัดกลุ่มไหน
 clusters = cells.groupby("cluster").agg(
     n_cells=("kills", "size"), duels=("kills", "sum"),
@@ -349,18 +306,11 @@ print("  CT ชนะ = เฉลยที่โมเดลไม่เคย�
 
 
 # ===========================================================================
-# STEP 9 — วาดรูปสี่ช่อง
 # ===========================================================================
 img = np.asarray(Image.open(ROOT / "assets" / radar["image"].lstrip("/")).convert("RGB"))
 extent = [x_left, x_right, y_bottom, y_top]      # ภาพเรดาร์กินพื้นที่พิกัดเกมช่วงไหน
 
-# --- สีในรูปนี้ ---------------------------------------------------------------------------------
-# กฎ: สีที่ "เรียงลำดับได้" ใช้กับค่าที่เรียงลำดับได้เท่านั้น ส่วนกลุ่มที่ไม่มีลำดับห้ามใช้ไล่เฉด
-#   Q1 จำนวนการดวล เป็นค่ามาก-น้อย -> ไล่เฉดม่วงเฉดเดียว เข้ม = น้อย สว่าง = บ่อย
-#      (ลำดับอยู่ที่ "ความสว่าง" ไม่ใช่ที่สี คนตาบอดสีจึงอ่านลำดับได้ · ชุดเดียวกับที่หน้าเว็บใช้ใน utils.tsx)
-#   Q2 ประเภทช่อง เป็นกลุ่มที่ไม่มีลำดับ -> สามสีที่แยกกันชัด ไม่ได้แปลว่าดี/แย่กว่ากัน
 FREQ_HEX = ["#FF0000", "#DF5B5B", "#FFA0A0", "#E9D5FF"]
-# วงของจุดที่ดวลน้อยสุดยังต้องเห็นบนเรดาร์พื้นเข้ม จึงตัดปลายล่างสุดของไล่เฉดออก
 _freq = LinearSegmentedColormap.from_list("duels", FREQ_HEX)
 FREQ_CMAP = LinearSegmentedColormap.from_list("duels_hot", _freq(np.linspace(0.15, 1.0, 256)))
 TYPE_HEX = ["#8B5CF6", "#0D9488", "#D97706"]     # ตรวจแล้วว่าตาบอดสีทุกแบบยังแยกออกจากกันได้
@@ -378,12 +328,9 @@ def ink(rgba) -> str:
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(17, 15),
                                              gridspec_kw={"height_ratios": [1.35, 1]})
 
-# --- บนซ้าย: จุดปะทะ ---
 ax1.imshow(img, extent=extent, origin="upper")
 noise = df[df["hotspot"] < 0]
 ax1.scatter(noise["victim_X"], noise["victim_Y"], s=3, c="#bbbbbb", alpha=0.35, linewidths=0)
-# จุดตายทุกจุดในกลุ่มใช้สีอ่อนสีเดียว — ความหนาแน่นของจุดบอกเองว่าตรงไหนแน่น
-# สีที่ "ไล่ระดับ" เก็บไว้ให้วงกับเลข ซึ่งเป็นตัวที่แทนจำนวนการดวลของทั้งจุดนั้น
 for i, h in hotspots.iterrows():
     m = df[df["hotspot"] == i]
     ax1.scatter(m["victim_X"], m["victim_Y"], s=4, color="#C084FC", alpha=0.30, linewidths=0)
@@ -399,9 +346,6 @@ ax1.set_title(f"Q1  Where fights cluster — MeanShift, bandwidth {BANDWIDTH} un
               f"number 1 = busiest · grey = not near any peak\n"
               f"{hotspot_stability:.0%} of peaks recur under match bootstrap", fontsize=10)
 
-# --- บนขวา: ประเภทช่อง ---
-# วาดเป็นภาพ RGBA ซ้อนบนเรดาร์ ช่องที่ข้อมูลน้อยกว่า MIN_KILLS ปล่อยใส
-# index ของ array เป็น [แถว, คอลัมน์] = [cy, cx] และ origin="lower" ให้แถว 0 อยู่ล่างสุด = y_bottom
 rgba = np.zeros((GRID_N, GRID_N, 4))
 for (cx, cy), r in cells.iterrows():
     rgba[cy, cx] = (*TYPE_COLORS[r["cluster"]][:3], 0.65)
@@ -418,7 +362,6 @@ for ax in (ax1, ax2):
     ax.set_xticks([])
     ax.set_yticks([])
 
-# --- ล่างซ้าย: เลือก k อย่างไร ---
 ax3.plot(scan["k"], scan["silhouette"], "o-", color="#1f77b4", label="silhouette (higher = clearer split)")
 ax3.set_ylim(scan["silhouette"].min() - 0.03, scan["silhouette"].max() + 0.03)   # เผื่อขอบ ไม่ให้จุดต่ำสุดหลุดกรอบ
 ax3.set_xlabel("k (number of cell types)")
@@ -436,9 +379,6 @@ ax3.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=9)
 ax3.set_title("How k was chosen: separation vs. stability", fontsize=10)
 ax3.grid(alpha=0.3)
 
-# --- ล่างขวา: โปรไฟล์ของแต่ละประเภท ---
-# สีคือ z-score ของค่ากลาง (น้ำเงิน = ต่ำกว่าเฉลี่ยของทุกช่อง, แดง = สูงกว่า)
-# ตัวเลขในช่องคือค่าจริง คอลัมน์สุดท้ายเป็นเฉลยที่ซ่อนไว้ ปล่อยเทาไว้ให้รู้ว่าไม่ได้ร่วมจัดกลุ่ม
 heat = np.full((k_best, len(FEATURES) + 1), np.nan)
 heat[:, :len(FEATURES)] = centers_z
 cmap = plt.cm.RdBu_r.copy()
@@ -467,7 +407,6 @@ fig.savefig(OUT / "grid_ml1_map.png", dpi=140)
 
 
 # ===========================================================================
-# STEP 10 — เซฟตาราง และ json ก้อนเดียวให้หน้าเว็บใช้
 # ===========================================================================
 cells_out = cells.reset_index()
 cells_out["cluster"] += 1                        # ให้เบอร์เริ่มที่ 1 เหมือนในรูป

@@ -1,257 +1,138 @@
 # CS2 Scouting Platform
 
-เว็บวิเคราะห์เดโม Counter-Strike 2 สำหรับโค้ช/ทีม — อัปโหลดไฟล์ `.dem` แล้วระบบแกะในเบื้องหลัง
-เปิดดูสถิติของแมตช์นั้นได้ทันทีที่เสร็จ (SP-404 Senior Project · UTCC STECH)
+Local Counter-Strike 2 demo-analysis platform for teams and coaches. Upload a `.dem` file, parse it in the background, and review match, round, player, economy, utility, opening, trade, clutch, KAST, and positioning statistics.
 
-```
-เบราว์เซอร์ ──► frontend (React + nginx, :3000) ──/api /auth /assets──► api (FastAPI ภายใน Docker) ──► PostgreSQL
-                                                                           │  ▲                       ▲
-                                                                   enqueue │  │ status                │ INSERT
-                                                                           ▼  │                       │
-                                                                         Redis ──► worker ── parse_demo(match_id) ── awpy/demoparser2
-                                                                                   │
-                                                                                   └── backend/features.py  (opening / trade / buy / clutch / KAST)
-```
+## Current status
 
-ใช้งานที่เดียวคือหน้าเว็บ — API อยู่หลังหน้าเว็บเสมอ ไม่เปิดพอร์ตของตัวเองออกมานอกเครื่อง
+The application currently runs locally with Docker Compose:
 
-Sprint 1 ตอบว่า "จุดปะทะสำคัญอยู่ตรงไหน ตรงไหนใครได้เปรียบ" ด้วยโมเดลบน Mirage 50 แมตช์ (ดู `research/`)
-Sprint 2 เปลี่ยนสิ่งนั้นจากสคริปต์เป็นระบบที่ใช้งานได้จริง end-to-end: **อัปโหลด → parse ในเบื้องหลัง → ดูสถิติ**
-
----
-
-## เริ่มใช้ในคำสั่งเดียว (Docker)
-
-```bash
-cp .env.example .env          # ค่าเริ่มต้นใช้ได้เลย (ถ้าเครื่องมี PostgreSQL อยู่แล้ว ตั้ง POSTGRES_PORT=5433)
-docker compose up -d          # db + redis + api + worker + frontend
+```text
+Browser -> React/Vite frontend + nginx (:3000)
+        -> FastAPI API -> PostgreSQL + Redis
+        -> background worker for demo parsing
 ```
 
-เปิด **http://localhost:3000** แล้วล็อกอิน — เข้ามาเจอ **สถิติของฉัน** เป็นหน้าแรก แล้วไปต่อที่ แมตช์ / เครื่องมือวิเคราะห์
+The API runs Alembic migrations automatically when its container starts. The current migration head is `0022`.
 
-| ที่อยู่ | คืออะไร |
-|---|---|
-| http://localhost:3000 | หน้าเว็บ — `/login` → `/player` (สถิติของฉัน) · `/matches/{demo_file}/rounds/{n}` · `/analysis` |
-| http://localhost:3000/api/docs | Swagger ของ API (ล็อกอินที่หน้าเว็บก่อน คุกกี้ใช้ร่วมกัน) |
-| localhost:5432 (หรือ `POSTGRES_PORT`) | PostgreSQL · user/pass `postgres` · db `cs2_analytics` (ต่อ DBeaver ได้) |
+## Run locally
 
-`api` รัน `alembic upgrade head` และสร้าง dev user ให้เองตอนสตาร์ต จึงเปิดบนฐานข้อมูลเปล่าได้ทันที และเปิดบนฐานข้อมูลเดิมได้โดยไม่เสียข้อมูล
+Requirements: Docker Desktop with Docker Compose and a Counter-Strike 2 `.dem` file.
 
-### ล็อกอิน
+From the repository root:
 
-เปิดเว็บแล้วจะเด้งไปหน้า `/login` ก่อนเสมอ — เข้าได้สามทาง: Steam, ชื่อผู้ใช้ของทีม, หรือผู้เยี่ยมชม
-ใช้ user สำหรับ dev ที่ระบบสร้างให้ตอน api สตาร์ต
-
-| ชื่อผู้ใช้ | รหัสผ่าน |
-|---|---|
-| `dev` | `cs2dev1234` |
-
-เปลี่ยนได้ที่ `DEV_USERNAME` / `DEV_PASSWORD` ใน `.env` หรือกด "สมัครสมาชิก" ในหน้า login (ปิดได้ด้วย `ALLOW_REGISTER=0`)
-คนที่แค่มาลอง กดปุ่ม **ลองใช้ทันทีแบบผู้เยี่ยมชม** — เข้าเป็นบัญชี `guest` คลิกเดียว ดูได้ทุกอย่างแต่อัปโหลดเดโมไม่ได้ (`POST /api/demos` ตอบ 403) ปิดปุ่มนี้ได้ด้วย `GUEST_LOGIN=0`
-หรือกดปุ่ม **เข้าสู่ระบบด้วย Steam** — ล็อกอินผ่าน Steam (OpenID 2.0) ระบบไม่เห็นรหัสผ่าน Steam ของใครเลย
-ครั้งแรกจะสร้างบัญชีให้เองจาก SteamID64 (ชื่อ/รูปโปรไฟล์ต้องตั้ง `STEAM_API_KEY` ใน `.env` ไม่ตั้งก็ล็อกอินได้ ชื่อจะเป็น `steam_<SteamID64>`)
-**ค่าเริ่มต้นคือใครมีบัญชี Steam ก็เข้าได้** — จำกัดเฉพาะทีมได้ด้วย `STEAM_ALLOWED_IDS=76561198...,76561198...` ใน `.env`
-session เป็น JWT ในคุกกี้ httpOnly อายุ 7 วัน (`backend/auth.py`) — ตั้ง `SECRET_KEY` ใน `.env` ไว้ ไม่งั้นทุกคนหลุดเมื่อ api รีสตาร์ต
-
-### หน้าเว็บ
-
-หน้าหลักมีหน้าเดียวที่ `/matches/{demo_file}/rounds/{round_num}` เช่น `/matches/Vitality-vs-Legacy-Mirage.dem/rounds/1`
-
-- **sidebar ซ้าย** — ฟอร์มอัปโหลดที่หัวแถบ + รายการแมตช์ทั้งหมด กดแล้วไปรอบ 1 ของแมตช์นั้น ย่อเก็บได้
-- **หัวแมตช์** — สกอร์ + ปุ่มเปิดสกอร์บอร์ดทั้งแมตช์ (K/D, ADR, KAST, opening, trade, clutch)
-- **แถบรอบ** — เท่าจำนวนรอบจริง กดหรือใช้ปุ่ม ← / → บนคีย์บอร์ด
-- **เนื้อหารอบ** — ซ้าย: แถวชั้นข้อมูล → แผนที่ → key อธิบายทุกสัญลักษณ์ → แถบเล่นย้อน · ขวา: สองทีม + ไทม์ไลน์
-  ทุกคนใช้ **สีฝั่ง + เลข 1–5** (ฟ้า CT · ส้ม T) เลขเดียวกันทั้งรายชื่อ แผนที่ และไทม์ไลน์ — วงทึบ = ตัวผู้เล่น (เล่นย้อน) · วงกลวง = จุดที่ตาย · จุดเล็ก + เส้น = คนยิง · ชื่อขึ้นบนแผนที่เฉพาะคนที่เลือก/ไฮไลต์
-  **หน้ารอบไม่มีตัวเลขจากโมเดลเลย** — เป็นข้อเท็จจริงจากเดโมล้วน ๆ (ใครตายที่ไหน เมื่อไหร่ โดนใคร ระเบิดอะไรอยู่)
-  กดจุดตาย = แผนที่เหลือเฉพาะระเบิดที่มีผลอยู่ ณ วินาทีนั้น (ควัน/ไฟที่ยังไม่หมด แฟลช/HE ที่เพิ่งแตก) และขึ้นชื่อคนยิง · กด ▶ = โหมดเล่นย้อน (โหลดตำแหน่งแล้วเล่นทันที)
-  ซูมแผนที่ด้วยล้อเมาส์หรือปุ่ม + / − (ลากเพื่อเลื่อนดู · ปุ่ม "เต็มแมพ" กลับมุมมองเดิม) · เปิด/ปิด utility แยกทีละชนิด (สโมค · แฟลช · HE · โมโลตอฟ/อินเซนดิอารี · decoy) · projectile ใช้ตำแหน่ง entity ราย tick จากเดโมเมื่อมี; ข้อมูลเก่าที่มีแค่จุดขว้าง/จุดตกใช้เส้นประแบบประมาณ และไม่สร้างจุดตกหรือเวลาที่ไม่มีในเดโม
-  ปุ่ม **Export สรุปรอบ PNG** สร้างเอกสารภาพขนาดคงที่ที่มีผลรอบ แผนที่ จุดตาย/C4/Utility ประเด็นสำคัญ รายชื่อผู้เล่น และลำดับการตาย โดยไม่ติดปุ่มควบคุมจากหน้าเว็บไปในภาพ
-
-  หน้า **เครื่องมือวิเคราะห์** สามารถเลือกหนึ่งแมตช์แล้ว Export รายงานฉบับเต็มเป็น PNG แนวยาวหรือ PDF 4 หน้า โดยรวม Overview, Heatmap ที่ใช้ตัวกรองปัจจุบัน, Economy, Player Behavior/Tactic และ Scoreboard ไว้ในเอกสารเดียว
-
-### เครื่องมือวิเคราะห์ `/analysis`
-
-สองเครื่องมืออยู่ในหน้าเดียวกัน เลือกจากแท็บบนสุดและมีคำอธิบายหนึ่งบรรทัดใต้แท็บ
-
-- **ทีมเราตายตรงไหน** — heatmap จุดตายในแมตช์ของทีม กรองฝั่ง CT/T และเจาะจงแมตช์/รอบ/ผู้เล่นได้ ตารางข้างแผนที่บอกชื่อตำแหน่งในแมพ (BombsiteA, Catwalk, …) สีจาง = ตายน้อย สีเข้ม = ตายบ่อย
-- **Opening Route** — เปรียบเทียบเส้นทางและ Utility ของผู้เล่นใน 30 วินาทีแรกของหลายรอบบน radar และเวลาเดียวกัน เดิมเป็นหน้าแยก ปัจจุบันอยู่ใน Analysis; URL `/opening-route` เดิมจะ redirect มาที่แท็บนี้
-
-**ผลของโมเดลไม่ขึ้นหน้าจอผู้ใช้ที่ไหนเลย** (ตัดสินใจ 18 ก.ย. 2026 — "เอา ML ไว้หลังบ้าน") `research/models/grid_ml1.py` ยังเป็นตัวกำหนดว่าชุดอ้างอิงคืออะไรและกริดแบ่งยังไง แต่ไม่มีหน้า ไม่มีปุ่ม และไม่มี endpoint ให้ดูจุดปะทะ/ประเภทพื้นที่/อัตราชนะดวลของโมเดลอีกต่อไป — เรื่องโมเดลอยู่ใน `research/` กับเอกสารนี้เท่านั้น
-ภาษาบนหน้าจอ: ห้ามเรียกตัวเลขของโมเดลว่าโอกาสชนะรอบ และไม่มีคำตัดสินผู้เล่น (มีเทสต์สแกนไฟล์ `.tsx` ดักไว้)
-
-heatmap ระบายเฉพาะช่องที่ฝั่งเราตายตั้งแต่ 3 ครั้งขึ้นไป เพื่อลดสัญญาณรบกวนจากตัวอย่างที่น้อยมาก
-
-### กันข้อมูลของผู้ใช้ไม่ให้ปนเข้าชุดเทรน
-
-| | อยู่ที่ไหน | ใครอ่าน |
-|---|---|---|
-| ชุดอ้างอิง (เทรนโมเดล) | `demos/reference/` · `matches.source = 'reference'` | `research/prep/demoparser.py` → `data/all_kills.csv` → `research/models/grid_ml1.py` |
-| เดโมที่ผู้ใช้อัปโหลด | `demos/uploads/` · `matches.source = 'upload'` | worker แกะเข้า PostgreSQL เท่านั้น |
-
-แยกกันทั้งระดับไฟล์บนดิสก์และระดับแถวในฐานข้อมูล — ไม่มีสคริปต์เทรนตัวไหนอ่าน `demos/uploads/`
-ค่าตั้งต้นของ `matches.source` คือ `'upload'` โดยตั้งใจ: แมตช์ที่ไม่มีใครยืนยันต้องไม่ถูกนับเป็นชุดเทรนเอง
-ทำเครื่องหมายแถวเก่าด้วย `python -m backend.etl_loader --mark-reference` (ดูจากไฟล์ที่อยู่ใน `demos/reference/` จริง ๆ)
-
-ระบบแยกข้อมูลด้วยทั้งตำแหน่งไฟล์และ `matches.source`; ค่าเริ่มต้นของแมตช์ใหม่เป็น `upload` เพื่อไม่ให้ข้อมูลผู้ใช้ไหลเข้า reference set โดยอัตโนมัติ
-
-state ทั้งหมดอยู่บน URL (`?sb=0` ย่อ sidebar, `board=1` สกอร์บอร์ด, `g=smoke,flash` ชนิดระเบิดที่แสดง (`g=none` = ไม่แสดงเลย), `z=2.5` `c=x,y` ซูม/จุดที่มองอยู่บนแผนที่, `pb=1` โหมดเล่นย้อน + `t=12.5` วินาทีในรอบที่ดูค้างไว้, `p=` ผู้เล่นที่ไฮไลต์, `d=` การตายที่เลือก)
-refresh แล้วอยู่ที่เดิม และแชร์ลิงก์ให้คนอื่นเห็นแบบเดียวกันได้ · `/matches` พาไปแมตช์ล่าสุด · แมตช์/รอบที่ไม่มีจริงขึ้นหน้า 404 ที่มีปุ่มกลับ
-
-```bash
-docker compose logs -f api worker     # ดู log
-docker compose down                   # ปิด (ข้อมูลยังอยู่ใน volume pgdata)
-docker compose down -v                # ปิดแล้วลบข้อมูลทิ้ง
+```powershell
+Copy-Item .env.example .env
+docker compose up -d
 ```
 
-## รันในเครื่องตอนพัฒนา
+Open [http://localhost:3000](http://localhost:3000).
 
-```bash
-docker compose up -d db redis                  # ฐานข้อมูล + คิว ใน Docker
-pip install -r requirements-dev.txt
-alembic upgrade head                           # สร้าง/อัปเดตตาราง
-python -m backend.auth                         # dev user
-python -m uvicorn backend.app:app --reload     # API
-python -m backend.jobs                         # worker (อีกหน้าต่าง) — บน Windows ใช้ SimpleWorker ให้เอง
-cd frontend && npm install && npm run dev      # หน้าเว็บที่ http://localhost:3000 (ส่งต่อ /api /auth /assets ไปที่ API ให้)
+```powershell
+docker compose ps
+docker compose logs -f api worker
+docker compose down
+docker compose down -v
 ```
 
-แก้แค่หน้าเว็บ ไม่อยากรัน Python: เปิดทั้งระบบด้วย `docker compose up -d` แล้ว `VITE_API_TARGET=http://127.0.0.1:3000 npm run dev`
-ไม่มี Redis ก็ dev ได้: ตั้ง `QUEUE_BACKEND=thread` ใน `.env` แล้ว api จะรัน parse ใน thread ของตัวเอง (พฤติกรรมที่หน้าเว็บเห็นเหมือนกันทุกอย่าง)
+`docker compose down` stops containers and keeps the database volume. The `-v` variant also deletes the local database volume.
 
-## วิธีเพิ่มเดโม
+Local PostgreSQL connection:
 
-1. **ผ่านหน้าเว็บ** — ลากไฟล์ `.dem` ลงกล่องอัปโหลดที่หัว sidebar (เลือกหลายไฟล์ได้)
-   แมตช์ใหม่ขึ้นในรายการเป็น `รอคิว → กำลังแกะ → พร้อม` เองโดยไม่ต้องรีเฟรช (poll ทุก 2 วินาที)
-   เปิดแมตช์ที่ยังแกะไม่เสร็จได้ จะเห็นความคืบหน้าแล้วเข้ารอบ 1 ให้เองเมื่อเสร็จ
-2. **ผ่าน API** — `POST /api/demos` (multipart `file`, `force=1` ถ้าจะโหลดทับ) ตอบ 202 พร้อม `status_url`
-3. **ผ่าน CLI** (ไม่ผ่านคิว) — วางไฟล์ใน `demos/` แล้ว
-   ```bash
-   python -m backend.parser demos/X.dem              # -> output/json/X.json
-   python backend/etl_loader.py output/json/X.json  # -> PostgreSQL (--force = โหลดทับ + คำนวณฟีเจอร์ใหม่)
-   ```
-
-ชื่อไฟล์แบบ `ทีมA-vs-ทีมB-แมพ.dem` จะถูกแกะเป็นชื่อทีมให้ ไฟล์ชื่อซ้ำถูกปฏิเสธ (409) เว้นแต่ติ๊ก "โหลดทับ" หรือแมตช์นั้นเคยพัง
-ทุกงานเป็น idempotent: โหลดแมตช์เดิมซ้ำกี่ครั้งก็ได้ข้อมูลชุดเดียว และ `matches.id` ไม่เปลี่ยน
-
-## API
-
-ทุก route ใต้ `/api` ต้องล็อกอิน ยกเว้น `/api/health` — ดูทั้งหมดได้ที่ http://localhost:3000/api/docs
-
-| Method | Path | ใช้ทำอะไร |
-|---|---|---|
-| POST | `/auth/register` · `/auth/login` · `/auth/logout` | สมัคร / ล็อกอิน (ติดคุกกี้ JWT) / ออกจากระบบ |
-| GET | `/auth/steam/login` · `/auth/steam/callback` | ล็อกอินด้วย Steam (ติดคุกกี้ JWT) |
-| GET | `/auth/me` | ใครล็อกอินอยู่ (401 = ยังไม่ล็อกอิน) · `guest: true` = บัญชีผู้เยี่ยมชม ดูได้อย่างเดียว |
-| POST | `/auth/guest` | เข้าเป็นบัญชี `guest` คลิกเดียว (คุกกี้แบบ session · ปิดได้ด้วย `GUEST_LOGIN=0`) |
-| POST | `/api/demos` | อัปโหลดเดโม → สร้างแถว `matches` (queued) → เข้าคิว → 202 |
-| GET | `/api/matches` | รายการแมตช์ทั้งหมดพร้อมสรุปและสถานะ |
-| GET | `/api/matches/{id}` | สรุป + รายรอบ + สกอร์บอร์ด + ฟีเจอร์ต่อคน (opening / trade / clutch / buy) |
-| GET | `/api/matches/{id}/status` | `queued / parsing / done / error` + `error_message` + สถานะงานในคิว |
-| GET | `/api/review/{demo_file}/rounds` | รายรอบ (ผู้ชนะ / จบด้วยอะไร / ตายกี่คน / คนแรกตายวินาทีที่เท่าไหร่) |
-| GET | `/api/review/{demo_file}/rounds/{n}` | ทีม / การตายทุกครั้งพร้อมพิกเซลบนเรดาร์ / ระเบิด / สรุปรอบ (payload ยังแนบบริบทต่อการตายจาก grid_ml1 มาด้วย แต่หน้าเว็บไม่แสดงแล้ว) |
-| GET | `/api/review/{demo_file}/rounds/{n}/positions` | snapshot ตำแหน่งผู้เล่น 8 Hz ของรอบ (รองรับข้อมูลเก่า 1 Hz, ตอบแบบ gzip) |
-| GET | `/api/analysis/deaths?map=&scope=reference\|upload&side=&demo=` | จุดที่ผู้เล่นตาย นับลงกริด 32×32 เดียวกับโมเดล คืนสัดส่วนต่อช่อง (หน้า `/analysis` เอาสองชุดมาเทียบกัน) |
-| GET | `/api/players/{me\|steamid64}/summary` | สถิติรายคน: ภาพรวม + entry แยกฝั่ง + clutch 1v1–1v5 + Rating 2.0 (ประมาณการ) |
-| GET | `/api/players/{…}/matches` · `/maps` · `/weapons` | แมตช์ล่าสุด (แพ้/ชนะ + rating) · รวมรายแมพ · อาวุธที่ฆ่าบ่อย |
-| GET | `/api/health` | DB ต่อได้ไหม คิวยาวแค่ไหน มี worker กี่ตัว |
-
-บริบทของการตายอ่านจาก `output/models/<map>/grid_ml1.json` ตามแมพของแมตช์ (cache ในหน่วยความจำ ไม่รันโมเดลตอน request) และถอยไปอ่าน `output/grid_ml1.json` สำหรับ artifact รุ่นเดิม
-พิกัดทุกจุดแปลงที่ `backend/review.py` ที่เดียว (grid_ml1.py import สูตรเดียวกัน) frontend ไม่มีสูตรแปลงพิกัดของตัวเอง
-
-มีเฉพาะ endpoint ที่หน้าเว็บเรียกจริง — endpoint ของหน้าเว็บ Sprint 1 (`/api/players` `/api/heatmap` `/api/tactical` `/api/ml/*` …) ลบไปแล้ว ดูย้อนหลังได้ใน git
-
-## นิยามที่ใช้ทั้งระบบ — `backend/features.py`
-
-| ฟีเจอร์ | นิยาม |
-|---|---|
-| opening kill | คิลแรกของรอบหลัง freeze-time จบ (นับเฉพาะการดวล: มีคนยิงและคนละฝั่ง) |
-| trade | คนที่ฆ่าเหยื่อ ตายภายใน 5 วินาทีด้วยมือเพื่อนของเหยื่อ |
-| buy type | ต่อคน ณ freeze-time จบ: Full ≥ $4000 · Force $2000–4000 · Eco < $2000 · Pistol = รอบ 1 และ 13 |
-| clutch | เหลือคนเดียวฝั่งตัวเอง เจอศัตรู ≥ 1 และรอบยังไม่จบ (1v1 นับทั้งสองฝั่ง) |
-| ADR / KAST | ดาเมจใส่ศัตรูต่อรอบ · % รอบที่มี Kill / Assist / Survived / Traded |
-
-คำนวณครั้งเดียวตอนโหลด (`backend/features.py`) แล้วเก็บลง `player_rounds` — `features_version` บอกรุ่นนิยาม
-เปลี่ยนนิยามเมื่อไร ขยับเลขนั้นแล้ว `python backend/etl_loader.py --force` เพื่อ backfill
-
-## ฐานข้อมูล (PostgreSQL · SQLAlchemy models ใน `backend/models.py` · migration ใน `backend/alembic/`)
-
-| ตาราง | หนึ่งแถวคือ | คอลัมน์สำคัญ |
-|---|---|---|
-| `accounts` | บัญชีที่ล็อกอินหน้าเว็บ | `username` (ไม่สนตัวพิมพ์) `password_hash` (PBKDF2) `last_login` |
-| `matches` | ไฟล์ .dem หนึ่งไฟล์ | `demo_file` (unique) `map_name` `tickrate` `team_a/b` **`status`** `error_message` `job_id` `started_at` `finished_at` |
-| `rounds` | รอบหนึ่งของแมตช์ | `match_id` `round_num` `start_tick` (freeze จบ) `bomb_plant_tick` `bomb_plant_x/y` `bomb_site` `winner_side` `end_reason` |
-| `players` | นักแข่ง (SteamID64) | `steam_id` `name` |
-| `match_players` | ใครเล่นในแมตช์ไหน | `match_id` `steam_id` `team_clan` (ชื่อทีมคงที่ทั้งแมตช์) `start_side` `rounds` |
-| `player_rounds` (= player_round_stats) | คนหนึ่งในรอบหนึ่ง | `side` `equip_value` `survived` + ฟีเจอร์: `buy_type` `kills` `deaths` `assists` `damage` `opening_kill/death` `trade_kills` `was_traded` `clutch_vs` `clutch_won` `kast` |
-| `kills` | การฆ่าหนึ่งครั้ง | `round_id` `tick` `attacker_id` `victim_id` `assister_id` ฝั่ง อาวุธ headshot พิกัดและ callout ของทั้งคู่ |
-| `player_positions` | snapshot ของผู้เล่นหนึ่งคน (ข้อมูลใหม่ 8 Hz) | `match_id` `round_num` `tick` `steam_id` `side` `x y z` `health` `place` `active_weapon` `armor` `has_helmet` `has_defuser` — tick จริง, ไม่ซ้ำต่อผู้เล่น, เฉพาะช่วงที่รอบเล่นและคนยังมีชีวิต; อุปกรณ์เป็น nullable เพื่อรองรับข้อมูลเก่า |
-| `grenades` | utility หนึ่งลูก | `thrower_id` `type` (smoke/flash/he/molotov/decoy) `tick` · `throw_x/y` จุดขว้าง · `land_x/y` `land_tick` จุดตก · `end_tick` เวลาหมดจริงเมื่อ parser อ่านได้ · `trajectory` จุด projectile `[tick,x,y,z]` จาก entity stream จริง (nullable เพื่อรองรับข้อมูลเก่า) |
-| `damages` | ดาเมจแต่ละครั้ง | (จาก Sprint 1) |
-| `users` | ผู้ใช้จาก Steam login เดิม | เลิกใช้แล้ว เก็บตารางไว้ไม่ลบ |
-
-view สรุป (`backend/views.sql`): `match_summary` `match_scoreboard` `player_stats` `player_round_facts` `player_clutches` `round_economy`
-
-```bash
-alembic upgrade head        # อัปเดตสคีมา (ปลอดภัยบน DB ที่มีข้อมูล)
-alembic downgrade -1        # ถอยหนึ่งรุ่น
-alembic history
+```text
+Host: 127.0.0.1
+Port: 5433
+Database: cs2_analytics
+User: postgres
+Password: postgres
 ```
 
-`player_positions` เก็บที่ 8 Hz โดยคำนวณ tick จาก tickrate ของเดโม (`POSITION_SAMPLE_HZ` ใน `backend/parser.py`) — ประมาณ 8 เท่าของข้อมูลเดิม 1 Hz หรือราว 168,000 แถวต่อแมตช์จากฐานเดิม ~21,000 แถว แต่ยังเล็กกว่าการเก็บทุก tick มาก ข้อมูลที่ parse ไว้เดิมยังเล่นที่ 1 Hz ได้ ส่วน positions API group ตาม tick, ไม่ส่ง field อุปกรณ์ที่เป็น `null` ของข้อมูลเก่า และเปิด gzip เพื่อลด response โดยไม่ทิ้งความถูกต้อง ตัวอย่างรอบ legacy 54 วินาทีมี 427 แถว: JSON 41,013 bytes เหลือ 4,422 bytes เมื่อ gzip; รอบใหม่ 8 Hz จะมีจำนวน snapshot และ raw payload ใกล้เคียง 8 เท่าตามความยาวรอบและจำนวนผู้เล่นที่ยังมีชีวิต
+## Authentication
 
-Projectile trajectory ไม่เพิ่มจำนวนแถว `grenades` (ยังหนึ่งแถวต่อลูก) แต่เพิ่ม JSONB ในแถวนั้นตามจำนวน tick จริง จาก demo ทดสอบ 6 รอบ/135 ลูกมี 20,545 จุด เพิ่ม JSON ดิบประมาณ 0.78 MB ต่อแมตช์; round API เฉลี่ยประมาณ 168 KB ก่อน gzip หรือ 36 KB หลัง gzip (รอบสูงสุดที่วัด 247 KB/52 KB) จึงคง field ที่อ่านง่ายและใช้ HTTP gzip แทนการลดจุดหรือความแม่นยำ
+The local API creates a development account on startup. Configure `DEV_USERNAME` and `DEV_PASSWORD` in `.env`. Guest access and Steam OpenID login are available through their corresponding `.env` settings.
 
-ระหว่าง playback ผู้เล่นที่ยังมีชีวิตแสดงชื่อ roster ตลอดเวลา ป้ายชื่อวางหลบ marker แบบ deterministic และมี leader line เมื่อจำเป็น ชื่อยาวตัดด้วย `…` แต่ชื่อเต็มยังอยู่ใน tooltip/accessible label ส่วน active weapon, armor, helmet และ defuse kit แสดงเฉพาะเมื่อ parser อ่านค่าจริงได้ คอลัมน์เหล่านี้ nullable จึงไม่ทำให้ข้อมูลเก่าแตก
+## Application areas
 
-Player Behavior บน `/analysis` โหลด `output/models/<map>/player_role.json` ตามแมพของแมตช์เข้า cache (และรองรับ `output/player_role.json` รุ่นเดิม) แล้วทำ inference จากข้อมูลในฐานข้อมูลเท่านั้น ไม่ train ระหว่าง request และไม่ป้อนแมตช์ upload กลับเข้า reference model หน่วยวิเคราะห์คือผู้เล่นหนึ่งคน × หนึ่งแมตช์ × หนึ่งฝั่ง โดยต้องมีจำนวนรอบขั้นต่ำตาม artifact ชื่อ role เป็นเพียงการตีความ centroid ของ KMeans ไม่ใช่คะแนนฝีมือ บทบาทถาวร หรือ probability; ถ้า artifact หาย แมพไม่รองรับ หรือรอบไม่พอ API จะคืนสถานะ unavailable อย่างชัดเจน Endpoint คือ `GET /api/analysis/player-behavior?demo=...&players=...`
+- `/login` — authentication
+- `/player` — player summary and match history
+- `/matches` — uploaded and parsed matches
+- `/matches/{demo_file}/rounds/{round_num}` — round review and replay data
+- `/analysis` — heatmaps, opening routes, player behavior, and tactical analysis
+- `/api/docs` — FastAPI Swagger documentation
 
-## ตรวจคุณภาพและ CI
+## Data flow
 
-```bash
-pip install -r requirements-dev.txt
+1. The frontend uploads a demo through the API.
+2. The API stores the file and queues a match.
+3. Redis/RQ sends the job to the worker.
+4. The worker parses the demo with `awpy` and `demoparser2`.
+5. Parsed events and derived features are stored in PostgreSQL.
+6. The frontend reads the match and analysis endpoints.
+
+Feature definitions are in `backend/services/features.py`; parsing and ETL are in `backend/services/parser.py` and `backend/services/etl.py`. The old parser and ETL module paths remain as compatibility CLIs.
+
+## Database
+
+Main tables include `accounts`, `users`, `matches`, `rounds`, `players`, `match_players`, `player_rounds`, `kills`, `damages`, `grenades`, and `player_positions`.
+
+The reporting views are defined in `backend/models/views.sql`: `match_summary`, `match_scoreboard`, `player_stats`, `player_round_facts`, `player_clutches`, `player_map_stats`, `player_match_results`, `player_weapon_stats`, and `round_economy`.
+
+Create schema changes with Alembic rather than editing the database manually:
+
+```powershell
+docker compose exec api alembic upgrade head
+docker compose exec api alembic current
+```
+
+## Development checks
+
+Use Python 3.12 and Node 26 LTS (Node 24.15+ is also supported), with pip and npm.
+Install backend tools with `python -m pip install -r requirements-dev.txt`.
+Direct Python dependencies are pinned in the requirements files; frontend installs use `package-lock.json`.
+See [the dependency audit](DEPENDENCY_AUDIT.md) for tested versions, migration notes, and remaining deployment checks.
+
+```powershell
+python -m compileall -q backend
 ruff check .
-cd frontend && npm ci && npm run build   # type-check + production build
+pytest
+cd frontend
+npm ci
+npm run typecheck
+npm test
+npm run build
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) รัน Ruff, ตรวจ migration แบบ up/down/up บน PostgreSQL และ build frontend
+For a browser check against a running frontend/API and PostgreSQL containing a completed guest demo:
 
-## โครงโปรเจกต์
-
-```
-frontend/src/       หน้าเว็บ — React + TypeScript + Vite + TanStack Query (nginx ใน Docker)
-  main.tsx            เส้นทางของหน้า + ต้องล็อกอินก่อน + เมนูผู้ใช้
-  LoginPage.tsx       หน้า /login
-  MatchPage.tsx       หน้าหลัก: sidebar อัปโหลด/รายการแมตช์ · หัวแมตช์ · สกอร์บอร์ด · แถบรอบ
-  RoundView.tsx       เนื้อหาของรอบ: รายชื่อทีม · แผนที่เรดาร์ · ไทม์ไลน์ (ไม่มีผลโมเดล)
-  AnalysisPage.tsx    เครื่องมือวิเคราะห์: ทีมเราตายตรงไหน · Opening Route · Player Behavior
-  OpeningRoutePage.tsx  เนื้อหา Opening Route ที่ฝังในหน้า Analysis
-  api.ts · utils.tsx  เรียก backend · ตัวช่วยจัดรูปแบบ + state บน URL + หน้า 404
-backend/            API + worker (Python 3.11)
-  app.py              FastAPI: /auth/* /api/* /assets
-  auth.py             ล็อกอิน (PBKDF2 + JWT ในคุกกี้ httpOnly) + สร้าง dev user
-  jobs.py             คิว RQ/Redis + งาน parse_demo(match_id) + โปรเซส worker
-  parser.py           .dem -> dict (awpy 2.0.2 / demoparser2 0.41.4 — pin ไว้ เพราะ CS2 อัปเดตแล้ว parser พังบ่อย)
-  etl_loader.py       dict -> PostgreSQL (รันซ้ำได้ ข้อมูลไม่ซ้ำ)
-  features.py         นิยาม opening / trade / buy / clutch + ผูกทีม + ตัวคำนวณ
-  review.py           ข้อมูลหน้ารอบ + สูตรแปลงพิกัดชุดเดียวของรีโป
-  db.py · models.py · views.sql · alembic/     ต่อฐานข้อมูล · ตาราง · view สรุป · migration
-research/           งาน offline (ดู research/README.md)
-  prep/               เตรียมข้อมูลจากเดโมอ้างอิง
-  tools/              ตรวจเรดาร์และดูแล asset
-  models/             เทรน grid, site, coach และ player role
-assets/             ภาพเรดาร์ + radars.json (แหล่งความจริงของค่าปรับเทียบพิกัด)
-docs/               pipeline-diagram.html + .png ไดอะแกรม "อัปโหลดเดโมแล้วเกิดอะไรขึ้น" (ไว้แปะสไลด์)
-data/               all_kills.csv ชุดคิล 50 แมตช์ที่ grid_ml1 ใช้
-demos/reference/    เดโมชุดตั้งต้นที่โมเดลเทรนจากมัน — research/prep/demoparser.py อ่านเฉพาะที่นี่
-demos/uploads/      เดโมที่ผู้ใช้อัปโหลด — ไม่มีสคริปต์เทรนตัวไหนอ่านโฟลเดอร์นี้
-output/             ผล parse (json) · ผลของ research — ไม่เข้า git
+```powershell
+cd frontend
+npx playwright install chromium
+# Optional: $env:E2E_BASE_URL = "http://127.0.0.1:3000"
+npm run test:e2e
 ```
 
-## ปัญหาที่เจอบ่อย
+The browser test signs in as a guest, loads real match data, and opens the round replay. It does not mock the API.
+No standalone frontend linter or backend static typechecker is configured; TypeScript checks include unused locals and parameters.
 
-- **พอร์ต 5432 ชน** (มี PostgreSQL ในเครื่อง): ตั้ง `POSTGRES_PORT=5433` ใน `.env` และแก้ `DATABASE_URL` ให้ตรง
-- **อัปโหลดแล้ว 503 "ส่งงานเข้าคิวไม่ได้"**: Redis ไม่ได้เปิด — `docker compose up -d redis` หรือใช้ `QUEUE_BACKEND=thread`
-- **แถวค้าง `รอคิว` ไม่ขยับ**: ไม่มี worker — `python -m backend.jobs` หรือ `docker compose up -d worker` (`/api/health` บอกจำนวน worker)
-- **แมตช์ `พัง`**: สาเหตุขึ้นในเนื้อหาหลักเมื่อเปิดแมตช์นั้น ส่งไฟล์ซ้ำได้เลยโดยไม่ต้องติ๊กโหลดทับ
-- **ล็อกอินหลุดทุกครั้งที่ api รีสตาร์ต**: ยังไม่ได้ตั้ง `SECRET_KEY` ใน `.env`
-- **เปลี่ยนภาพแมพแล้วแผนที่หาย**: `assets/radars.json` ต้องชี้ไปไฟล์ที่มีจริงและขนาดเดิม (1024×1024)
+Before changing parser dependencies, capture and compare a real demo's normalized output:
+
+```powershell
+python -m scripts.check_parser_compatibility demos/uploads/example.dem --output tmp/parser-before.json
+# Upgrade dependencies, then:
+python -m scripts.check_parser_compatibility demos/uploads/example.dem --compare tmp/parser-before.json
+```
+
+## Repository layout
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for the complete backend and feature-first frontend map.
+
+```text
+backend/       FastAPI API, parser, worker, models, migrations, and views
+frontend/      React + TypeScript + Vite application
+research/      Offline model and data-preparation work
+assets/        Radar images and map metadata
+demos/         Reference and uploaded demo files
+output/        Parser and research artifacts
+tests/         Automated tests
+```
+
+The current workflow is local development and analysis. Cloud deployment configuration is intentionally excluded for now.

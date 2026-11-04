@@ -38,11 +38,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-# ---- จุดตายจริง: ลอง PostgreSQL ก่อน (มีทุกแมตช์ที่อัปโหลด) ต่อไม่ได้ค่อยถอยไป data/all_kills.csv
 CSV = ROOT / "data" / "all_kills.csv"
 
-# JOIN เดียวได้ตารางหน้าตาเหมือน csv — alias ชื่อคอลัมน์ให้ตรงกับที่ demoparser.py เคยสร้าง
-# ใส่เครื่องหมายคำพูดครอบ "victim_X" เพราะ PostgreSQL แปลงชื่อที่ไม่มีเครื่องหมายเป็นตัวเล็กหมด
 SQL = """
 SELECT m.demo_file, m.map_name, m.tickrate,
        r.round_num, r.start_tick AS round_start_tick, r.bomb_plant_tick, r.winner_side AS round_winner,
@@ -61,7 +58,7 @@ ORDER BY m.demo_file, r.round_num, k.tick, k.id
 def _from_db(map_name: str | None) -> pd.DataFrame:
     import asyncpg
 
-    from backend.db import DATABASE_URL, redacted_url
+    from backend.config.database import DATABASE_URL, redacted_url
 
     async def go():
         conn = await asyncpg.connect(DATABASE_URL, timeout=5)

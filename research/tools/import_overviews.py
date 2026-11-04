@@ -41,7 +41,6 @@ RADARS = ROOT / "assets" / "radars.json"
 MAPS_DIR = ROOT / "assets" / "maps"
 SOURCE_IMAGES = ROOT / "images" / "maps" / "cs2" / "radars"
 GRID = 300
-# ไฟล์ overview ที่ไม่ใช่แมพแข่ง หรือเป็นรุ่นย่อย/กลางคืน/2v2 ของแมพเดิม
 SKIP = re.compile(r"^(ar_|rush_|workshop_)|_(v\d|night|s\d|2v2)$")
 VPK_GUESSES = [
     Path(p) / "steamapps/common/Counter-Strike Global Offensive/game/csgo/pak01_dir.vpk"

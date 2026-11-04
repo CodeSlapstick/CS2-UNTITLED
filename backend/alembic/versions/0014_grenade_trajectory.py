@@ -3,7 +3,7 @@
 Revision ID: 0014
 Revises: 0013
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0014"
 down_revision = "0013"

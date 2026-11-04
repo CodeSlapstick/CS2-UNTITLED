@@ -8,7 +8,7 @@ Create Date: 2026-09-11
 (= player_round_stats ในเอกสารดีไซน์) features_version บอกว่าแถวนั้นใช้นิยามรุ่นไหน (0 = ยังไม่เคยคำนวณ)
 player_positions เก็บตำแหน่งผู้เล่นที่ 1 Hz เท่านั้น — ห้ามเก็บทุก tick (ดู backend/parser/positions.py)
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0003"
 down_revision = "0002"

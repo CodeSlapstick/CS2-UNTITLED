@@ -20,9 +20,9 @@ from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from backend.coach import CONTEXT_FEATURES, OPENING_FEATURES, VERSION, build_coach_samples  # noqa: E402
-from backend.coach_data import load_coach_facts  # noqa: E402
-from backend.db import DATABASE_URL  # noqa: E402
+from backend.config.database import DATABASE_URL  # noqa: E402
+from backend.repositories.coach import load_coach_facts  # noqa: E402
+from backend.services.coach import CONTEXT_FEATURES, OPENING_FEATURES, VERSION, build_coach_samples  # noqa: E402
 
 SEED = 42
 

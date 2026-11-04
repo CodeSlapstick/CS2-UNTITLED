@@ -34,4 +34,4 @@ python research/models/player_role.py --map de_ancient --output-dir output/model
 API เลือก artifact ตาม `match.map_name` จาก `output/models/<map>/` โดยอัตโนมัติ และยังรองรับไฟล์ legacy ใน `output/` เป็น fallback
 ตัวเลือกแมพหน้า Analysis อ่านจาก PostgreSQL: หลังเทรนให้รัน `python -m backend.parser <ไฟล์.dem>` และ `python -m backend.etl_loader output/json/<ชื่อไฟล์>.json` สำหรับเดโมอ้างอิงแต่ละไฟล์ แล้วรัน `python -m backend.etl_loader --mark-reference` เพื่อให้ endpoint ของหน้า Analysis เห็นแมพนั้น (คำสั่งนี้ค้นโฟลเดอร์รายแมพและไม่เปลี่ยน source ของชุดอ้างอิงที่ archive ไปแล้ว)
 เมื่อสร้างหรือเปลี่ยน artifact ของแมพ ให้วางไฟล์ไว้ใน `output/models/<map>/` เพื่อให้ backend โหลด artifact ของแมพนั้นได้
-สูตรพิกัดอยู่ที่ `backend/review.py` ที่เดียว — `models/grid_ml1.py` import ไปใช้ ช่องบนหน้าเว็บจึงตรงกับช่องของโมเดลเสมอ
+สูตรพิกัดอยู่ที่ `backend/services/review.py` ที่เดียว — `models/grid_ml1.py` import ไปใช้ ช่องบนหน้าเว็บจึงตรงกับช่องของโมเดลเสมอ

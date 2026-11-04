@@ -26,7 +26,7 @@ index บน uploaded_by
     การนับโควตาต่อชั่วโมงจะ query ว่า "แมตช์ของคนนี้ที่ imported_at ย้อนหลัง 1 ชั่วโมงมีกี่ไฟล์"
     ทำทุกครั้งที่มีคนอัปโหลด จึงทำ index คู่ (uploaded_by, imported_at) ไว้ให้ตรงกับ query นั้น
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0010"
 down_revision = "0009"

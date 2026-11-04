@@ -27,7 +27,7 @@ uploader_guest คืออะไร
     ถ้าใส่เงื่อนไขนั้นไว้ การลบบัญชีจะพังทั้งคำสั่ง — ตั้งใจให้ uploader_type ยังจำได้ว่า
     "เดโมนี้มาจากผู้ใช้ Steam" แม้จะไม่รู้แล้วว่าคนไหน
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0011"
 down_revision = "0010"

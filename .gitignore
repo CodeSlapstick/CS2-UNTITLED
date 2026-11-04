@@ -37,6 +37,8 @@ output/
 # frontend (React/Vite)
 node_modules/
 frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
 *.tsbuildinfo
 
 # ค่า override เฉพาะเครื่อง (เช่น ชี้ volume เดิม)

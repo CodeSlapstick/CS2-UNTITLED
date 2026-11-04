@@ -1,6 +1,6 @@
 import json
 
-from backend.player_role_service import build_match_profiles, infer_match, load_role_model
+from backend.services.player_roles import build_match_profiles, infer_match, load_role_model
 
 
 def _model(minimum_rounds: int = 2) -> dict:

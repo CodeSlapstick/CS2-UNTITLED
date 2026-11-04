@@ -19,7 +19,7 @@ role มีสองค่าเท่านั้น ตั้งใจให�
 บัญชีที่มีอยู่แล้วทั้งหมดถูกตั้งเป็น admin เพื่อไม่ให้ระบบที่ใช้งานอยู่สะดุด
 (ถ้าตั้งเป็น member หมด จะไม่เหลือใครอัปโหลดเดโมได้เลย)
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0008"
 down_revision = "0007"

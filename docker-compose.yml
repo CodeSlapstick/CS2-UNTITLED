@@ -1,22 +1,11 @@
-# CS2 Scouting Platform — ทั้งระบบในคำสั่งเดียว
 #
 #   docker compose up -d                       # db + redis + api + worker + frontend  ->  http://localhost:3000
-#   docker compose up -d db redis              # เปิดแค่ฐานข้อมูลกับคิว (ตอนรัน python api/worker ในเครื่องเอง)
-#   docker compose logs -f api worker          # ดู log
-#   docker compose down                        # ปิด (ข้อมูลยังอยู่ใน volume pgdata)
-#   docker compose down -v                     # ปิดแล้วลบข้อมูลทิ้ง
 #
-# ค่าตั้งอ่านจาก .env ที่รากโปรเจกต์ (ก๊อปจาก .env.example) ถ้าไม่มีใช้ค่าดีฟอลต์ที่เขียนไว้ตรงนี้
-# ถ้าเครื่องมี PostgreSQL ลงไว้อยู่แล้ว พอร์ต 5432 จะชนกัน ให้ตั้ง POSTGRES_PORT=5433 ใน .env
-# แล้วชี้ DATABASE_URL ของฝั่ง python-ในเครื่อง ไปที่พอร์ตนั้นด้วย (service ใน compose ไม่กระทบ เพราะคุยกันในเครือข่ายของ compose)
 #
-# ลำดับตอนสตาร์ต: db พร้อม -> api รัน `alembic upgrade head` (สร้าง/อัปเดตตาราง) -> เปิดเซิร์ฟเวอร์
-# worker ไม่แตะสคีมาเอง แค่รอรับงานจาก redis
 
 x-backend: &backend
   build: .
   environment: &backend-env
-    # ในเครือข่ายของ compose ชื่อโฮสต์คือ db / redis ไม่ใช่ localhost และพอร์ตคือค่าใน container เสมอ
     DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-cs2_analytics}
     REDIS_URL: redis://redis:6379/0
     QUEUE_BACKEND: rq
@@ -39,28 +28,29 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-cs2_analytics}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cs2_analytics}"]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 12
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
     container_name: cs2-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 12
+      start_period: 5s
 
-  # เซิร์ฟเวอร์หลังบ้าน (FastAPI) — /api/* /auth/* /assets อยู่หลังหน้าเว็บ (frontend) เสมอ
   api:
     <<: *backend
     container_name: cs2-api
@@ -72,25 +62,42 @@ services:
       STEAM_API_KEY: ${STEAM_API_KEY:-}           # ล็อกอินด้วย Steam: ไม่ใส่ก็ยังล็อกอินได้ แค่ไม่ได้ชื่อ/รูป
       STEAM_ALLOWED_IDS: ${STEAM_ALLOWED_IDS:-}   # ว่าง = ใครมี Steam ก็เข้าได้
       PUBLIC_URL: ${PUBLIC_URL:-}                 # ว่าง = เดาจาก Host ของคำขอ (ผ่าน nginx ของ compose ถูกต้องอยู่แล้ว)
-    # ไม่เปิดพอร์ตออกนอก container — ผู้ใช้เข้าทางหน้าเว็บ :3000 ซึ่ง nginx ส่ง /api /auth /assets มาที่นี่
+      GUEST_DEMO_FILE: ${GUEST_DEMO_FILE:-}       # Guest ดูได้เฉพาะเดโมนี้; ว่าง = รายการแรกที่พร้อม
     command: sh -c "alembic upgrade head && python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
 
-  # ตัวแกะเดโมในเบื้องหลัง — งานเดียวคือ backend.jobs.parse_demo(match_id)
   worker:
     <<: *backend
     container_name: cs2-worker
     restart: unless-stopped
     command: python -m backend.jobs
+    healthcheck:
+      test: ["CMD", "python", "-c", "from backend.jobs import queue_health; h=queue_health(); raise SystemExit(0 if h.get('ok') and h.get('workers', 0) > 0 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
 
-  # หน้าเว็บ Sprint 2 (React) — nginx เสิร์ฟไฟล์ที่ build แล้ว และส่งต่อ /api ไปที่ api  ->  http://localhost:3000
   frontend:
     build: ./frontend
     container_name: cs2-frontend
     restart: unless-stopped
     ports:
-      - "${WEB_PORT:-3000}:80"
+      - "${WEB_PORT:-3000}:8080"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
 volumes:
   pgdata:

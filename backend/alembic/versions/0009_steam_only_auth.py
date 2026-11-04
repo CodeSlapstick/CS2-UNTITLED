@@ -28,7 +28,7 @@ migration นี้ทำสามอย่าง เรียงลำดับ
 
 downgrade คืนคอลัมน์ให้ แต่คืนบัญชีทดสอบที่ลบไปไม่ได้ — ข้อมูลที่ลบแล้วก็คือลบแล้ว
 """
-from backend.db import execute_script
+from backend.config.database import execute_script
 
 revision = "0009"
 down_revision = "0008"
@@ -53,7 +53,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # คืนโครงคอลัมน์ได้ แต่บัญชีที่ถูกลบในขั้นที่ 1 คืนไม่ได้
     execute_script("""
         ALTER TABLE accounts ADD COLUMN IF NOT EXISTS password_hash TEXT;
         ALTER TABLE accounts ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'member';

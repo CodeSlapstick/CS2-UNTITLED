@@ -23,6 +23,8 @@ services:
         sync: false
       - key: STEAM_API_KEY
         sync: false
+      - key: GUEST_DEMO_FILE
+        sync: false
 
 databases:
   - name: cs2-analytics-db

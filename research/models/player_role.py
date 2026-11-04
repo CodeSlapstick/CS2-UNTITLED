@@ -50,10 +50,6 @@ ROLE_ORDER = {
     "ct": ["Site Anchor", "Rotator", "Aggressive Defender", "Utility Support", "Retake Player"],
 }
 
-# all_kills.csv ใช้หกกลุ่ม: ห้าบทบาทที่ต้องการและหนึ่ง Hybrid / Unresolved
-# เพื่อไม่บังคับชื่อเมื่อ kill events ยังไม่แยกบทบาทนั้นชัดเจน
-# ไฟล์มีเฉพาะเหตุการณ์ kill จึงใช้ชุดฟีเจอร์ที่พิสูจน์ได้จากไฟล์นี้เท่านั้น
-# utility/movement/planter ไม่ถูกเติมค่าปลอม; assist, flash, site และ post-plant เป็น proxy ที่ระบุใน output
 CSV_T_FEATURES = [
     "assists_per_round", "flash_assists_per_round", "opening_attempt_rate", "opening_kill_rate",
     "early_engagement_rate",
@@ -285,7 +281,6 @@ def assign_role_names(centers_z: np.ndarray, side: str, features: list[str],
             norm = np.linalg.norm(weights)
             score[ci, ri] = float(center @ weights / norm) if norm else 0.0
 
-    # เลือก centroid คนละตัวให้แต่ละ role แบบ global optimum; centroid ที่เหลือไม่ถูกฝืนตั้งชื่อ
     best_perm: tuple[int, ...] | None = None
     best_total = -math.inf
     for perm in itertools.permutations(range(len(centers_z)), len(roles)):
@@ -319,7 +314,7 @@ def fit_side(profiles: pd.DataFrame, side: str, seed: int = SEED,
              n_clusters: int = N_CLUSTERS,
              ) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Fit and describe one side-specific model."""
-    features = features or (T_FEATURES if side == "t" else CT_FEATURES)
+    features = features or (CSV_T_FEATURES if side == "t" else CSV_CT_FEATURES)
     rows = profiles[profiles["side"] == side].copy()
     if len(rows) < n_clusters * 3:
         raise ValueError(f"ฝั่ง {side.upper()} มีเพียง {len(rows)} profiles — ต้องมีอย่างน้อย {n_clusters * 3}")

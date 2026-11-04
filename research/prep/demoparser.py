@@ -1,5 +1,6 @@
 
 import argparse
+import hashlib
 import sys
 import time
 from pathlib import Path
@@ -13,9 +14,10 @@ ROOT = Path(__file__).resolve().parents[2]
 DEMO_DIR = ROOT / "demos" / "reference"
 CACHE_DIR = ROOT / "output" / "kills_cache"
 OUT_CSV = ROOT / "data" / "all_kills.csv"
+CACHE_SCHEMA_VERSION = "kills-v2"
 
 sys.path.insert(0, str(ROOT))
-from backend.features import assign_teams  # noqa: E402
+from backend.services.features import assign_teams  # noqa: E402
 
 EVENTS = [
     "player_death",
@@ -33,6 +35,19 @@ for _s in (sys.stdout, sys.stderr):
         _s.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
+
+
+def cache_path_for_demo(path: Path) -> Path:
+    """Build a cache key that changes with folder, file content metadata, and schema version."""
+    resolved = path.resolve()
+    try:
+        identity = resolved.relative_to(DEMO_DIR.resolve()).as_posix()
+    except ValueError:
+        identity = resolved.as_posix()
+    stat = resolved.stat()
+    raw = f"{CACHE_SCHEMA_VERSION}:{identity}:{stat.st_size}:{stat.st_mtime_ns}"
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return CACHE_DIR / f"{path.stem}-{digest}.parquet"
 
 
 def parse_one(path: Path) -> pl.DataFrame:
@@ -116,16 +131,16 @@ def select_model_columns(kills: pl.DataFrame) -> pl.DataFrame:
 
 
 def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
-    """เพิ่มฟีเจอร์ต่อคิลที่ใช้รวมเป็น player-role profile ได้โดยไม่แก้นิยามภายหลัง
+    """Add factual event features used to build player-role profiles.
 
-    คอลัมน์เหล่านี้ยังเป็นข้อเท็จจริงระดับ event ไม่ใช่ role label:
-    - opening = enemy kill แรกของรอบ
-    - early = เกิดภายใน 25 วินาทีหลัง freeze time จบ
-    - trade = ฆ่าคนที่เพิ่งฆ่าเพื่อนร่วมทีมภายใน 5 วินาที (นิยามเดียวกับ backend/features.py)
-    - postplant = tick ของคิลอยู่หลัง bomb_plant_tick
+    These columns are event signals, not role labels:
+    - opening: first enemy kill of the round
+    - early: event within 25 seconds after freeze time
+    - trade: kill within 5 seconds that trades a previous death
+    - postplant: kill at or after the bomb plant tick
 
-    all_kills ไม่มี grenade throws, player positions หรือ planter id จึงไม่สร้างค่าปลอมสำหรับ
-    utility, movement และ bomb carrier; โมเดลต้องอ่านตารางเหล่านั้นจาก DB เมื่อพร้อม
+    The CSV has no grenade throws, movement, or planter id.
+    Additional features must be read from the database when available.
     """
     if kills.is_empty():
         return kills
@@ -137,7 +152,7 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
     }
     missing = sorted(required - set(kills.columns))
     if missing:
-        raise ValueError(f"all_kills ขาดคอลัมน์ต้นทางสำหรับ role features: {', '.join(missing)}")
+        raise ValueError("all_kills is missing source columns for role features: " + ", ".join(missing))
     existing = [column for column in ROLE_EVENT_COLUMNS if column in kills.columns]
     if existing:
         kills = kills.drop(existing)
@@ -183,8 +198,8 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
         (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_death"),
     )
 
-    # Trade ต้องมองย้อนหลายแถวและหนึ่งคิลอาจ trade ได้มากกว่าหนึ่ง death จึงคำนวณ
-    # เป็นลำดับ event โดยตรงแทน window expression ที่จะทำข้อมูลกรณีนี้หาย
+    # Trade detection looks back across prior kills in the same round.
+    # It is explicit because one kill can match multiple previous deaths.
     trade_count = [0] * len(ordered)
     victim_traded = [False] * len(ordered)
     for round_rows in ordered.partition_by(["demo_file", "round_num"], maintain_order=True):
@@ -212,15 +227,15 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="รวม kills จากเดโมทั้งโฟลเดอร์เป็น csv เดียว")
-    ap.add_argument("--limit", type=int, help="อ่านแค่กี่ไฟล์ (ไว้ทดสอบ)")
-    ap.add_argument("--force", action="store_true", help="อ่านใหม่ทุกไฟล์ ไม่ใช้แคช")
-    ap.add_argument("--out", type=Path, default=OUT_CSV, help=f"ไฟล์ผลลัพธ์ (ค่าตั้งต้น {OUT_CSV.name})")
+    ap = argparse.ArgumentParser(description="Parse reference demos into one role-ready CSV")
+    ap.add_argument("--limit", type=int, help="Parse only the first N demo files")
+    ap.add_argument("--force", action="store_true", help="Re-parse all demos instead of using cache")
+    ap.add_argument("--out", type=Path, default=OUT_CSV, help=f"Output CSV path (default: {OUT_CSV.name})")
     args = ap.parse_args()
 
-    demos = sorted(DEMO_DIR.rglob("*.dem"))     # รวมโฟลเดอร์รายแมพ; .crdownload ไม่ติดมา
+    demos = sorted(DEMO_DIR.rglob("*.dem"))     # Includes map subfolders; ignores partial downloads
     if not demos:
-        sys.exit(f"ไม่พบไฟล์ .dem ใน {DEMO_DIR}")
+        sys.exit(f"No .dem files found in {DEMO_DIR}")
     if args.limit:
         demos = demos[: args.limit]
 
@@ -228,42 +243,43 @@ def main() -> None:
     frames, failed = [], []
 
     for i, path in enumerate(demos, 1):
-        cache = CACHE_DIR / f"{path.stem}.parquet"
+        cache = cache_path_for_demo(path)
         size_mb = path.stat().st_size / 1e6
 
         if cache.exists() and not args.force:
             frames.append(pl.read_parquet(cache))
-            print(f"[{i}/{len(demos)}] ข้าม (มีแคชแล้ว) {path.name}", flush=True)
+            print(f"[{i}/{len(demos)}] skip (cached) {path.name}", flush=True)
             continue
 
-        print(f"[{i}/{len(demos)}] อ่าน {path.name} ({size_mb:.0f} MB) ...", end=" ", flush=True)
+        print(f"[{i}/{len(demos)}] parsing {path.name} ({size_mb:.0f} MB) ...", end=" ", flush=True)
         t0 = time.perf_counter()
         try:
             kills = parse_one(path)
         except Exception as e:
-            print(f"พัง: {type(e).__name__}: {e}", flush=True)
+            print(f"failed: {type(e).__name__}: {e}", flush=True)
             failed.append((path.name, f"{type(e).__name__}: {e}"))
             continue
         kills.write_parquet(cache)
         frames.append(kills)
-        print(f"{len(kills):,} คิล ใน {time.perf_counter() - t0:.0f} วินาที", flush=True)
+        print(f"{len(kills):,} kills in {time.perf_counter() - t0:.0f}s", flush=True)
 
     if not frames:
-        sys.exit("ไม่มีไฟล์ไหนอ่านสำเร็จเลย")
+        sys.exit("No demo was parsed successfully")
 
 
     final = select_model_columns(add_role_event_columns(pl.concat(frames, how="diagonal_relaxed")))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     final.write_csv(args.out)
 
-    print(f"\n=== เสร็จ: {final.n_unique('demo_file')} แมตช์ | {len(final):,} คิล ===")
-    print(f"แมพ: {dict(final['map_name'].value_counts().iter_rows())}")
-    print(f"เซฟที่ {args.out}")
+    demo_count = final.n_unique("demo_file")
+    print(f"\n=== complete: {demo_count} matches | {len(final):,} kills ===")
+    map_counts = dict(final["map_name"].value_counts().iter_rows())
+    print(f"maps: {map_counts}")
+    print(f"saved to: {args.out}")
     if failed:
-        print(f"\nอ่านไม่สำเร็จ {len(failed)} ไฟล์:")
+        print(f"\nfailed to parse {len(failed)} files:")
         for name, err in failed:
-            print(f"  {name} — {err}")
-
+            print(f"  {name} - {err}")
 
 if __name__ == "__main__":
     main()
