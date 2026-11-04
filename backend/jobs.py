@@ -43,7 +43,7 @@ RESULT_TTL_SEC = 24 * 3600
 
 class QueueUnavailable(Exception):
     """ต่อ Redis ไม่ได้ — ผู้เรียกควรตั้งแมตช์เป็น error พร้อมข้อความนี้ ไม่ใช่ปล่อยค้าง queued ตลอดกาล"""
-
+ #หลังจากรู้ว่าผิดพลาดก็ลบทิ้ง
 
 def _redis():
     from redis import Redis
@@ -56,7 +56,7 @@ def _queue():
     return Queue(QUEUE_NAME, connection=_redis())
 
 
-def enqueue_parse(match_id: int) -> str:
+def enqueue_parse(match_id: int) -> str: #ฟังก์ชันส่งงานเข้าคิว
     """ส่งงานเข้าคิว คืน job_id — โยน QueueUnavailable ถ้า Redis ไม่ตอบ"""
     if QUEUE_BACKEND == "thread":
         job_id = f"thread-{uuid.uuid4().hex[:12]}"
@@ -73,7 +73,7 @@ def enqueue_parse(match_id: int) -> str:
     return job.id
 
 
-def job_state(job_id: str | None) -> str | None:
+def job_state(job_id: str | None) -> str | None: #ถามสถานะ
     """สถานะจากฝั่งคิว (ไม่ใช่ matches.status) — ไว้บอกว่า worker หยิบงานไปหรือยัง"""
     if not job_id or QUEUE_BACKEND == "thread" or job_id.startswith("thread-"):
         return None

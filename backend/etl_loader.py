@@ -34,15 +34,17 @@ from backend.db import DATABASE_URL as DB_URL  # noqa: E402  (โหลด .env 
 from backend.db import apply_schema  # noqa: E402
 from backend.features import assign_teams, compute_features  # noqa: E402
 
-
+# _int: ฟังก์ชันแปลงค่าเป็นจำนวนเต็ม
+# Flow: 1. รับค่า v เข้ามา -> 2. เช็คว่าไม่ใช่ None หรือข้อความว่าง -> 3. แปลงเป็น int หรือคืน None
 def _int(v):
     return int(v) if v not in (None, "") else None
 
-
+# _float: ฟังก์ชันแปลงค่าเป็นเลขทศนิยม
 def _float(v):
     return float(v) if v is not None else None
 
-
+# ฟังก์ชันตรวจสอบและแปลง SteamID ให้ถูกต้องตามขอบเขต 64-bit
+# Flow: 1. รับค่าเข้ามา -> 2. ดักตัด boolean/float ทิ้ง แล้วลองแปลงเป็น int -> 3. เช็คขอบเขต 64-bit แล้วคืนค่า id หรือ None
 def _player_id(value) -> int | None:
     if isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
         return None
@@ -52,7 +54,8 @@ def _player_id(value) -> int | None:
         return None
     return steam_id if 0 < steam_id <= 2**63 - 1 else None
 
-
+# _upsert_players: ฟังก์ชันบันทึกหรืออัปเดตชื่อผู้เล่นหลักลงตาราง players
+# Flow: 1. แปลงรายชื่อเป็นคู่ (steam_id, name) -> 2. กรองเฉพาะคนที่มี steam_id ถูกต้อง -> 3. สั่งรันคำสั่ง SQL แบบ UPSERT
 async def _upsert_players(conn, players: list[dict]) -> None:
     rows = [(_player_id(p.get("steam_id")), str(p.get("name") or "Unknown player")) for p in players]
     rows = [(steam_id, name) for steam_id, name in rows if steam_id is not None]
@@ -62,7 +65,7 @@ async def _upsert_players(conn, players: list[dict]) -> None:
             ON CONFLICT (steam_id) DO UPDATE SET name = EXCLUDED.name;
         """, rows)
 
-
+#เข็ค SteamID จากทุกเหตุการณ์มาลงทะเบียน กันForeign Keyหลุด
 async def _upsert_referenced_players(conn, doc: dict) -> set[int]:
     """Register every valid player reference and return the IDs confirmed in the database."""
     sources = (("kills", ("attacker_id", "victim_id", "assister_id")),
@@ -84,13 +87,16 @@ async def _upsert_referenced_players(conn, doc: dict) -> set[int]:
     records = await conn.fetch("SELECT steam_id FROM players WHERE steam_id = ANY($1::bigint[]);", ids)
     return {int(record["steam_id"]) for record in records}
 
-
+# ตรวจสอบว่า SteamID นี้มีตัวตนอยู่ในฐานข้อมูลจริงไหม
+# 1. ตรวจความถูกต้องของไอดีผ่าน _player_id -> 2. เช็คว่าไอดีอยู่ใน known_ids หรือไม่ -> 3. ถ้ามีให้คืนไอดี ถ้าไม่มีให้คืน None
 def _known_player_id(value, known_ids: set[int] | None) -> int | None:
     steam_id = _player_id(value)
     return steam_id if steam_id is not None and (known_ids is None or steam_id in known_ids) else None
 
 
 # SQL ของตารางลูกแต่ละตัว — วางไว้ระดับโมดูลเพื่อให้ฟังก์ชันสร้างแถวอ่านสั้นลง
+
+# บันทึกเหตุการณ์การฆ่าอย่างละเอียด ทั้งคนฆ่าและคนโดนฆฆ่า
 SQL_KILLS = """
     INSERT INTO kills (
         round_id, tick, attacker_id, victim_id, assister_id, attacker_side, victim_side, weapon,
@@ -99,10 +105,14 @@ SQL_KILLS = """
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
               $16, $17, $18, $19, $20, $21, $22, $23, $24);
 """
+
+# บันทึกการทำดาเมจและส่วนของร่างกายที่โดนกระสุน
 SQL_DAMAGES = """
     INSERT INTO damages (round_id, tick, attacker_id, victim_id, weapon, damage, hitgroup)
     VALUES ($1, $2, $3, $4, $5, $6, $7);
 """
+
+# บันทึกสถิติขั้นสูงรายคนในแต่ละรอบ คะแนน, เงินที่เหลือ,
 SQL_PLAYER_ROUNDS = """
     INSERT INTO player_rounds (
         round_id, steam_id, side, equip_value, balance, survived,
@@ -111,15 +121,21 @@ SQL_PLAYER_ROUNDS = """
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
     ON CONFLICT (round_id, steam_id) DO NOTHING;
 """
+
+# ผูกผู้เล่นเข้ากับแมตช์และทีมหลัก
 SQL_MATCH_PLAYERS = """
     INSERT INTO match_players (match_id, steam_id, start_side, rounds, team_clan) VALUES ($1, $2, $3, $4, $5)
     ON CONFLICT (match_id, steam_id) DO NOTHING;
 """
+
+# บันทึกชนิด พิกัดปา จุดตก และวิถีการลอยของระเบิด
 SQL_GRENADES = """
     INSERT INTO grenades (round_id, tick, thrower_id, side, type,
                           throw_x, throw_y, land_x, land_y, land_tick, end_tick, trajectory)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb);
 """
+
+# บันทึกรอยเท้าและสถานะผู้เล่นความถี่ 8 Hz สำหรับเรนเดอร์ 2D Replay
 SQL_POSITIONS = """
     INSERT INTO player_positions (match_id, round_num, tick, steam_id, side, x, y, z, health, place,
                                   active_weapon, armor, has_helmet, has_defuser, money, has_bomb, yaw, flash_remaining)
@@ -127,14 +143,16 @@ SQL_POSITIONS = """
     ON CONFLICT (match_id, round_num, tick, steam_id) DO NOTHING;
 """
 
-
+# คุมการบันทึกข้อมูลแบบเป็นชุด (Batch) อย่างปลอดภัย
+# 1. รับคำสั่ง SQL และรายการข้อมูล rows -> 2. ถ้ามีข้อมูล ให้สั่ง executemany บันทึกรอบเดียว -> 3. คืนค่าจำนวนแถวที่บันทึกสำเร็จ
 async def _insert_many(conn, sql: str, rows: list[tuple]) -> int:
     """executemany ที่ข้ามให้เองเมื่อไม่มีแถว คืนจำนวนแถวที่ใส่ (ไว้ทำสรุปท้ายฟังก์ชัน)"""
     if rows:
         await conn.executemany(sql, rows)
     return len(rows)
 
-
+# บันทึกข้อมูลรอบลงตาราง rounds และสร้างแผนที่จับคู่ (เลขรอบ -> id ใน DB)
+# 1. วนลูปอ่านข้อมูลทีละรอบจากเดโม -> 2. INSERT ลงตาราง rounds พร้อมดึง id ที่เพิ่งสร้างคืนมา (RETURNING id) -> 3. เก็บลง dict แผนผัง {round_num: id} แล้วส่งคืน
 async def _insert_rounds(conn, match_id: int, rounds: list[dict]) -> dict[int, int]:
     """ใส่ตารางรอบทีละแถวเพื่อเก็บ id ที่ DB คืนมา คืน map round_num -> rounds.id"""
     round_id_map: dict[int, int] = {}
@@ -151,7 +169,8 @@ async def _insert_rounds(conn, match_id: int, rounds: list[dict]) -> dict[int, i
         round_id_map[int(r["round_num"])] = rid
     return round_id_map
 
-
+# คัดกรองและแปลงข้อมูลคนตายให้พร้อมบันทึกลงตาราง kills (24 คอลัมน์)
+# 1. รับรายการคิล ฟังก์ชันหารหัสรอบ และชุดผู้เล่นที่ยืนยันแล้ว -> 2. กรองทิ้งคดีที่ไม่มีรหัสรอบหรือคนตายไม่มีตัวตน -> 3. แพ็กข้อมูล 24 รายการเป็น tuple แล้วคืนกลับเป็น list
 def _kill_rows(kills: list[dict], rid_of, known_ids: set[int] | None = None) -> list[tuple]:
     return [
         (rid_of(k), int(k["tick"]), _known_player_id(k.get("attacker_id"), known_ids),
@@ -167,6 +186,8 @@ def _kill_rows(kills: list[dict], rid_of, known_ids: set[int] | None = None) -> 
     ]
 
 
+# คัดกรองและแปลงข้อมูลการทำดาเมจให้พร้อมลงตาราง damages (7 คอลัมน์) #คนโดนยิงห้ามปล่อยว่าง
+# 1. รับรายการดาเมจ ฟังก์ชันหารหัสรอบ และชุดผู้เล่นที่ยืนยันแล้ว -> 2. กรองทิ้งแถวที่ไม่มีรหัสรอบหรือคนโดนยิงไม่มีตัวตน -> 3. แพ็กข้อมูล 7 รายการเป็น tuple แล้วคืนกลับเป็น list
 def _damage_rows(damages: list[dict], rid_of, known_ids: set[int] | None = None) -> list[tuple]:
     return [
         (rid_of(d), int(d["tick"]), _known_player_id(d.get("attacker_id"), known_ids),
@@ -176,7 +197,8 @@ def _damage_rows(damages: list[dict], rid_of, known_ids: set[int] | None = None)
         for d in damages if rid_of(d) and _known_player_id(d.get("victim_id"), known_ids) is not None
     ]
 
-
+# แปลงสถิติสรุปรายบุคคลประจำรอบให้พร้อมลงตาราง player_rounds (20 คอลัมน์)
+# 1. รับผลการคำนวณฟีเจอร์ แผนที่รหัสรอบ และชุดผู้เล่นที่ยืนยันแล้ว -> 2. กรองเฉพาะรอบที่มีอยู่ใน DB และผู้เล่นมีตัวตนจริง -> 3. ดึงสถิติ 20 รายการแพ็กเป็น tuple แล้วคืนกลับเป็น list
 def _player_round_rows(feats, round_id_map: dict[int, int], known_ids: set[int] | None = None) -> list[tuple]:
     return [
         (round_id_map[f.round_num], f.steam_id, f.side, f.equip_value, f.balance, f.survived,
