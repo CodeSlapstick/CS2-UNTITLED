@@ -414,15 +414,26 @@ function labelPlacer(bounds: { left: number; top: number; right: number; bottom:
 export function placeLivePlayerLabels(
   players: LivePlayer[],
   markerRadius: number,
-  offset: number,
+  fontSize: number,
+  bounds: { left: number; top: number; right: number; bottom: number },
   maxChars = 16,
-): Map<string, LabelPos & { text: string }> {
-  return new Map(players.map((p) => [p.steamid, {
-    x: p.px[0],
-    y: p.px[1] + markerRadius + offset,
-    anchor: "middle" as const,
-    text: truncatePlayerName(p.name, maxChars),
-  }]));
+): Map<string, LabelPos & { text: string; textWidth: number }> {
+  const placer = labelPlacer(bounds);
+  const ordered = [...players].sort((a, b) =>
+    (a.side ?? "").localeCompare(b.side ?? "") || (a.slot ?? 99) - (b.slot ?? 99) || a.steamid.localeCompare(b.steamid));
+  ordered.forEach((player) => placer.block(player.px[0], player.px[1], markerRadius + fontSize * .2));
+  const labels = new Map<string, LabelPos & { text: string; textWidth: number }>();
+  ordered.forEach((player) => {
+    const text = truncatePlayerName(player.name, maxChars);
+    const textWidth = Array.from(text).length * fontSize * 0.68 + 6;
+    const weaponWidth = player.activeWeapon ? fontSize * 1.55 : 0;
+    labels.set(player.steamid, {
+      ...placer.place(player.px[0], player.px[1], markerRadius + fontSize * .15, text, fontSize, weaponWidth),
+      text,
+      textWidth,
+    });
+  });
+  return labels;
 }
 
 function playerDirectionPointerPoints(cx: number, cy: number, radius: number, unit: number): string {
@@ -616,8 +627,13 @@ export function MapView({ radar, deaths, bomb, defuseBombPx, bombPlantedT, grena
   });
   nades.forEach((n) => n.land_px && n.r_px === 0 && block(n.land_px[0], n.land_px[1], z.nadeIco / 2));
   live?.forEach((p) => block(p.px[0], p.px[1], z.dot * 0.9));   // ยังกันไม่ให้ป้ายอื่นทับตัวผู้เล่น
-  const liveLabels = placeLivePlayerLabels(live ?? [], z.dot * .9, 15 * U,
-    shown > 0 && shown < 520 ? 11 : 16);
+  const liveLabels = placeLivePlayerLabels(
+    live ?? [],
+    z.dot * .9,
+    liveNameSize,
+    { left: x0 + 2 * U, top: y0 + 2 * U, right: x0 + span - 2 * U, bottom: y0 + span - 2 * U },
+    shown > 0 && shown < 520 ? 11 : 16,
+  );
   const deathLabel = new Map<number, LabelPos>();
   deaths.forEach((d) => {
     if (d.victim_px) deathLabel.set(d.order, place(d.victim_px[0], d.victim_px[1], dotR(d), d.victim.name, z.name));
