@@ -74,8 +74,8 @@ export function CoachPage() {
               {planMap && <div className="coach-plan-media"><img src={`/site-prediction/${planMapFolder}/${area}.jpg`} alt={t("ภาพบริเวณ {area} ของแมพ {map}", { area: areaLabel, map: planMapName })} loading="lazy" /><span>{planMapName} · {areaLabel}</span></div>}
               <div className="coach-plan-body">
                 <h2>{index + 1}. {planLabel(option.name, t)}</h2>
-                <p className="small muted">{t("พบแผนนี้ใน {rounds} รอบที่ชนะ จาก {matches} แมตช์อาชีพ", { rounds: option.rounds, matches: option.matches })}</p>
-                <p className="small muted">{t("ประมาณวินาทีที่ 15 ผู้เล่นของทีมอยู่บริเวณไหนบ้าง")}</p>
+                <p className="coach-evidence">{t("หลักฐาน {rounds} รอบชนะ · {matches} แมตช์อาชีพ", { rounds: option.rounds, matches: option.matches })}</p>
+                <p className="coach-distribution-label">{t("ตำแหน่งทีมราว 0:15")}</p>
                 <dl className="coach-profile">{(["a", "mid", "b", "other"] as const).map((profileArea) => <div key={profileArea}><dt>{profileArea === "other" ? t("พื้นที่อื่น") : profileArea.toUpperCase()}</dt><dd>{Math.round(option.profile[`${profileArea}_15`] * 100)}%</dd></div>)}</dl>
               </div>
             </article>;

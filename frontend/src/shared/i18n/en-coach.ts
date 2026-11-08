@@ -15,6 +15,8 @@ export const EN_COACH: Record<string, string> = {
   "เน้นตั้งรับบริเวณ {area}": "Focus the defense on {area}",
   "พบแผนนี้ใน {rounds} รอบที่ชนะ จาก {matches} แมตช์อาชีพ": "Seen in {rounds} winning rounds across {matches} professional matches",
   "ประมาณวินาทีที่ 15 ผู้เล่นของทีมอยู่บริเวณไหนบ้าง": "Where the team's players are around 15 seconds",
+  "หลักฐาน {rounds} รอบชนะ · {matches} แมตช์อาชีพ": "Evidence: {rounds} winning rounds · {matches} pro matches",
+  "ตำแหน่งทีมราว 0:15": "Team positions around 0:15",
   "ภาพบริเวณ {area} ของแมพ {map}": "{area} area of the {map} map",
   "CS2 Performance Report ใช้ได้กับแมตช์ที่ทีมอัปโหลดเท่านั้น": "CS2 Performance Report is available only for team-uploaded matches.",
   "เส้นทางเปิดรอบ": "Opening Route",

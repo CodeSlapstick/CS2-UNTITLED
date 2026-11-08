@@ -14,7 +14,7 @@ Grid ML (unsupervised) — ให้ข้อมูลจัดกลุ่ม�
        MeanShift บนพิกัดจุดตาย — ไต่ขึ้นหายอดความหนาแน่น จึงไม่ต้องบอกล่วงหน้าว่ามีกี่จุด
        บอกแค่รัศมีที่ถือว่า "อยู่ใกล้กัน" (BANDWIDTH เป็นหน่วยเกม)
     2. แต่ละช่องกริดเป็นการปะทะ "แบบไหน"
-       สรุปโปรไฟล์ของช่อง (เกิดตอนไหนของรอบ / หลังวางระเบิดไหม / ดวลไกลแค่ไหน / ใช้ AWP บ่อยไหม)
+       สรุปโปรไฟล์ของช่อง (เกิดตอนไหนของรอบ / หลังวางระเบิดไหม / ดวลไกลแค่ไหน)
        แล้ว KMeans จับช่องที่โปรไฟล์คล้ายกันไว้ด้วยกัน — ได้ "ประเภทพื้นที่" ที่ไม่มีใครตั้งชื่อให้ล่วงหน้า
 
 unsupervised ไม่มีเฉลยให้เทียบ จึงต้องวัดสามอย่างแทน ไม่งั้นจะได้รูปสวยที่พิสูจน์อะไรไม่ได้
@@ -30,16 +30,9 @@ import json
 import sys
 from pathlib import Path
 
-import matplotlib
 import numpy as np
 import pandas as pd
 
-matplotlib.use("Agg")            # วาดลงไฟล์ ไม่ต้องมีหน้าจอ
-import matplotlib.pyplot as plt
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import LinearSegmentedColormap, Normalize, to_rgba
-from matplotlib.patches import Circle, Patch
-from PIL import Image
 from sklearn.cluster import KMeans, MeanShift
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
@@ -62,13 +55,11 @@ MIN_KILLS = _args.min_kills  # ช่องต้องมีดวลอย่�
 BANDWIDTH = 300     # รัศมีที่ถือว่า "จุดตายอยู่ใกล้กัน" หน่วยเกม (300 ≈ 5.7 เมตร เท่ากับ grid ใน radars.json)
 MIN_BIN_FREQ = 15   # ยอดที่มีจุดตายไม่ถึงเท่านี้ในรัศมี ไม่นับเป็นจุดปะทะ กันจุดตายโดด ๆ กลายเป็นยอด
 
-FEATURES = ["t_mean", "planted_share", "dist_mean", "awp_share"]   # โปรไฟล์ของช่อง — ไม่มีตัวไหนบอกฝั่ง
+FEATURES = ["t_mean", "planted_share", "dist_mean"]   # โปรไฟล์ของช่อง — ไม่มีตัวไหนบอกฝั่ง
 K_RANGE = range(2, 9)   # ไล่ลองจำนวนกลุ่มช่วงนี้
 K_CLUSTERS = None       # None = เลือก k ที่ silhouette สูงสุดให้เอง | ใส่ตัวเลขถ้าจะล็อก
 N_BOOT = 20             # สุ่มชุดแมตช์กี่รอบตอนวัดเสถียรภาพ
 SEED = 0                # ให้รันซ้ำแล้วได้ผลเดิมทุกครั้ง
-
-SNIPERS = {"awp", "ssg08"}      # ปืนซุ่ม — ใช้แยก "เลนซุ่มระยะไกล" ออกจากพื้นที่ปะทะประชิด
 
 CSV = _args.csv                              # สร้างด้วย python research/prep/demoparser.py
 OUT = _args.output_dir or ROOT / "output" / "models" / MAP
@@ -126,14 +117,9 @@ df["ct_won"] = (df["attacker_side"] == "ct").astype(int)
 radar = json.loads((ROOT / "assets" / "radars.json").read_text(encoding="utf-8"))[MAP]   # ไว้ใส่ payload + path รูป
 
 frame = radar_frame(MAP)
-span = frame.span                          # 1024 พิกเซล x 5.0 = 5120 หน่วยในเกม
-x_left, x_right, y_bottom, y_top = frame.extent
-cell_size = frame.cell_size(GRID_N)        # 5120 / 32 = 160 หน่วยต่อหนึ่งช่อง
-
 df["cx"], df["cy"] = cells_of(df["victim_X"], df["victim_Y"], frame, GRID_N)
 
 df["dist_xy"] = np.hypot(df["attacker_X"] - df["victim_X"], df["attacker_Y"] - df["victim_Y"])
-df["awp"] = df["weapon"].isin(SNIPERS).astype(int)
 
 print(f"{n_raw:,} แถว -> ใช้ได้ {len(df):,} การดวล | {df['match_id'].nunique()} แมตช์")
 
@@ -151,7 +137,7 @@ def resample_matches(d, rng):
     return pd.concat([d[d["match_id"] == m] for m in picked], ignore_index=True)
 
 
-BOOT_COLS = ["match_id", "victim_X", "victim_Y", "cx", "cy", "t_round", "planted", "dist_xy", "awp"]
+BOOT_COLS = ["match_id", "victim_X", "victim_Y", "cx", "cy", "t_round", "planted", "dist_xy"]
 rng = np.random.default_rng(SEED)
 boots = [resample_matches(df[BOOT_COLS], rng) for _ in range(N_BOOT)]
 
@@ -213,7 +199,6 @@ def cell_profiles(d):
         "t_mean": g["t_round"].mean(),          # เกิดตอนไหนของรอบ (วินาที)
         "planted_share": g["planted"].mean(),   # สัดส่วนที่เกิดหลังระเบิดลง
         "dist_mean": g["dist_xy"].mean(),       # ระยะดวลเฉลี่ย (หน่วยเกม)
-        "awp_share": g["awp"].mean(),           # สัดส่วนที่คนยิงใช้ปืนซุ่ม
     })
     return p[p["kills"] >= MIN_KILLS]
 
@@ -267,7 +252,6 @@ WORDS = {   # (ต่ำกว่าค่าเฉลี่ย, สูงกว
     "t_mean": ("early round", "late round"),
     "planted_share": ("pre-plant", "post-plant"),
     "dist_mean": ("close range", "long range"),
-    "awp_share": ("rifle", "AWP"),
 }
 
 
@@ -289,7 +273,7 @@ duel_cluster = df.join(cells[["cluster"]], on=["cx", "cy"])       # ดวลไ
 clusters = cells.groupby("cluster").agg(
     n_cells=("kills", "size"), duels=("kills", "sum"),
     t_mean=("t_mean", "mean"), planted_share=("planted_share", "mean"),
-    dist_mean=("dist_mean", "mean"), awp_share=("awp_share", "mean"),
+    dist_mean=("dist_mean", "mean"),
 )
 clusters["ct_win"] = duel_cluster.groupby("cluster")["ct_won"].mean()   # เฉลี่ยรายดวล ไม่ใช่รายช่อง
 clusters["name"] = cluster_names
@@ -301,109 +285,11 @@ print(f"\n  {k_best} ประเภทช่อง (เรียงต้นร
 for c, r in clusters.iterrows():
     print(f"    type {c + 1}: {r['name']:<28} {int(r['n_cells']):>3} ช่อง {int(r['duels']):>5} ดวล | "
           f"{r['t_mean']:.0f}s  post-plant {r['planted_share']:.0%}  dist {r['dist_mean']:.0f}u  "
-          f"AWP {r['awp_share']:.0%} | CT ชนะ {r['ct_win']:.2f} | {r['top_places']}")
+          f"CT ชนะ {r['ct_win']:.2f} | {r['top_places']}")
 print("  CT ชนะ = เฉลยที่โมเดลไม่เคยเห็น ถ้าแต่ละประเภทต่างกันชัด แปลว่ากลุ่มที่เจอมีความหมาย")
 
 
-# ===========================================================================
-# ===========================================================================
-img = np.asarray(Image.open(ROOT / "assets" / radar["image"].lstrip("/")).convert("RGB"))
-extent = [x_left, x_right, y_bottom, y_top]      # ภาพเรดาร์กินพื้นที่พิกัดเกมช่วงไหน
-
-FREQ_HEX = ["#FF0000", "#DF5B5B", "#FFA0A0", "#E9D5FF"]
-_freq = LinearSegmentedColormap.from_list("duels", FREQ_HEX)
-FREQ_CMAP = LinearSegmentedColormap.from_list("duels_hot", _freq(np.linspace(0.15, 1.0, 256)))
-TYPE_HEX = ["#8B5CF6", "#0D9488", "#D97706"]     # ตรวจแล้วว่าตาบอดสีทุกแบบยังแยกออกจากกันได้
-
-hot_norm = Normalize(vmin=hotspots["duels"].min(), vmax=hotspots["duels"].max())
-HOT_COLORS = [FREQ_CMAP(hot_norm(d)) for d in hotspots["duels"]]
-TYPE_COLORS = [to_rgba(TYPE_HEX[i % len(TYPE_HEX)]) for i in range(k_best)]
-
-
-def ink(rgba) -> str:
-    """สีตัวอักษรที่วางบนพื้นสีนั้นแล้วยังอ่านออก — พื้นสว่างใช้หมึกเข้ม พื้นเข้มใช้หมึกขาว"""
-    r, g, b = rgba[:3]
-    return "#1B1023" if 0.299 * r + 0.587 * g + 0.114 * b > 0.62 else "white"
-
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(17, 15),
-                                             gridspec_kw={"height_ratios": [1.35, 1]})
-
-ax1.imshow(img, extent=extent, origin="upper")
-noise = df[df["hotspot"] < 0]
-ax1.scatter(noise["victim_X"], noise["victim_Y"], s=3, c="#bbbbbb", alpha=0.35, linewidths=0)
-for i, h in hotspots.iterrows():
-    m = df[df["hotspot"] == i]
-    ax1.scatter(m["victim_X"], m["victim_Y"], s=4, color="#C084FC", alpha=0.30, linewidths=0)
-    ax1.add_patch(Circle((h["x"], h["y"]), h["radius"], fill=False, ec=HOT_COLORS[i], lw=2.2))
-    ax1.text(h["x"], h["y"], str(int(h["id"])), ha="center", va="center", fontsize=8, fontweight="bold",
-             color=ink(HOT_COLORS[i]),
-             bbox=dict(boxstyle="circle,pad=0.25", fc=HOT_COLORS[i], ec="white", lw=0.8))
-cb = fig.colorbar(ScalarMappable(norm=hot_norm, cmap=FREQ_CMAP), ax=ax1, fraction=0.036, pad=0.012)
-cb.set_label("duels in this hotspot  (dark = fewer, bright = more)", fontsize=9)
-cb.ax.tick_params(labelsize=8)
-ax1.set_title(f"Q1  Where fights cluster — MeanShift, bandwidth {BANDWIDTH} units\n"
-              f"{len(hotspots)} hotspots hold {1 - noise_share:.0%} of duels · colour = how many duels, "
-              f"number 1 = busiest · grey = not near any peak\n"
-              f"{hotspot_stability:.0%} of peaks recur under match bootstrap", fontsize=10)
-
-rgba = np.zeros((GRID_N, GRID_N, 4))
-for (cx, cy), r in cells.iterrows():
-    rgba[cy, cx] = (*TYPE_COLORS[r["cluster"]][:3], 0.65)
-ax2.imshow(img, extent=extent, origin="upper")
-ax2.imshow(rgba, extent=extent, origin="lower", interpolation="nearest")
-ax2.legend(handles=[Patch(color=TYPE_COLORS[c], label=f"type {c + 1}: {r['name']}  ({int(r['n_cells'])} cells)")
-                    for c, r in clusters.iterrows()],
-           loc="upper center", bbox_to_anchor=(0.5, -0.01), ncol=2, fontsize=9, frameon=False)
-ax2.set_title(f"Q2  What kind of fight happens in each cell — KMeans k={k_best} on label-free cell profiles\n"
-              f"{GRID_N}x{GRID_N} grid · cells with fewer than {MIN_KILLS} duels left blank\n"
-              f"colours only name the groups — they are not a ranking", fontsize=10)
-
-for ax in (ax1, ax2):
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-ax3.plot(scan["k"], scan["silhouette"], "o-", color="#1f77b4", label="silhouette (higher = clearer split)")
-ax3.set_ylim(scan["silhouette"].min() - 0.03, scan["silhouette"].max() + 0.03)   # เผื่อขอบ ไม่ให้จุดต่ำสุดหลุดกรอบ
-ax3.set_xlabel("k (number of cell types)")
-ax3.set_ylabel("silhouette", color="#1f77b4")
-ax3b = ax3.twinx()
-ax3b.plot(scan["k"], scan["ari"], "s--", color="#d62728",
-          label=f"bootstrap ARI, {N_BOOT} resamples (higher = more stable)")
-ax3b.set_ylabel("ARI", color="#d62728")
-ax3b.set_ylim(0, 1)
-ax3.axvline(k_best, color="grey", ls=":")
-ax3.text(k_best + 0.08, ax3.get_ylim()[1], f"chosen k={k_best}", va="top", fontsize=9, color="grey")
-h1, l1 = ax3.get_legend_handles_labels()
-h2, l2 = ax3b.get_legend_handles_labels()
-ax3.legend(h1 + h2, l1 + l2, loc="upper right", fontsize=9)
-ax3.set_title("How k was chosen: separation vs. stability", fontsize=10)
-ax3.grid(alpha=0.3)
-
-heat = np.full((k_best, len(FEATURES) + 1), np.nan)
-heat[:, :len(FEATURES)] = centers_z
-cmap = plt.cm.RdBu_r.copy()
-cmap.set_bad("#e8e8e8")
-ax4.imshow(np.ma.masked_invalid(heat), cmap=cmap, vmin=-1.6, vmax=1.6, aspect="auto")
-FMT = {"t_mean": "{:.0f} s", "planted_share": "{:.0%}", "dist_mean": "{:.0f} u", "awp_share": "{:.0%}"}
-for c, r in clusters.iterrows():
-    for j, f in enumerate(FEATURES):
-        ax4.text(j, c, FMT[f].format(r[f]), ha="center", va="center", fontsize=10,
-                 color="white" if abs(centers_z[c, j]) > 0.9 else "black")
-    ax4.text(len(FEATURES), c, f"{r['ct_win']:.0%}", ha="center", va="center", fontsize=10, fontweight="bold")
-ax4.set_xticks(range(len(FEATURES) + 1))
-ax4.set_xticklabels(["time in round", "post-plant share", "duel distance", "AWP share", "CT wins duel\n(held out)"],
-                    fontsize=9)
-ax4.set_yticks(range(k_best))
-ax4.set_yticklabels([f"type {c + 1}\n{n}" for c, n in enumerate(cluster_names)], fontsize=9)
-ax4.set_title("Profile of each cell type (colour = z-score vs. all cells) · last column never used in fitting",
-              fontsize=10)
-
-fig.suptitle(f"{MAP} · unsupervised · {len(df):,} duels from {df['match_id'].nunique()} matches · "
-             f"no side labels used in fitting", fontsize=13)
-fig.tight_layout()
-
 OUT.mkdir(parents=True, exist_ok=True)
-fig.savefig(OUT / "grid_ml1_map.png", dpi=140)
 
 
 # ===========================================================================
@@ -448,5 +334,5 @@ payload = {
 (OUT / "grid_ml1.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
 print("\nเซฟแล้ว:")
-for _f in ("grid_ml1_map.png", "grid_ml1_cells.csv", "grid_ml1_hotspots.csv", "grid_ml1.json"):
+for _f in ("grid_ml1_cells.csv", "grid_ml1_hotspots.csv", "grid_ml1.json"):
     print(f"  {OUT / _f}")

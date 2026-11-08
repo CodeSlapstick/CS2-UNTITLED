@@ -100,6 +100,7 @@ export const EN_ANALYSIS: Record<string, string> = {
   "พฤติกรรมตามฝั่ง": "side behavior",
   "ไม่มีผู้เล่นจากฝั่งนี้ในตัวกรอง": "No players from this side match the filter.",
   "{n} รอบ": "{n} rounds",
+  "สรุปจากรูปแบบใน {n} รอบ": "Pattern based on {n} rounds",
   "ข้อมูลยังไม่พอ ต้องมีอย่างน้อย {n} รอบในฝั่งนี้": "Not enough data; at least {n} rounds on this side are required.",
   "พบมากกว่าค่ากลางอ้างอิง": "Observed more often than the reference midpoint",
   "พบน้อยกว่าค่ากลางอ้างอิง": "Observed less often than the reference midpoint",

@@ -345,7 +345,6 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
       {view.player && <ViewerPlayerDetails
         steamid={view.player}
         matchId={d.match.id}
-        demo={demo}
         team={d.teams.find((team) => team.players.some((player) => player.steamid === view.player))?.clan ?? "—"}
         current={live?.find((player) => player.steamid === view.player) ?? null}
         onClose={() => setView({ player: null })}
@@ -888,8 +887,8 @@ export function MapView({ radar, deaths, bomb, defuseBombPx, bombPlantedT, grena
               <title>{p.name}</title>
             </text>
             {p.activeWeapon && <WeaponIcon name={p.activeWeapon}
-              x={label.x + liveNameSize * .25}
-              y={label.y + liveNameSize * .2} width={liveNameSize * 1.3} height={liveNameSize * .48}
+              x={(label.anchor === "middle" ? label.x + label.textWidth / 2 : label.anchor === "start" ? label.x + label.textWidth : label.x) + liveNameSize * .25}
+              y={label.y - liveNameSize * .55} width={liveNameSize * 1.3} height={liveNameSize * .48}
               className="live-weapon-icon" />}
           </g>;
         })}
@@ -921,8 +920,8 @@ interface RosterProps {
   bombPlanted?: boolean;
 }
 
-function ViewerPlayerDetails({ steamid, matchId, demo, team, current, onClose }: {
-  steamid: string; matchId: number; demo: string; team: string; current: LivePlayer | null; onClose: () => void;
+function ViewerPlayerDetails({ steamid, matchId, team, current, onClose }: {
+  steamid: string; matchId: number; team: string; current: LivePlayer | null; onClose: () => void;
 }) {
   const { t } = useT();
   const dialogRef = useRef<HTMLElement>(null);
@@ -931,9 +930,7 @@ function ViewerPlayerDetails({ steamid, matchId, demo, team, current, onClose }:
   onCloseRef.current = onClose;
   const summary = useQuery({ queryKey: ["player", steamid], queryFn: () => playerApi.summary(steamid), retry: false });
   const match = useQuery({ queryKey: ["match", matchId], queryFn: () => api.match(matchId) });
-  const behavior = useQuery({ queryKey: ["player-behavior", demo, steamid], queryFn: () => api.playerBehavior(demo, [steamid]) });
   const matchPlayer = match.data?.scoreboard.find((player) => player.steam_id === steamid);
-  const profile = behavior.data?.players?.find((player) => player.steamid === steamid);
   const total = summary.data?.totals;
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -968,7 +965,6 @@ function ViewerPlayerDetails({ steamid, matchId, demo, team, current, onClose }:
           <div><dt>K / D / A</dt><dd>{matchPlayer.kills} / {matchPlayer.deaths} / {matchPlayer.assists}</dd></div><div><dt>Rating</dt><dd>{matchPlayer.rating.toFixed(2)}</dd></div>
           <div><dt>ADR</dt><dd>{matchPlayer.adr.toFixed(1)}</dd></div><div><dt>KAST</dt><dd>{matchPlayer.kast.toFixed(0)}%</dd></div><div><dt>HS</dt><dd>{matchPlayer.hs_rate.toFixed(0)}%</dd></div>
         </dl> : <p className="muted small">{t("ไม่มีสถิติของผู้เล่นในแมตช์นี้")}</p>}</section>
-        <section><h3>{t("บทบาทและพฤติกรรมในแมตช์นี้")}</h3>{behavior.isLoading ? <p className="muted small">{t("กำลังคำนวณรูปแบบการเล่น…")}</p> : profile?.available ? <><strong className="viewer-role">{profile.role ?? "Hybrid / Unresolved"}</strong><ul className="viewer-signals">{(profile.signals ?? []).slice(0, 4).map((signal) => <li key={signal.feature}><span>{signal.feature.replaceAll("_", " ")}</span><b>{signal.direction === "higher" ? "↑" : "↓"} {Math.abs(signal.z).toFixed(1)}σ</b></li>)}</ul></> : <p className="muted small">{t("ข้อมูลรอบยังไม่พอสำหรับระบุบทบาท")}</p>}</section>
         <section><h3>{t("สถิติรวมจากเดโมในระบบ")}</h3>{summary.isLoading ? <p className="muted small">{t("กำลังโหลดสถิติ…")}</p> : total ? <dl className="viewer-match-stats">
           <div><dt>K/D</dt><dd>{total.kd.toFixed(2)}</dd></div><div><dt>Rating</dt><dd>{total.rating.toFixed(2)}</dd></div><div><dt>ADR</dt><dd>{total.adr.toFixed(1)}</dd></div><div><dt>KAST</dt><dd>{total.kast.toFixed(0)}%</dd></div><div><dt>{t("แมตช์")}</dt><dd>{total.matches}</dd></div>
         </dl> : <p className="muted small">{t("ยังไม่มีสถิติรวม")}</p>}</section>

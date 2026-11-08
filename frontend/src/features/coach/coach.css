@@ -12,7 +12,9 @@
 .coach-plan-media span { position: absolute; right: 10px; bottom: 9px; padding: 4px 7px; border: 1px solid rgb(255 255 255 / 24%); border-radius: 4px; background: rgb(11 14 20 / 82%); color: #f2f5f9; font: 700 11px/1 "Chakra Petch", "Anuphan", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
 .coach-plan-body { padding: 16px; }
 .coach-plan-body h2 { margin-top: 0; }
-.coach-profile { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 20px; }
+.coach-evidence { margin: 0; color: var(--muted); font-size: var(--fs-sm); }
+.coach-distribution-label { margin: 18px 0 8px; color: var(--text); font-size: var(--fs-xs); font-weight: 600; }
+.coach-profile { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 4px; }
 .coach-profile dt { color: var(--muted); font-size: var(--fs-xs); }
-.coach-profile dd { margin: 0; font-variant-numeric: tabular-nums; }
+.coach-profile dd { margin: 2px 0 0; font: 600 18px/1.2 "Chakra Petch", "Anuphan", sans-serif; font-variant-numeric: tabular-nums; }
 @media (max-width: 850px) { .coach-options { grid-template-columns: 1fr; } }

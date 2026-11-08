@@ -131,17 +131,7 @@ def select_model_columns(kills: pl.DataFrame) -> pl.DataFrame:
 
 
 def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
-    """Add factual event features used to build player-role profiles.
-
-    These columns are event signals, not role labels:
-    - opening: first enemy kill of the round
-    - early: event within 25 seconds after freeze time
-    - trade: kill within 5 seconds that trades a previous death
-    - postplant: kill at or after the bomb plant tick
-
-    The CSV has no grenade throws, movement, or planter id.
-    Additional features must be read from the database when available.
-    """
+    """เพิ่มคอลัมน์เหตุการณ์สำหรับโปรไฟล์ผู้เล่น"""
     if kills.is_empty():
         return kills
 

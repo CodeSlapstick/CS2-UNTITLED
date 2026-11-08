@@ -256,21 +256,6 @@ export function AnalysisPage() {
   );
 }
 
-const FEATURE_LABELS: Record<string, string> = {
-  assists_per_round: "การช่วยต่อรอบ",
-  flash_assists_per_round: "การช่วยด้วยแฟลชต่อรอบ",
-  opening_attempt_rate: "การมีส่วนร่วมในจังหวะแรก",
-  opening_kill_rate: "การคิลแรก",
-  early_engagement_rate: "การปะทะช่วงต้นรอบ",
-  trade_kills_per_round: "การเทรดคิลต่อรอบ",
-  traded_death_rate: "การตายที่เพื่อนเทรดคืน",
-  postplant_kills_per_round: "คิลหลังวางบอมบ์ต่อรอบ",
-  site_engagement_rate: "การปะทะบริเวณไซต์",
-  avg_kill_time: "เวลาคิลเฉลี่ย",
-  place_diversity: "จำนวนพื้นที่ที่มีเหตุการณ์",
-  place_concentration: "ความถี่ในพื้นที่หลัก",
-};
-
 function roleLabel(role: string): string {
   const names: Record<string, string> = {
     Entry: "Entry", Support: "Support", Lurker: "Lurker", Trader: "Trader",
@@ -335,10 +320,7 @@ function BehaviorTeam({ team, ours, profiles }: {
             <div className="behavior-profile-head"><span className={`badge b-${p.side}`}>{sideLabel(p.side)}</span><span className="muted">{t("{n} รอบ", { n: p.rounds })}</span></div>
             {!p.available ? <p className="muted">{t("ข้อมูลยังไม่พอ ต้องมีอย่างน้อย {n} รอบในฝั่งนี้", { n: p.minimum_rounds ?? 5 })}</p> : <>
               <strong className="behavior-role">{roleLabel(p.role ?? "Hybrid / Unresolved")}</strong>
-              <ul className="behavior-signals">{(p.signals ?? []).map((signal) => <li key={signal.feature}>
-                <span>{t(FEATURE_LABELS[signal.feature] ?? signal.feature)}</span>
-                <small><span>{signal.value.toFixed(2)} · </span><span>{signal.direction === "higher" ? t("พบมากกว่าค่ากลางอ้างอิง") : t("พบน้อยกว่าค่ากลางอ้างอิง")}</span></small>
-              </li>)}</ul>
+              <p className="muted small">{t("สรุปจากรูปแบบใน {n} รอบ", { n: p.rounds })}</p>
             </>}
           </section>)}</div>
       </article>)}

@@ -6,15 +6,6 @@ import "./player-profile.css";
 import unknownAvatar from "@/features/players/assets/avatar-unknown.jpg";
 import { useT } from "@/shared/i18n";
 
-const FEATURE_LABELS: Record<string, string> = {
-  opening_attempt_rate: "พยายามเปิดรอบต่อรอบ", opening_kill_rate: "คิลเปิดรอบต่อรอบ",
-  trade_kills_per_round: "คิลเทรดต่อรอบ", traded_death_rate: "อัตราการตายที่ถูกเทรด",
-  flash_assists_per_round: "ช่วยคิลด้วยแฟลชต่อรอบ", assists_per_round: "ช่วยคิลต่อรอบ",
-  early_engagement_rate: "ปะทะช่วงต้นต่อรอบ", postplant_kills_per_round: "คิลหลังวางระเบิดต่อรอบ",
-  site_engagement_rate: "ปะทะบริเวณไซต์ต่อรอบ", avg_kill_time: "เวลาเฉลี่ยก่อนคิล",
-  place_diversity: "ความหลากหลายของตำแหน่ง", place_concentration: "การกระจุกตัวของตำแหน่ง",
-};
-
 function isoDate(value: string | null) {
   return value ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value)) : "—";
 }
@@ -54,6 +45,13 @@ export function PlayerPage() {
         <article className="card pl-card pl-win"><h2>{t("ชนะรอบ")}</h2><Gauge value={tot.win_rate} max={100} label={valueOrData(tot.win_rate, 0, "%")} unit /><p className="muted small">{t("{r} รอบใน {m} แมตช์", { r: tot.rounds, m: tot.matches })}</p></article>
         <article className="card pl-card pl-headshots"><h2>{t("เฮดช็อต")}</h2><strong className="pl-big-number">{valueOrData(tot.hs_rate, 0)}<small>%</small></strong><dl className="pl-facts"><div><dt>{t("คิล")}</dt><dd>{tot.kills.toLocaleString()}</dd></div><div><dt>{t("ตาย")}</dt><dd>{tot.deaths.toLocaleString()}</dd></div><div><dt>{t("ช่วย")}</dt><dd>{tot.assists.toLocaleString()}</dd></div><div><dt>{t("เฮดช็อต")}</dt><dd>{tot.headshots.toLocaleString()}</dd></div></dl></article>
         <article className="card pl-card pl-damage"><h2>{t("ดาเมจเฉลี่ยต่อรอบ")}</h2><strong className="pl-big-number">{valueOrData(tot.adr, 1)}</strong><dl className="pl-facts"><div><dt>KAST</dt><dd>{valueOrData(tot.kast, 0, "%")}</dd></div><div><dt>{t("รอดจบรอบ")}</dt><dd>{valueOrData(tot.survival_rate, 0, "%")}</dd></div><div><dt>{t("รอบ")}</dt><dd>{tot.rounds.toLocaleString()}</dd></div></dl></article>
+        <article className="card pl-card pl-radar-card"><div className="pl-radar-copy"><h2>{t("ภาพรวมการเล่น")}</h2><p className="muted small">{t("เปอร์เซ็นต์จริงจากแมตช์ที่เลือก ไม่ใช่คะแนนประเมิน")}</p></div><PersonalRadar values={[
+          { label: t("ชนะรอบ"), value: tot.win_rate },
+          { label: "KAST", value: tot.kast },
+          { label: t("รอดจบรอบ"), value: tot.survival_rate },
+          { label: t("เฮดช็อต"), value: tot.hs_rate },
+          { label: "Entry", value: entryRate(d.entry.both) == null ? null : entryRate(d.entry.both)! * 100 },
+        ]} /></article>
         <article className="card pl-card pl-wide pl-clutch-card"><h2>{t("Clutch 1v1–1v5")}</h2>{d.clutches ? <><div className="pl-clutch-summary"><span>1vX</span><strong>{d.clutches.reduce((n, c) => n + c.attempts, 0) ? `${Math.round(d.clutches.reduce((n, c) => n + c.wins, 0) / d.clutches.reduce((n, c) => n + c.attempts, 0) * 100)}%` : "—"}</strong><small>{t("ชนะ")}</small></div><div className="pl-clutches">{d.clutches.map((clutch) => <MiniPie key={clutch.vs} label={`1v${clutch.vs}`} wins={clutch.wins} attempts={clutch.attempts} />)}</div></> : <p className="muted">{t("ไม่มีข้อมูล")}</p>}</article>
         <article className="card pl-card pl-wide pl-entry-card"><h2>{t("Entry — First kill / First death")}</h2><div className="pl-donuts"><Donut label={t("รวม")} value={entryRate(d.entry.both)} won={d.entry.both.kills} lost={d.entry.both.deaths} /><Donut label={t("ฝั่ง CT")} value={entryRate(d.entry.ct)} won={d.entry.ct.kills} lost={d.entry.ct.deaths} tone="ct" /><Donut label={t("ฝั่ง T")} value={entryRate(d.entry.t)} won={d.entry.t.kills} lost={d.entry.t.deaths} tone="t" /></div><p className="muted small">{t("เปอร์เซ็นต์ = First kills / (First kills + First deaths)")}</p></article>
       </section>
@@ -73,7 +71,36 @@ export function PlayerPage() {
 
 function BehaviorCard({ behavior }: { behavior: Awaited<ReturnType<typeof playerApi.profile>>["behavior"] }) {
   const { t } = useT();
-  return <article className="card pl-panel-wide"><h2>{t("บทบาทและพฤติกรรมผู้เล่น")}</h2><p className="muted small">{t("สรุปจากรูปแบบการเล่นในแมตช์ที่เลือก ไม่ใช่การประเมินระดับฝีมือหรือบทบาทถาวร")}</p><div className="pl-behavior">{behavior.sides.map((side) => <section key={side.side} className={`side-${side.side}`}><h3>{side.side.toUpperCase()}</h3>{side.available ? <><strong>{side.role}</strong><p className="muted small">{t("จาก {profiles} โปรไฟล์ · {rounds} รอบ", { profiles: side.profiles ?? 0, rounds: side.rounds ?? 0 })}</p><ul>{side.signals?.map((signal) => <li key={signal.feature}><span>{t(FEATURE_LABELS[signal.feature] ?? signal.feature)}</span><b>{signal.value.toFixed(2)}</b></li>)}</ul></> : <p className="muted">{t("ข้อมูลไม่เพียงพอ")}</p>}</section>)}</div></article>;
+  return <article className="card pl-panel-wide"><h2>{t("รูปแบบการเล่นตามฝั่ง")}</h2><div className="pl-behavior">{behavior.sides.map((side) => <section key={side.side} className={`side-${side.side}`}><h3>{side.side.toUpperCase()}</h3>{side.available ? <><strong>{side.role}</strong><p className="muted small">{t("อ้างอิงจาก {rounds} รอบใน {profiles} แมตช์", { profiles: side.profiles ?? 0, rounds: side.rounds ?? 0 })}</p></> : <p className="muted">{t("ข้อมูลไม่เพียงพอ")}</p>}</section>)}</div></article>;
+}
+
+type RadarValue = { label: string; value: number | null | undefined };
+
+function PersonalRadar({ values }: { values: RadarValue[] }) {
+  const size = 320;
+  const center = size / 2;
+  const radius = 108;
+  const point = (index: number, ratio: number) => {
+    const angle = -Math.PI / 2 + index * (Math.PI * 2 / values.length);
+    return [center + Math.cos(angle) * radius * ratio, center + Math.sin(angle) * radius * ratio] as const;
+  };
+  const polygon = (ratio: number) => values.map((_, index) => point(index, ratio).join(",")).join(" ");
+  const safeValues = values.map((item) => ({
+    ...item,
+    value: typeof item.value === "number" && Number.isFinite(item.value) ? Math.max(0, Math.min(100, item.value)) : null,
+  }));
+  const dataPoints = safeValues.map((item, index) => point(index, (item.value ?? 0) / 100));
+  return <div className="pl-radar-wrap">
+    <svg className="pl-radar" viewBox={`0 0 ${size} ${size}`} role="img" aria-labelledby="personal-radar-title personal-radar-desc">
+      <title id="personal-radar-title">ภาพรวมสถิติผู้เล่น</title>
+      <desc id="personal-radar-desc">{safeValues.map((item) => `${item.label} ${item.value == null ? "ไม่มีข้อมูล" : `${Math.round(item.value)}%`}`).join(", ")}</desc>
+      {[.25, .5, .75, 1].map((ratio) => <polygon key={ratio} points={polygon(ratio)} className="pl-radar-grid" />)}
+      {values.map((_, index) => { const [x, y] = point(index, 1); return <line key={index} x1={center} y1={center} x2={x} y2={y} className="pl-radar-axis" />; })}
+      <polygon points={dataPoints.map((p) => p.join(",")).join(" ")} className="pl-radar-shape" />
+      {dataPoints.map(([x, y], index) => <circle key={safeValues[index].label} cx={x} cy={y} r="4" className="pl-radar-point" />)}
+    </svg>
+    <dl className="pl-radar-values">{safeValues.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.value == null ? "—" : `${Math.round(item.value)}%`}</dd></div>)}</dl>
+  </div>;
 }
 
 function PlayerEmpty({ status, message, mine }: { status: number; message: string; mine: boolean }) {
