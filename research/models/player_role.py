@@ -1,19 +1,3 @@
-# -*- coding: utf-8 -*-
-"""Train separate unsupervised player-role models for the T and CT sides.
-
-The unit of analysis is one player in one match on one side.  Only reference
-matches are used.  KMeans discovers behavioural clusters independently for
-each side; role names are interpretations of cluster centroids, not labels
-used during fitting and not claims about a player's permanent role.
-
-Outputs
-    output/player_role.json          deployable centroids and model metadata
-    output/player_role_profiles.csv  assignments for the reference profiles
-
-Run from the repository root:
-    python research/models/player_role.py
-    python research/models/player_role.py --map de_mirage --min-rounds 6
-"""
 from __future__ import annotations
 
 import argparse
@@ -183,7 +167,6 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
     live = kills[kills["is_live_round_kill"].fillna(False).astype(bool)].copy()
     live["round_time_seconds"] = pd.to_numeric(live["round_time_seconds"], errors="coerce")
     live["trade_kill_count"] = pd.to_numeric(live["trade_kill_count"], errors="coerce").fillna(0)
-    live["is_awp"] = live["weapon"].fillna("").str.lower().eq("awp")
 
     attack = (live.groupby(["demo_file", "round_num", "attacker_steamid"], as_index=False)
               .agg(
@@ -194,7 +177,6 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
                   site_attacks=("is_site_engagement", "sum"),
                   trade_kills=("trade_kill_count", "sum"),
                   kill_time_sum=("round_time_seconds", "sum"),
-                  awp_kills=("is_awp", "sum"),
               ).rename(columns={"attacker_steamid": "steam_id"}))
     victim = (live.groupby(["demo_file", "round_num", "victim_steamid"], as_index=False)
               .agg(
@@ -217,7 +199,7 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
 
     count_columns = [
         "kills", "opening_kills", "early_attacks", "postplant_kills", "site_attacks",
-        "trade_kills", "kill_time_sum", "awp_kills", "deaths", "opening_deaths",
+        "trade_kills", "kill_time_sum", "deaths", "opening_deaths",
         "early_deaths", "postplant_deaths", "site_deaths", "traded_deaths", "assists",
         "flash_assists",
     ]
@@ -263,8 +245,6 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
     out["avg_kill_time"] = out["kill_time_sum"] / kills_n
     out.loc[out["kills"] == 0, "avg_kill_time"] = np.nan
     out["survival_rate"] = (1 - out["deaths_per_round"]).clip(0, 1)
-    out["awp_kill_share"] = out["awp_kills"] / kills_n
-    out.loc[out["kills"] == 0, "awp_kill_share"] = 0.0
     return out[out["rounds"] >= min_rounds].reset_index(drop=True)
 
 
