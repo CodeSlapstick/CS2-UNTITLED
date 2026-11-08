@@ -392,16 +392,16 @@ function labelPlacer(bounds: { left: number; top: number; right: number; bottom:
   const hit = (b: Box) => boxes.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]);
   const inside = (b: Box) => b[0] >= bounds.left && b[1] >= bounds.top && b[2] <= bounds.right && b[3] <= bounds.bottom;
   const block = (x: number, y: number, r: number) => boxes.push([x - r, y - r, x + r, y + r]);
-  const place = (x: number, y: number, r: number, text: string, size: number): LabelPos => {
-    const w = Array.from(text).length * size * 0.58 + 6;
+  const place = (x: number, y: number, r: number, text: string, size: number, afterWidth = 0): LabelPos => {
+    const w = Array.from(text).length * size * 0.68 + 6;
     const tries: [LabelPos, Box][] = [];
-    for (const gap of [0, size + 4, 2 * (size + 4)]) {
+    for (const gap of [0, size + 4, 2 * (size + 4), 3 * (size + 4)]) {
       const R = r + gap;
       tries.push(
-        [{ x, y: y + R + size, anchor: "middle" }, [x - w / 2, y + R + 2, x + w / 2, y + R + size + 4]],
-        [{ x, y: y - R - 6, anchor: "middle" }, [x - w / 2, y - R - size - 6, x + w / 2, y - R - 2]],
-        [{ x: x + R + 6, y: y + size / 3, anchor: "start" }, [x + R + 4, y - size / 2, x + R + 6 + w, y + size / 2]],
-        [{ x: x - R - 6, y: y + size / 3, anchor: "end" }, [x - R - 6 - w, y - size / 2, x - R - 4, y + size / 2]],
+        [{ x, y: y + R + size, anchor: "middle" }, [x - w / 2, y + R + 2, x + w / 2 + afterWidth, y + R + size + 4]],
+        [{ x, y: y - R - 6, anchor: "middle" }, [x - w / 2, y - R - size - 6, x + w / 2 + afterWidth, y - R - 2]],
+        [{ x: x + R + 6, y: y + size / 3, anchor: "start" }, [x + R + 4, y - size / 2, x + R + 6 + w + afterWidth, y + size / 2]],
+        [{ x: x - R - 6, y: y + size / 3, anchor: "end" }, [x - R - 6 - w, y - size / 2, x - R - 4 + afterWidth, y + size / 2]],
       );
     }
     const [pos, box] = tries.find(([, b]) => inside(b) && !hit(b)) ?? tries.find(([, b]) => inside(b)) ?? tries[0];
