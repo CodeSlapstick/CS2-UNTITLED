@@ -11,7 +11,7 @@ from datetime import date
 from pathlib import Path
 
 import asyncpg
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool  # เอางานหนักที่ไม่ใช่ async ไปรันในเธรดแยก ไม่ให้เซิร์ฟเวอร์ค้าง
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -741,22 +741,13 @@ def is_match_owner(match: dict, viewer: dict) -> bool:
 
 
 def can_modify_match(match: dict, viewer: dict) -> bool:
-    """Only the Steam account that uploaded a match may replace or delete it."""
+    """Only the Steam account that uploaded a match may delete it."""
     return viewer["type"] == auth.STEAM and is_match_owner(match, viewer)
-
-
-def require_replace_access(match: dict, viewer: dict) -> None:
-    """Validate ownership and parser state before replacing an existing upload."""
-    if match["source"] != "upload" or not can_modify_match(match, viewer):
-        raise HTTPException(403, "โหลดทับได้เฉพาะเดโมที่บัญชี Steam นี้เป็นผู้อัปโหลด")
-    if match["status"] in ("queued", "parsing"):
-        raise HTTPException(409, "เดโมกำลังประมวลผลอยู่ จึงยังโหลดทับไม่ได้")
 
 
 @app.post("/api/demos")
 async def api_upload_demo(
     file: UploadFile = File(..., description="ไฟล์ .dem หนึ่งไฟล์"),
-    force: str = Form("0"),                     # "1" = แมตช์นี้เคยโหลดแล้วให้ลบของเดิมทิ้งแล้วโหลดใหม่
     viewer: dict = Depends(require_viewer),
     conn: asyncpg.Connection = Depends(db),
 ):
@@ -766,22 +757,16 @@ async def api_upload_demo(
     ทำแบบนี้เพื่อให้แต่ละไฟล์มีสถานะของตัวเอง ไฟล์หนึ่งพังก็ไม่ลากไฟล์อื่นล้มไปด้วย
     """
     require_steam_viewer(viewer)
-    replace = force == "1"
 
     name = Path(file.filename or "").name
     if not DEMO_NAME_RE.match(name):
         raise HTTPException(400, "รับเฉพาะไฟล์ .dem และชื่อไฟล์ใช้ได้แค่ตัวอักษร ตัวเลข . _ - ( )")
 
     existing = await conn.fetchrow("""
-        SELECT id, status, source, uploaded_by, uploader_guest
-        FROM matches WHERE demo_file = $1
+        SELECT id FROM matches WHERE demo_file = $1
     """, name)
-    if existing and not replace and existing["status"] != "error":
-        raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว (Match ID: {existing['id']}, สถานะ {existing['status']}) "
-                                 "— กด \"โหลดทับของเดิม\" ในรายการอัปโหลดถ้าต้องการโหลดใหม่")
     if existing:
-        existing_match = dict(existing)
-        require_replace_access(existing_match, viewer)
+        raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
 
     await check_upload_quota(conn, viewer)
 
@@ -790,44 +775,24 @@ async def api_upload_demo(
     staged_path = DEMOS_DIR / f".{name}.{secrets.token_hex(8)}.upload"
     size = await run_in_threadpool(save_upload, file, staged_path)
 
-    up_type = viewer["type"]
-    up_account = viewer["id"]
-    up_guest = viewer["guest_id"]
-    backup_path: Path | None = None
-    previous_match: dict | None = None
+    published = False
     try:
         async with conn.transaction():
-            locked = await conn.fetchrow("""
-                SELECT id, status, source, error_message, job_id, started_at, finished_at, imported_at,
-                       uploaded_by, uploader_type, uploader_guest
-                FROM matches WHERE demo_file = $1 FOR UPDATE
-            """, name)
-            if locked:
-                locked_match = dict(locked)
-                if not replace and locked_match["status"] != "error":
-                    raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว")
-                require_replace_access(locked_match, viewer)
-                previous_match = locked_match
-                match_id = locked_match["id"]
-                await conn.execute("""
-                    UPDATE matches SET status = 'queued', error_message = NULL, job_id = NULL,
-                                       started_at = NULL, finished_at = NULL, imported_at = now(),
-                                       uploaded_by = $2, uploader_type = $3, uploader_guest = $4
-                    WHERE id = $1
-                """, match_id, up_account, up_type, up_guest)
-            else:
-                match_id = await conn.fetchval("""
-                    INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
-                    VALUES ($1, 'queued', $2, $3, $4) RETURNING id
-                """, name, up_account, up_type, up_guest)
+            # The unique key also arbitrates requests that passed the early check together.
+            match_id = await conn.fetchval("""
+                INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
+                VALUES ($1, 'queued', $2, $3, $4)
+                ON CONFLICT (demo_file) DO NOTHING RETURNING id
+            """, name, viewer["id"], viewer["type"], viewer["guest_id"])
+            if match_id is None:
+                raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
             if dem_path.exists():
-                backup_path = DEMOS_DIR / f".{name}.{secrets.token_hex(8)}.backup"
-                dem_path.replace(backup_path)
+                raise HTTPException(409, f"ไฟล์ {name} มีอยู่บนดิสก์แล้ว — กรุณาตรวจสอบไฟล์เดิมก่อน")
             staged_path.replace(dem_path)
+            published = True
     except Exception:
-        if backup_path and backup_path.exists():
+        if published:
             dem_path.unlink(missing_ok=True)
-            backup_path.replace(dem_path)
         raise
     finally:
         staged_path.unlink(missing_ok=True)
@@ -835,37 +800,16 @@ async def api_upload_demo(
     try:
         job_id = await run_in_threadpool(enqueue_parse, match_id)
     except QueueUnavailable as e:
-        if previous_match:
-            dem_path.unlink(missing_ok=True)
-            if backup_path and backup_path.exists():
-                backup_path.replace(dem_path)
-            await conn.execute("""
-                UPDATE matches SET status = $2, error_message = $3, job_id = $4,
-                                   started_at = $5, finished_at = $6, imported_at = $7,
-                                   uploaded_by = $8, uploader_type = $9, uploader_guest = $10
-                WHERE id = $1
-            """, match_id, previous_match["status"], previous_match["error_message"],
-                 previous_match["job_id"], previous_match["started_at"], previous_match["finished_at"],
-                 previous_match["imported_at"], previous_match["uploaded_by"],
-                 previous_match["uploader_type"], previous_match["uploader_guest"])
-        else:
-            await conn.execute("UPDATE matches SET status = 'error', error_message = $2 WHERE id = $1", match_id, str(e))
-            dem_path.unlink(missing_ok=True)
+        await conn.execute("UPDATE matches SET status = 'error', error_message = $2 WHERE id = $1", match_id, str(e))
         log(f"[UPLOAD] {name}: {e}")
-        raise HTTPException(503, f"รับไฟล์แล้วแต่ส่งงานเข้าคิวไม่ได้ — เปิด Redis ด้วย docker compose up -d redis ({e})")
+        raise HTTPException(503, "ส่งงานเข้าคิวไม่ได้ — ลบแมตช์ที่มีสถานะผิดพลาด แล้วลองอัปโหลดใหม่เมื่อระบบพร้อม")
     await conn.execute("UPDATE matches SET job_id = $2 WHERE id = $1;", match_id, job_id)
-    if backup_path:
-        try:
-            backup_path.unlink(missing_ok=True)
-        except OSError as e:
-            log(f"[UPLOAD] cleanup backup {backup_path.name} failed: {e}")
     log(f"[UPLOAD] {name} ({size / 1024 / 1024:.1f} MB) -> match {match_id} เข้าคิว job {job_id}")
 
     return JSONResponse(status_code=202, content={
         "match_id": match_id,
         "demo_file": name,
         "size_mb": round(size / 1024 / 1024, 1),
-        "replaced": bool(existing),
         "status": "queued",
         "job_id": job_id,
         "status_url": f"/api/matches/{match_id}/status",

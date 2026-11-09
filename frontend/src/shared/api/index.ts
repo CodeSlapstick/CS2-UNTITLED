@@ -86,7 +86,6 @@ export interface UploadResult {
   match_id: number;
   demo_file: string;
   size_mb: number;
-  replaced: boolean;
   status: "queued";
   job_id: string;
   status_url: string;
@@ -435,10 +434,9 @@ export const api = {
   deleteMatch: (id: number) => request<{ deleted: boolean; cleanup_failed: string[] }>(`/api/matches/${id}`, { method: "DELETE" }),
   match: (id: number | string) => request<MatchDetail>(`/api/matches/${id}`),
   status: (id: number | string) => request<StatusInfo>(`/api/matches/${id}/status`),
-  upload: (file: File, force: boolean) => {
+  upload: (file: File) => {
     const form = new FormData();
     form.append("file", file);
-    form.append("force", force ? "1" : "0");
     return request<UploadResult>("/api/demos", { method: "POST", body: form });
   },
 };

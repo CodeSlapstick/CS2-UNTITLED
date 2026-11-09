@@ -69,10 +69,8 @@ export const EN_MATCH: Record<string, string> = {
   "รอให้แกะเดโมเสร็จก่อนจึงจะลบได้": "Wait for parsing to finish before deleting",
   "รอส่ง": "Waiting to send",
   "กำลังส่ง {size}…": "Sending {size}…",
-  "โหลดทับแล้ว กำลังรอแกะ": "Overwritten, waiting to be parsed",
   "เข้าคิวแล้ว กำลังรอแกะ": "Queued, waiting to be parsed",
-  "มีแมตช์นี้ในระบบแล้ว": "This match is already in the system",
-  "โหลดทับของเดิม": "Overwrite existing",
+  "มีแมตช์นี้ในระบบแล้ว — หากต้องการอัปโหลดใหม่ ให้ลบแมตช์เดิมก่อน": "This match already exists. Delete the existing match before uploading it again.",
   "ซ่อนรายการนี้": "Hide this list",
 
   // ---- หน้าสรุปแมตช์ (MatchPage)

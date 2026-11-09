@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from fastapi import HTTPException
 
-from backend.app import _safe_next, can_modify_match, require_match_access, require_replace_access
+from backend.app import _safe_next, can_modify_match, require_match_access
 from backend.repositories.reports import ReportRepository
 from backend.services import auth
 
@@ -22,19 +22,6 @@ def test_only_steam_owner_can_modify_match() -> None:
     assert can_modify_match(match, steam(7)) is True
     assert can_modify_match(match, steam(8)) is False
     assert can_modify_match(match, guest()) is False
-
-
-def test_replace_requires_owner_and_idle_match() -> None:
-    match = {"source": "upload", "status": "done", "uploaded_by": 7, "uploader_guest": None}
-    require_replace_access(match, steam(7))
-
-    with pytest.raises(HTTPException) as other_user:
-        require_replace_access(match, steam(8))
-    assert other_user.value.status_code == 403
-
-    with pytest.raises(HTTPException) as busy:
-        require_replace_access({**match, "status": "parsing"}, steam(7))
-    assert busy.value.status_code == 409
 
 
 class FakeConnection:

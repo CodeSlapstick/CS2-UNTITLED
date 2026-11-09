@@ -67,6 +67,11 @@ The local API creates a development account on startup. Configure `DEV_USERNAME`
 5. Parsed events and derived features are stored in PostgreSQL.
 6. The frontend reads the match and analysis endpoints.
 
+Uploads create new matches only. A duplicate `demo_file` returns HTTP 409, including matches with an `error` status;
+delete an existing match you own before uploading that filename again. Files are staged as `.upload` before an atomic
+rename. If queue submission fails, the API returns HTTP 503 and keeps the demo with match status `error` so it can be
+deleted and uploaded again once the queue is available.
+
 Feature definitions are in `backend/services/features.py`; parsing and ETL are in `backend/services/parser.py` and `backend/services/etl.py`. The old parser and ETL module paths remain as compatibility CLIs.
 
 ## Database

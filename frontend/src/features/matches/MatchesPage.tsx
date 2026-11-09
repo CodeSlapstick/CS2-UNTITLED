@@ -62,7 +62,7 @@ export function MatchesPage() {
         </>}
       </div>
 
-      {!guest && <UploadQueue items={upload.items} onOverwrite={upload.overwrite} onClear={upload.clearDone} />}
+      {!guest && <UploadQueue items={upload.items} onClear={upload.clearDone} />}
 
       <div className="filters" role="search">
         <label className="f-search">
@@ -212,7 +212,6 @@ function MatchList({ rows, canDelete }: { rows: Match[]; canDelete: boolean }) {
 interface QueueItem {
   name: string;
   size: number;
-  file: File;
   state: "waiting" | "uploading" | "queued" | "failed" | "duplicate";
   msg?: string;
 }
@@ -227,20 +226,22 @@ function useUploader() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const send = useCallback(
-    async (files: File[], force: boolean) => {
+    async (files: File[]) => {
       const patch = (name: string, p: Partial<QueueItem>) =>
         setItems((prev) => prev.map((it) => (it.name === name ? { ...it, ...p } : it)));
       for (const f of files) {
         patch(f.name, { state: "uploading", msg: undefined });
         try {
-          const r = await api.upload(f, force);
-          patch(f.name, { state: "queued", msg: r.replaced ? "โหลดทับแล้ว กำลังรอแกะ" : "เข้าคิวแล้ว กำลังรอแกะ" });
+          await api.upload(f);
+          patch(f.name, { state: "queued", msg: "เข้าคิวแล้ว กำลังรอแกะ" });
           qc.invalidateQueries({ queryKey: ["matches"] }); // แถวใหม่โผล่ทันที แล้ว poll ต่อเองจนแกะเสร็จ
         } catch (e) {
           const dup = e instanceof ApiError && e.status === 409 && e.message.includes("มีอยู่ในระบบแล้ว");
           patch(f.name, dup
-            ? { state: "duplicate", msg: "มีแมตช์นี้ในระบบแล้ว" }
+            ? { state: "duplicate", msg: "มีแมตช์นี้ในระบบแล้ว — หากต้องการอัปโหลดใหม่ ให้ลบแมตช์เดิมก่อน" }
             : { state: "failed", msg: e instanceof ApiError ? e.message : String(e) });
+          // A queue failure leaves a new error match that the user can delete.
+          qc.invalidateQueries({ queryKey: ["matches"] });
         }
       }
     },
@@ -254,17 +255,16 @@ function useUploader() {
     const rejected = selected.filter((file) => !file.name.toLowerCase().endsWith(".dem"));
     if (!selected.length) return;
     setItems((prev) => [
-      ...files.map((f) => ({ name: f.name, size: f.size, file: f, state: "waiting" as const })),
+      ...files.map((f) => ({ name: f.name, size: f.size, state: "waiting" as const })),
       ...rejected.map((file) => ({
         name: file.name,
         size: file.size,
-        file,
         state: "failed" as const,
         msg: "รองรับเฉพาะไฟล์ .dem เท่านั้น",
       })),
       ...prev.filter((item) => !selected.some((file) => file.name === item.name)),
     ]);
-    if (files.length) void send(files, false);
+    if (files.length) void send(files);
   };
 
   useEffect(() => () => { depth.current = 0; }, []);
@@ -276,10 +276,6 @@ function useUploader() {
     inputRef,
     onFiles,
     pick: () => inputRef.current?.click(),
-    overwrite: (name: string) => {
-      const it = items.find((x) => x.name === name);
-      if (it) void send([it.file], true);
-    },
     clearDone: () => setItems((prev) => prev.filter((it) => it.state === "uploading" || it.state === "waiting")),
     dropHandlers: {
       onDragEnter: (e: ReactDragEvent) => {
@@ -303,9 +299,8 @@ function useUploader() {
   };
 }
 
-function UploadQueue({ items, onOverwrite, onClear }: {
+function UploadQueue({ items, onClear }: {
   items: QueueItem[];
-  onOverwrite: (name: string) => void;
   onClear: () => void;
 }) {
   const { t } = useT();
@@ -320,9 +315,6 @@ function UploadQueue({ items, onOverwrite, onClear }: {
             <span className={it.state === "failed" ? "err small" : "small muted"}>
               {it.state === "waiting" ? t("รอส่ง") : it.state === "uploading" ? t("กำลังส่ง {size}…", { size: mb(it.size) }) : it.msg && t(it.msg)}
             </span>
-            {it.state === "duplicate" && (
-              <button type="button" className="btn-sm" onClick={() => onOverwrite(it.name)}>{t("โหลดทับของเดิม")}</button>
-            )}
           </li>
         ))}
       </ul>

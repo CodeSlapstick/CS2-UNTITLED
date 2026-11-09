@@ -5,5 +5,6 @@
 
 ruff==0.17.3
 pytest==9.2.0
+httpx==0.28.1  # exercise upload HTTP/multipart handling without a running server
 fakeredis[lua]==2.40.0  # exercise the RQ worker/serialization contract without a shared Redis
 vpk==1.4.0        # research/tools/import_overviews.py อ่านค่าปรับเทียบเรดาร์จากไฟล์เกม CS2
