@@ -87,7 +87,6 @@ docker compose exec api alembic current
 Use Python 3.12 and Node 26 LTS (Node 24.15+ is also supported), with pip and npm.
 Install backend tools with `python -m pip install -r requirements-dev.txt`.
 Direct Python dependencies are pinned in the requirements files; frontend installs use `package-lock.json`.
-See [the dependency audit](DEPENDENCY_AUDIT.md) for tested versions, migration notes, and remaining deployment checks.
 
 ```powershell
 python -m compileall -q backend
@@ -121,8 +120,6 @@ python -m scripts.check_parser_compatibility demos/uploads/example.dem --compare
 ```
 
 ## Repository layout
-
-See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for the complete backend and feature-first frontend map.
 
 ```text
 backend/       FastAPI API, parser, worker, models, migrations, and views

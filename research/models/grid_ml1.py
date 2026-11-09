@@ -3,16 +3,8 @@ import json
 import sys
 from pathlib import Path
 
-import matplotlib
 import numpy as np
 import pandas as pd
-
-matplotlib.use("Agg")            # Render to files without requiring a display.
-import matplotlib.pyplot as plt
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import LinearSegmentedColormap, Normalize
-from matplotlib.patches import Circle
-from PIL import Image
 from sklearn.cluster import KMeans, MeanShift
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
@@ -24,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[2]
 _ap = argparse.ArgumentParser(description="Train the per-map unsupervised grid model")
 _ap.add_argument("--map", default="de_ancient", help="map name, e.g. de_ancient")
 _ap.add_argument("--csv", type=Path, default=ROOT / "data" / "all_kills.csv")
-_ap.add_argument("--output-dir", type=Path, help="default: output/models/<map>")
 _ap.add_argument("--min-kills", type=int, default=10, help="minimum duels per grid cell (default: 10)")
 _args = _ap.parse_args()
 
@@ -42,10 +33,10 @@ N_BOOT = 20
 SEED = 0
 
 CSV = _args.csv
-OUT = _args.output_dir or ROOT / "output" / "models" / MAP
+OUT = ROOT / "output" / "models" / MAP
 
 sys.path.insert(0, str(ROOT))
-from backend.services.review import cells_of, radar_frame
+from backend.services.review import cells_of, radar_frame  # noqa: E402
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -97,9 +88,6 @@ df["ct_won"] = (df["attacker_side"] == "ct").astype(int)
 radar = json.loads((ROOT / "assets" / "radars.json").read_text(encoding="utf-8"))[MAP]   # Metadata and image path.
 
 frame = radar_frame(MAP)
-span = frame.span                          # 1024 pixels x 5.0 = 5120 game units.
-x_left, x_right, y_bottom, y_top = frame.extent
-cell_size = frame.cell_size(GRID_N)        # 5120 / 32 = 160 game units per cell.
 
 df["cx"], df["cy"] = cells_of(df["victim_X"], df["victim_Y"], frame, GRID_N)
 
@@ -273,48 +261,7 @@ for c, r in clusters.iterrows():
 print("  CT win rate is held-out validation; clear differences indicate meaningful clusters")
 
 
-# ===========================================================================
-# ===========================================================================
-img = np.asarray(Image.open(ROOT / "assets" / radar["image"].lstrip("/")).convert("RGB"))
-extent = [x_left, x_right, y_bottom, y_top]      # Game-coordinate extent covered by the radar image.
-
-FREQ_HEX = ["#FF0000", "#DF5B5B", "#FFA0A0", "#E9D5FF"]
-_freq = LinearSegmentedColormap.from_list("duels", FREQ_HEX)
-FREQ_CMAP = LinearSegmentedColormap.from_list("duels_hot", _freq(np.linspace(0.15, 1.0, 256)))
-
-hot_norm = Normalize(vmin=hotspots["duels"].min(), vmax=hotspots["duels"].max())
-HOT_COLORS = [FREQ_CMAP(hot_norm(d)) for d in hotspots["duels"]]
-
-
-def ink(rgba) -> str:
-    """Choose readable text color: dark ink on light backgrounds, white on dark backgrounds."""
-    r, g, b = rgba[:3]
-    return "#1B1023" if 0.299 * r + 0.587 * g + 0.114 * b > 0.62 else "white"
-
-fig, ax = plt.subplots(figsize=(11, 10))
-ax.imshow(img, extent=extent, origin="upper")
-noise = df[df["hotspot"] < 0]
-ax.scatter(noise["victim_X"], noise["victim_Y"], s=3, c="#bbbbbb", alpha=0.35, linewidths=0)
-for i, h in hotspots.iterrows():
-    m = df[df["hotspot"] == i]
-    ax.scatter(m["victim_X"], m["victim_Y"], s=4, color="#C084FC", alpha=0.30, linewidths=0)
-    ax.add_patch(Circle((h["x"], h["y"]), h["radius"], fill=False, ec=HOT_COLORS[i], lw=2.2))
-    ax.text(h["x"], h["y"], str(int(h["id"])), ha="center", va="center", fontsize=8, fontweight="bold",
-            color=ink(HOT_COLORS[i]),
-            bbox=dict(boxstyle="circle,pad=0.25", fc=HOT_COLORS[i], ec="white", lw=0.8))
-cb = fig.colorbar(ScalarMappable(norm=hot_norm, cmap=FREQ_CMAP), ax=ax, fraction=0.036, pad=0.012)
-cb.set_label("deaths in this hotspot (dark = fewer, bright = more)", fontsize=9)
-cb.ax.tick_params(labelsize=8)
-ax.set_title(f"{MAP} death hotspots — MeanShift, bandwidth {BANDWIDTH} units\n"
-             f"{len(hotspots)} hotspots contain {1 - noise_share:.0%} of deaths · number 1 = busiest · "
-             f"grey = outside every hotspot\n"
-             f"{hotspot_stability:.0%} of hotspot centers recur under match-level bootstrap", fontsize=11)
-ax.set_xticks([])
-ax.set_yticks([])
-fig.tight_layout()
-
 OUT.mkdir(parents=True, exist_ok=True)
-fig.savefig(OUT / "grid_ml1_map.png", dpi=140)
 
 
 # ===========================================================================
@@ -359,5 +306,5 @@ payload = {
 (OUT / "grid_ml1.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
 print("\nSaved:")
-for _f in ("grid_ml1_map.png", "grid_ml1_cells.csv", "grid_ml1_hotspots.csv", "grid_ml1.json"):
+for _f in ("grid_ml1_cells.csv", "grid_ml1_hotspots.csv", "grid_ml1.json"):
     print(f"  {OUT / _f}")

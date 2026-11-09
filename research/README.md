@@ -16,7 +16,7 @@
 ## เทรนโมเดลบทบาทผู้เล่น
 
 ```bash
-python research/models/player_role.py --csv data/all_kills.csv --map de_ancient --output-dir output/models/de_ancient
+python research/models/player_role.py --csv data/all_kills.csv --map de_ancient
 ```
 
 หนึ่งแถวที่ใช้จัดกลุ่มคือผู้เล่นหนึ่งคนในหนึ่งแมตช์ต่อหนึ่งฝั่ง โมเดลฝั่ง T และ CT แยกจากกันโดยสมบูรณ์ และข้อมูลที่ผู้ใช้อัปโหลดจะไม่ถูกนำมาเทรน ชื่ออย่าง `Entry`, `Support`, `Site Anchor` เป็นคำอธิบาย centroid หลังจัดกลุ่ม ไม่ใช่ label ที่ใช้สอนโมเดลหรือคำตัดสินผู้เล่น โมเดลเทรนจาก kill events ใน CSV จึงไม่มี grenade throws, movement หรือ planter id: Support ใช้ assist/flash-assist, Anchor/Rotator ใช้ callout ของ kill events และ Bomb carrier / Site executor ใช้ site/post-plant events เป็น proxy
@@ -26,7 +26,7 @@ python research/models/player_role.py --csv data/all_kills.csv --map de_ancient 
 ```bash
 python research/prep/demoparser.py
 python research/models/grid_ml1.py --map de_ancient --min-kills 3
-python research/models/player_role.py --map de_ancient --output-dir output/models/de_ancient
+python research/models/player_role.py --map de_ancient
 ```
 
 รันสองคำสั่งเทรนท้ายสุดซ้ำตามชื่อแมพที่มีใน CSV; `--min-kills 3` เหมาะกับชุดที่มีเพียง 5 แมตช์ต่อแมพ (ค่าเริ่มต้นคือ 10) อย่าใช้แคชของแมพที่ไม่มีไฟล์ demo ต้นทางมาปะปนใน CSV

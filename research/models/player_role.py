@@ -10,16 +10,11 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "output"
 ALL_KILLS_CSV = ROOT / "data" / "all_kills.csv"
 SEED = 42
 N_CLUSTERS = 6
@@ -389,49 +384,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train separate T/CT player-role clusters")
     parser.add_argument("--csv", type=Path, default=ALL_KILLS_CSV,
                         help=f"role-ready all_kills.csv (default: {ALL_KILLS_CSV})")
-    parser.add_argument("--map", dest="map_name", default=None, help="optional map filter, e.g. de_mirage")
+    parser.add_argument("--map", dest="map_name", required=True, help="map filter, e.g. de_mirage")
     parser.add_argument("--min-rounds", type=int, default=MIN_ROUNDS)
     parser.add_argument("--bootstraps", type=int, default=N_BOOTSTRAPS)
-    parser.add_argument("--output-dir", type=Path, default=OUT)
     return parser.parse_args()
-
-
-def save_role_diagram(payload: dict[str, Any], path: Path) -> None:
-    """Render T/CT role centroids as comparable z-score heatmaps."""
-    fig, axes = plt.subplots(2, 1, figsize=(18, 11), constrained_layout=True)
-    image = None
-    for ax, side in zip(axes, ("t", "ct"), strict=True):
-        model = payload["models"][side]
-        features = model["features"]
-        clusters = model["clusters"]
-        values = np.array([[cluster["center_z"][feature] for feature in features] for cluster in clusters])
-        image = ax.imshow(values, cmap="RdBu_r", vmin=-2, vmax=2, aspect="auto")
-        ax.set_xticks(range(len(features)))
-        ax.set_xticklabels([feature.replace("_", "\n") for feature in features], fontsize=8)
-        ax.set_yticks(range(len(clusters)))
-        ax.set_yticklabels([
-            f"{cluster['id']}. {cluster['role']} ({cluster['profiles']} profiles)" for cluster in clusters
-        ], fontsize=9)
-        for row in range(values.shape[0]):
-            for col in range(values.shape[1]):
-                value = values[row, col]
-                ax.text(col, row, f"{value:+.1f}", ha="center", va="center", fontsize=7,
-                        color="white" if abs(value) > 1.0 else "black")
-        metrics = model["metrics"]
-        ax.set_title(
-            f"{side.upper()} role profiles · {model['profiles']} profiles · "
-            f"silhouette {metrics['silhouette']:.3f} · bootstrap ARI {metrics['bootstrap_ari']:.3f}",
-            fontsize=11,
-        )
-    fig.colorbar(image, ax=axes, shrink=0.78, label="cluster centroid z-score")
-    fig.suptitle(
-        f"Player role clusters · {payload['map']} · unsupervised player-match-side profiles\n"
-        "Role names interpret cluster centroids; they are not performance grades",
-        fontsize=14,
-    )
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=150)
-    plt.close(fig)
 
 
 def main() -> None:
@@ -447,13 +403,12 @@ def main() -> None:
             f"เทรนไม่ได้: {exc}\n"
             "รัน python research/prep/demoparser.py ก่อน และตรวจว่ามีข้อมูลอย่างน้อยตาม --min-rounds"
         ) from None
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    json_path = args.output_dir / "player_role.json"
-    csv_path = args.output_dir / "player_role_profiles.csv"
-    diagram_path = args.output_dir / "player_role_diagram.png"
+    output_dir = ROOT / "output" / "models" / args.map_name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / "player_role.json"
+    csv_path = output_dir / "player_role_profiles.csv"
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     profiles.to_csv(csv_path, index=False, encoding="utf-8-sig")
-    save_role_diagram(payload, diagram_path)
 
     scope = args.map_name or "ทุกแมพ"
     print(f"Player role model · {scope} · csv · reference only")
@@ -463,7 +418,7 @@ def main() -> None:
               f"· bootstrap ARI {model['metrics']['bootstrap_ari']:.3f}")
         for cluster in model["clusters"]:
             print(f"  {cluster['id']}. {cluster['role']:<30} {cluster['profiles']:>4} profiles")
-    print(f"\nบันทึกแล้ว:\n  {json_path}\n  {csv_path}\n  {diagram_path}")
+    print(f"\nบันทึกแล้ว:\n  {json_path}\n  {csv_path}")
 
 
 if __name__ == "__main__":
