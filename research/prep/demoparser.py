@@ -15,6 +15,9 @@ DEMO_DIR = ROOT / "demos" / "reference"
 CACHE_DIR = ROOT / "output" / "kills_cache"
 OUT_CSV = ROOT / "data" / "all_kills.csv"
 CACHE_SCHEMA_VERSION = "kills-v2"
+DEFAULT_TICKRATE = 128
+EARLY_ENGAGEMENT_SECONDS = 25
+TRADE_WINDOW_SECONDS = 5
 
 sys.path.insert(0, str(ROOT))
 from backend.services.features import assign_teams  # noqa: E402
@@ -130,33 +133,16 @@ def select_model_columns(kills: pl.DataFrame) -> pl.DataFrame:
     return kills.select(MODEL_KILL_COLUMNS)
 
 
-def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
-    """เพิ่มคอลัมน์เหตุการณ์สำหรับโปรไฟล์ผู้เล่น"""
-    if kills.is_empty():
-        return kills
-
-    required = {
-        "demo_file", "round_num", "tick", "tickrate", "round_start_tick", "bomb_plant_tick",
-        "attacker_steamid", "victim_steamid", "attacker_side", "victim_side",
-        "attacker_place", "victim_place", "assistedflash",
-    }
-    missing = sorted(required - set(kills.columns))
-    if missing:
-        raise ValueError("all_kills is missing source columns for role features: " + ", ".join(missing))
-    existing = [column for column in ROLE_EVENT_COLUMNS if column in kills.columns]
-    if existing:
-        kills = kills.drop(existing)
-
-    ordered = (kills.sort(["demo_file", "round_num", "tick"])
-               .with_row_index("_role_row"))
-    rate = pl.col("tickrate").fill_null(128).clip(lower_bound=1)
+def _add_round_timing(kills: pl.DataFrame) -> pl.DataFrame:
+    """ระบุ kill ฝั่งตรงข้ามในรอบจริง และแปลง tick เป็นเวลาหลังเริ่มรอบ"""
+    rate = pl.col("tickrate").fill_null(DEFAULT_TICKRATE).clip(lower_bound=1)
     enemy = (
         pl.col("attacker_steamid").is_not_null()
         & pl.col("attacker_side").is_in(["ct", "t"])
         & pl.col("victim_side").is_in(["ct", "t"])
         & (pl.col("attacker_side") != pl.col("victim_side"))
     )
-    ordered = ordered.with_columns(
+    return kills.with_columns(
         enemy.alias("is_enemy_kill"),
         (enemy & pl.col("round_start_tick").is_not_null() & (pl.col("tick") >= pl.col("round_start_tick")))
         .alias("is_live_round_kill"),
@@ -164,13 +150,18 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
         .then((pl.col("tick") - pl.col("round_start_tick")) / rate)
         .otherwise(None)
         .alias("round_time_seconds"),
-    ).with_columns(
+    )
+
+
+def _add_event_flags(kills: pl.DataFrame) -> pl.DataFrame:
+    """เพิ่มลำดับ kill และ flags: opening, early, post-plant, site และ flash assist"""
+    return kills.with_columns(
         pl.when(pl.col("is_live_round_kill"))
         .then(pl.col("is_live_round_kill").cast(pl.Int64).cum_sum().over(["demo_file", "round_num"]))
         .otherwise(None)
         .cast(pl.Int64)
         .alias("round_kill_order"),
-        (pl.col("is_live_round_kill") & pl.col("round_time_seconds").is_between(0, 25))
+        (pl.col("is_live_round_kill") & pl.col("round_time_seconds").is_between(0, EARLY_ENGAGEMENT_SECONDS))
         .alias("is_early_engagement"),
         (
             pl.col("is_live_round_kill")
@@ -188,8 +179,9 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
         (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_death"),
     )
 
-    # Trade detection looks back across prior kills in the same round.
-    # It is explicit because one kill can match multiple previous deaths.
+
+def _add_trade_columns(ordered: pl.DataFrame) -> pl.DataFrame:
+    """ตรวจ kill คืนในรอบเดียวกัน โดยหนึ่ง kill อาจ trade ให้หลายคนได้"""
     trade_count = [0] * len(ordered)
     victim_traded = [False] * len(ordered)
     for round_rows in ordered.partition_by(["demo_file", "round_num"], maintain_order=True):
@@ -197,11 +189,11 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
         for row in round_rows.iter_rows(named=True):
             if not row["is_live_round_kill"]:
                 continue
-            tickrate = row["tickrate"] or 128
+            tickrate = row["tickrate"] or DEFAULT_TICKRATE
             matched = [
                 death for death in prior
                 if row["tick"] > death["tick"]
-                and row["tick"] <= death["tick"] + 5 * tickrate
+                and row["tick"] <= death["tick"] + TRADE_WINDOW_SECONDS * tickrate
                 and row["victim_steamid"] == death["attacker_steamid"]
                 and row["attacker_side"] == death["victim_side"]
             ]
@@ -213,7 +205,32 @@ def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
     return ordered.with_columns(
         pl.Series("trade_kill_count", trade_count, dtype=pl.Int64),
         pl.Series("victim_was_traded", victim_traded, dtype=pl.Boolean),
-    ).drop("_role_row")
+    )
+
+
+def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
+    """ตรวจข้อมูล → เรียงเหตุการณ์ → คำนวณเวลา → เพิ่ม flags → ตรวจ trade"""
+    if kills.is_empty():
+        return kills
+
+    required = {
+        "demo_file", "round_num", "tick", "tickrate", "round_start_tick", "bomb_plant_tick",
+        "attacker_steamid", "victim_steamid", "attacker_side", "victim_side",
+        "attacker_place", "victim_place", "assistedflash",
+    }
+    missing = sorted(required - set(kills.columns))
+    if missing:
+        raise ValueError("all_kills is missing source columns for role features: " + ", ".join(missing))
+
+    # Rebuild derived columns so cached or previously processed input behaves the same.
+    existing = [column for column in ROLE_EVENT_COLUMNS if column in kills.columns]
+    if existing:
+        kills = kills.drop(existing)
+
+    ordered = kills.sort(["demo_file", "round_num", "tick"]).with_row_index("_role_row")
+    timed = _add_round_timing(ordered)
+    flagged = _add_event_flags(timed)
+    return _add_trade_columns(flagged).drop("_role_row")
 
 
 def main() -> None:
