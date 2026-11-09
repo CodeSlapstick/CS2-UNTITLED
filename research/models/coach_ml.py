@@ -1,8 +1,3 @@
-"""Train opening-pattern discovery + winning-reference imitation policy.
-
-python research/models/coach_ml.py --map de_mirage
-No causal optimal-tactic claim. Reference only; match-disjoint validation.
-"""
 import argparse
 import asyncio
 import json
@@ -11,7 +6,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import asyncpg
+import matplotlib
 import numpy as np
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -25,6 +24,46 @@ from backend.repositories.coach import load_coach_facts  # noqa: E402
 from backend.services.coach import CONTEXT_FEATURES, OPENING_FEATURES, VERSION, build_coach_samples  # noqa: E402
 
 SEED = 42
+
+
+def save_coach_diagram(model, path: Path) -> None:
+    """Render opening-pattern centroids and holdout performance for each side."""
+    sides = list(model["sides"])
+    fig, axes = plt.subplots(len(sides), 1, figsize=(17, 5.5 * len(sides)), squeeze=False,
+                             constrained_layout=True)
+    image = None
+    for ax, side in zip(axes[:, 0], sides, strict=True):
+        side_model = model["sides"][side]
+        centers = np.asarray(side_model["centers"], dtype=float)
+        image = ax.imshow(centers, cmap="RdBu_r", vmin=-2, vmax=2, aspect="auto")
+        patterns = side_model["patterns"]
+        ax.set_xticks(range(len(model["opening_features"])))
+        ax.set_xticklabels([feature.replace("_", "\n") for feature in model["opening_features"]], fontsize=8)
+        ax.set_yticks(range(len(centers)))
+        ax.set_yticklabels([
+            f"{patterns[str(i)]['name']} ({patterns[str(i)]['rounds']} winning rounds)"
+            for i in range(len(centers))
+        ], fontsize=9)
+        for row in range(centers.shape[0]):
+            for col in range(centers.shape[1]):
+                value = centers[row, col]
+                ax.text(col, row, f"{value:+.1f}", ha="center", va="center", fontsize=7,
+                        color="white" if abs(value) > 1.0 else "black")
+        validation = side_model["validation"]
+        ax.set_title(
+            f"{side.upper()} opening policies · {side_model['training_rounds']} rounds · "
+            f"holdout accuracy {validation['accuracy']:.1%} vs baseline {validation['baseline']:.1%}",
+            fontsize=11,
+        )
+    fig.colorbar(image, ax=axes[:, 0], shrink=0.78, label="opening-pattern centroid z-score")
+    fig.suptitle(
+        f"Coach policy model · {model['map']} · reference matches only\n"
+        "Patterns describe successful reference openings; validation uses match-disjoint holdout",
+        fontsize=14,
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
 
 
 def fit_policy(samples, clusters=4):
@@ -105,7 +144,10 @@ async def main(args):
     output = args.output or ROOT / "output" / "models" / args.map / "coach_model.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(model, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+    diagram = output.with_name(f"{output.stem}_diagram.png")
+    save_coach_diagram(model, diagram)
     print(json.dumps({"artifact": str(output), "reference_matches": len(model["training_match_ids"]),
+                      "diagram": str(diagram),
                       "sides": {s: {"rounds": m["training_rounds"], **m["validation"]} for s, m in sides.items()}}, ensure_ascii=False))
 
 

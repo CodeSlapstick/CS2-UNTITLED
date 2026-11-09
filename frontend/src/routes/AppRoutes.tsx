@@ -1,21 +1,22 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 
-import { AnalysisPage } from "@/features/analysis/AnalysisPage";
-import { HeatmapPage } from "@/features/analysis/HeatmapPage";
-import { LoginPage } from "@/features/auth/LoginPage";
-import { CoachPage } from "@/features/coach/CoachPage";
-import { HomePage } from "@/features/home/HomePage";
-import { EconomyPage } from "@/features/matches/EconomyPage";
-import { MatchesPage } from "@/features/matches/MatchesPage";
-import { MatchPage } from "@/features/matches/MatchPage";
-import { PlayerPage } from "@/features/players/PlayerPage";
-import { RoundPage } from "@/features/rounds/RoundPage";
-import { PlayerSearchPage } from "@/features/search/PlayerSearch";
 import { ApiError, auth, UNAUTHORIZED_EVENT } from "@/shared/api";
 import { useT } from "@/shared/i18n";
 import { NotFound } from "@/shared/ui/utils";
+
+const AnalysisPage = lazy(() => import("@/features/analysis/AnalysisPage").then((module) => ({ default: module.AnalysisPage })));
+const HeatmapPage = lazy(() => import("@/features/analysis/HeatmapPage").then((module) => ({ default: module.HeatmapPage })));
+const LoginPage = lazy(() => import("@/features/auth/LoginPage").then((module) => ({ default: module.LoginPage })));
+const CoachPage = lazy(() => import("@/features/coach/CoachPage").then((module) => ({ default: module.CoachPage })));
+const HomePage = lazy(() => import("@/features/home/HomePage").then((module) => ({ default: module.HomePage })));
+const EconomyPage = lazy(() => import("@/features/matches/EconomyPage").then((module) => ({ default: module.EconomyPage })));
+const MatchesPage = lazy(() => import("@/features/matches/MatchesPage").then((module) => ({ default: module.MatchesPage })));
+const MatchPage = lazy(() => import("@/features/matches/MatchPage").then((module) => ({ default: module.MatchPage })));
+const PlayerPage = lazy(() => import("@/features/players/PlayerPage").then((module) => ({ default: module.PlayerPage })));
+const RoundPage = lazy(() => import("@/features/rounds/RoundPage").then((module) => ({ default: module.RoundPage })));
+const PlayerSearchPage = lazy(() => import("@/features/search/PlayerSearch").then((module) => ({ default: module.PlayerSearchPage })));
 
 export function ProtectedRoute() {
   const location = useLocation();
@@ -29,9 +30,9 @@ export function ProtectedRoute() {
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
   }, [queryClient]);
 
-  if (me.isLoading) return <p className="muted">{t("กำลังตรวจสอบการเข้าใช้งาน…")}</p>;
+  if (me.isLoading) return <p className="muted" role="status">{t("กำลังตรวจสอบการเข้าใช้งาน…")}</p>;
   if (me.error && !(me.error instanceof ApiError && me.error.status === 401)) {
-    return <p className="err">{t("ติดต่อเซิร์ฟเวอร์ไม่ได้: {msg}", { msg: t((me.error as Error).message) })}</p>;
+    return <p className="err" role="alert">{t("ติดต่อเซิร์ฟเวอร์ไม่ได้: {msg}", { msg: t((me.error as Error).message) })}</p>;
   }
   if (!me.data) {
     const next = encodeURIComponent(location.pathname + location.search);
@@ -41,7 +42,9 @@ export function ProtectedRoute() {
 }
 
 export function AppRoutes() {
+  const { t } = useT();
   return (
+    <Suspense fallback={<p className="muted" role="status">{t("กำลังโหลด…")}</p>}>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -60,5 +63,6 @@ export function AppRoutes() {
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }

@@ -1,5 +1,4 @@
-# CS2 Scouting Platform
-
+# CS2 UNITITLED ANALYSIS
 Local Counter-Strike 2 demo-analysis platform for teams and coaches. Upload a `.dem` file, parse it in the background, and review match, round, player, economy, utility, opening, trade, clutch, KAST, and positioning statistics.
 
 ## Current status

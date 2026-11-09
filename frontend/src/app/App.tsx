@@ -147,9 +147,9 @@ function TopBar() {
   if (pathname === "/" || pathname === "/login") return null;
   return (
     <header className="topbar">
-      <Link className="home-brand" to="/" aria-label="CS2 UNTITLED home">
+      <Link className="home-brand" to="/" aria-label="CS2 SCOUTING home">
         <Mark />
-        <span>CS2 UNTITLED</span>
+        <span>CS2 SCOUTING</span>
       </Link>
       <nav ref={navRef} aria-label={t("เมนูหลัก")}>
         {NAV.filter((n) => !(guest && n.steamOnly)).map((n) => (
@@ -167,10 +167,12 @@ function TopBar() {
 }
 
 export function App() {
+  const { t } = useT();
   return (
     <BrowserRouter>
+      <a className="skip-link" href="#main-content">{t("ข้ามไปยังเนื้อหาหลัก")}</a>
       <TopBar />
-      <main className="page">
+      <main className="page" id="main-content">
         <AppRoutes />
       </main>
     </BrowserRouter>

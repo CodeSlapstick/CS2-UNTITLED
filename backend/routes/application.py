@@ -1,26 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-backend/routes/application.py — ประกอบ FastAPI และ HTTP routes ของเว็บ CS2 Analytics
-
-เปรียบเทียบง่าย ๆ: ไฟล์นี้คือ "พนักงานหลังเคาน์เตอร์"
-  - หน้าเว็บ (frontend/) = ลูกค้าที่มายืนหน้าเคาน์เตอร์
-  - ไฟล์นี้ = พนักงานที่คอยรับคำสั่ง ไปหยิบของจากคลัง (PostgreSQL) แล้วส่งกลับไปให้
-
-หน้าที่ของไฟล์นี้มี 3 อย่าง (หน้าเว็บทั้งหมดอยู่ที่ frontend/ — React)
-  1) ล็อกอินด้วย Steam หรือ guest session (backend/services/auth.py)
-  2) จำว่า "ใครล็อกอินอยู่" ด้วย JWT ในคุกกี้ httpOnly (JavaScript อ่านไม่ได้)
-  3) ตอบ /api/* — ดึงสถิติจากฐานข้อมูลแล้วส่งเป็น JSON ให้หน้าเว็บเอาไปวาด
-
-ข้อมูลอยู่ใน PostgreSQL (ตาราง: backend/models/ + Alembic, view: backend/models/views.sql, โหลดผ่าน /api/demos หรือ backend/services/etl.py)
-ไฟล์นี้ไม่อ่าน csv เองแล้ว — อ่านผ่าน SQL อย่างเดียว จะได้ filter/รวมข้อมูลได้เร็วโดยไม่ต้องโหลดทั้งตารางเข้าแรม
-
-รัน:  python -m uvicorn backend.app:app --reload   (ในเครื่อง — หน้าเว็บ npm run dev ส่งต่อ /api มาที่นี่)
-ผู้ใช้ไม่เข้า API ตรง ๆ: เปิดหน้าเว็บ แล้วหน้าเว็บ (หรือ nginx ใน Docker) ส่ง /api /auth /assets มาให้
-Swagger: <หน้าเว็บ>/api/docs
-"""
-
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 import mimetypes
 import os
 import re

@@ -75,8 +75,9 @@ export const EN_CORE: Record<string, string> = {
   "หรือ": "or",
   "กำลังเข้า…": "Entering…",
   "เข้าชมโดยไม่ต้องล็อกอิน": "Continue as guest",
-  "โหมดเยี่ยมชมใช้ฟีเจอร์ทั้งหมดได้ สถิติส่วนตัวจะแสดงหลังล็อกอินด้วย Steam":
-    "Guest mode includes every feature. Sign in with Steam to see your personal stats.",
+  "โหมดเยี่ยมชมเปิดดูเดโมตัวอย่างได้หนึ่งรายการแบบอ่านอย่างเดียว สถิติส่วนตัวและการอัปโหลดต้องล็อกอินด้วย Steam":
+    "Guest mode opens one read-only sample demo. Sign in with Steam for personal stats and uploads.",
+  "ข้ามไปยังเนื้อหาหลัก": "Skip to main content",
   "ช่องทางของโปรเจกต์": "Project channels",
 
   // ---- utils.tsx: ชื่ออาวุธ / สาเหตุจบรอบ / ระเบิด / breadcrumb / แท็บ / 404

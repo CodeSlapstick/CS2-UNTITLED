@@ -10,6 +10,10 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
@@ -122,13 +126,7 @@ def _csv_participants(kills: pd.DataFrame) -> pd.DataFrame:
 
 
 def _resolve_team_round_sides(participants: pd.DataFrame) -> pd.DataFrame:
-    """Resolve isolated parser side glitches from the team roster majority.
 
-    A valid team has five players on one side in a round.  Some demos contain a
-    single event whose side tag is flipped; accepting only a 4-to-1 (or 5-to-0)
-    unique-player majority repairs that narrow case while still rejecting truly
-    ambiguous team/side data.
-    """
     keys = ["demo_file", "round_num", "team"]
     votes = (participants.drop_duplicates(keys + ["steam_id", "side"])
              .groupby(keys + ["side"])["steam_id"].nunique()
@@ -146,11 +144,7 @@ def _resolve_team_round_sides(participants: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS) -> pd.DataFrame:
-    """สร้าง player-match-side profiles จาก all_kills.csv โดยไม่ใช้ฐานข้อมูล
 
-    roster ของแมตช์สร้างจาก team_clan ที่ assign_teams กำหนดไว้แล้ว ทำให้รอบที่ผู้เล่น
-    ไม่ได้ kill/death/assist ยังถูกนับใน denominator และไม่ทำให้คนเงียบดู active เกินจริง
-    """
     participants = _csv_participants(kills)
     if participants.empty:
         return pd.DataFrame()
@@ -167,6 +161,7 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
     live = kills[kills["is_live_round_kill"].fillna(False).astype(bool)].copy()
     live["round_time_seconds"] = pd.to_numeric(live["round_time_seconds"], errors="coerce")
     live["trade_kill_count"] = pd.to_numeric(live["trade_kill_count"], errors="coerce").fillna(0)
+    live["is_awp"] = live["weapon"].fillna("").str.lower().eq("awp")
 
     attack = (live.groupby(["demo_file", "round_num", "attacker_steamid"], as_index=False)
               .agg(
@@ -177,6 +172,7 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
                   site_attacks=("is_site_engagement", "sum"),
                   trade_kills=("trade_kill_count", "sum"),
                   kill_time_sum=("round_time_seconds", "sum"),
+                  awp_kills=("is_awp", "sum"),
               ).rename(columns={"attacker_steamid": "steam_id"}))
     victim = (live.groupby(["demo_file", "round_num", "victim_steamid"], as_index=False)
               .agg(
@@ -199,7 +195,7 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
 
     count_columns = [
         "kills", "opening_kills", "early_attacks", "postplant_kills", "site_attacks",
-        "trade_kills", "kill_time_sum", "deaths", "opening_deaths",
+        "trade_kills", "kill_time_sum", "awp_kills", "deaths", "opening_deaths",
         "early_deaths", "postplant_deaths", "site_deaths", "traded_deaths", "assists",
         "flash_assists",
     ]
@@ -245,6 +241,8 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
     out["avg_kill_time"] = out["kill_time_sum"] / kills_n
     out.loc[out["kills"] == 0, "avg_kill_time"] = np.nan
     out["survival_rate"] = (1 - out["deaths_per_round"]).clip(0, 1)
+    out["awp_kill_share"] = out["awp_kills"] / kills_n
+    out.loc[out["kills"] == 0, "awp_kill_share"] = 0.0
     return out[out["rounds"] >= min_rounds].reset_index(drop=True)
 
 
@@ -398,6 +396,44 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def save_role_diagram(payload: dict[str, Any], path: Path) -> None:
+    """Render T/CT role centroids as comparable z-score heatmaps."""
+    fig, axes = plt.subplots(2, 1, figsize=(18, 11), constrained_layout=True)
+    image = None
+    for ax, side in zip(axes, ("t", "ct"), strict=True):
+        model = payload["models"][side]
+        features = model["features"]
+        clusters = model["clusters"]
+        values = np.array([[cluster["center_z"][feature] for feature in features] for cluster in clusters])
+        image = ax.imshow(values, cmap="RdBu_r", vmin=-2, vmax=2, aspect="auto")
+        ax.set_xticks(range(len(features)))
+        ax.set_xticklabels([feature.replace("_", "\n") for feature in features], fontsize=8)
+        ax.set_yticks(range(len(clusters)))
+        ax.set_yticklabels([
+            f"{cluster['id']}. {cluster['role']} ({cluster['profiles']} profiles)" for cluster in clusters
+        ], fontsize=9)
+        for row in range(values.shape[0]):
+            for col in range(values.shape[1]):
+                value = values[row, col]
+                ax.text(col, row, f"{value:+.1f}", ha="center", va="center", fontsize=7,
+                        color="white" if abs(value) > 1.0 else "black")
+        metrics = model["metrics"]
+        ax.set_title(
+            f"{side.upper()} role profiles · {model['profiles']} profiles · "
+            f"silhouette {metrics['silhouette']:.3f} · bootstrap ARI {metrics['bootstrap_ari']:.3f}",
+            fontsize=11,
+        )
+    fig.colorbar(image, ax=axes, shrink=0.78, label="cluster centroid z-score")
+    fig.suptitle(
+        f"Player role clusters · {payload['map']} · unsupervised player-match-side profiles\n"
+        "Role names interpret cluster centroids; they are not performance grades",
+        fontsize=14,
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
 def main() -> None:
     args = parse_args()
     if args.min_rounds < 1 or args.bootstraps < 0:
@@ -414,8 +450,10 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     json_path = args.output_dir / "player_role.json"
     csv_path = args.output_dir / "player_role_profiles.csv"
+    diagram_path = args.output_dir / "player_role_diagram.png"
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     profiles.to_csv(csv_path, index=False, encoding="utf-8-sig")
+    save_role_diagram(payload, diagram_path)
 
     scope = args.map_name or "ทุกแมพ"
     print(f"Player role model · {scope} · csv · reference only")
@@ -425,7 +463,7 @@ def main() -> None:
               f"· bootstrap ARI {model['metrics']['bootstrap_ari']:.3f}")
         for cluster in model["clusters"]:
             print(f"  {cluster['id']}. {cluster['role']:<30} {cluster['profiles']:>4} profiles")
-    print(f"\nบันทึกแล้ว:\n  {json_path}\n  {csv_path}")
+    print(f"\nบันทึกแล้ว:\n  {json_path}\n  {csv_path}\n  {diagram_path}")
 
 
 if __name__ == "__main__":

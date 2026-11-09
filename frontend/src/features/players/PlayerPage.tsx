@@ -21,9 +21,9 @@ export function PlayerPage() {
     queryFn: () => playerApi.profile(who, filters), retry: false,
   });
 
-  if (profile.isLoading) return <p className="muted">{t("กำลังโหลดสถิติ…")}</p>;
+  if (profile.isLoading) return <p className="muted" role="status">{t("กำลังโหลดสถิติ…")}</p>;
   if (profile.error instanceof ApiError) return <PlayerEmpty status={profile.error.status} message={profile.error.message} mine={!steamId} />;
-  if (profile.error) return <p className="err">{t("โหลดสถิติไม่ได้: {msg}", { msg: t((profile.error as Error).message) })}</p>;
+  if (profile.error) return <p className="err" role="alert">{t("โหลดสถิติไม่ได้: {msg}", { msg: t((profile.error as Error).message) })}</p>;
   if (!profile.data) return null;
 
   const d = profile.data;

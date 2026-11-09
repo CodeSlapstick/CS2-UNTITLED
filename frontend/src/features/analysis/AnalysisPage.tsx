@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type KeyboardEvent, useEffect, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -52,18 +52,37 @@ const SIDES: { key: Side; label: string }[] = [
   { key: "t", label: "ตอนเป็น T" },
 ];
 
+function modeFromParams(params: URLSearchParams): Mode {
+  return params.get("tool") === "opening-route" ? "opening" : "upload";
+}
+
 export function AnalysisPage() {
   const { t } = useT();
   const [params, setParams] = useSearchParams();
-  const [mode, setModeState] = useState<Mode>(() => params.get("tool") === "opening-route" ? "opening" : "upload");
+  const mode = modeFromParams(params);
   function setMode(nextMode: Mode) {
-    setModeState(nextMode);
     const next = new URLSearchParams(params);
     if (nextMode === "opening") next.set("tool", "opening-route");
     else {
       for (const key of ["tool", "player", "map", "side", "scope"]) next.delete(key);
     }
     setParams(next, { replace: true });
+  }
+  function moveMode(event: KeyboardEvent<HTMLButtonElement>, current: Mode) {
+    const delta = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (!delta && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const currentIndex = MODES.findIndex((item) => item.key === current);
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? MODES.length - 1
+        : (currentIndex + delta + MODES.length) % MODES.length;
+    const nextMode = MODES[nextIndex].key;
+    event.currentTarget.parentElement
+      ?.querySelector<HTMLButtonElement>(`[data-testid="mode-${nextMode}"]`)
+      ?.focus();
+    setMode(nextMode);
   }
   const [side, setSide] = useState<Side>("all");
   const [demo, setDemo] = useState<string>(""); // "" = ทุกแมตช์ที่อัปโหลด
@@ -125,23 +144,27 @@ export function AnalysisPage() {
         <header className="an-head">
           <h1>{t("เครื่องมือวิเคราะห์")}</h1>
           <div className="an-tabs" role="tablist" aria-label={t("สิ่งที่ดู")}>{MODES.map((m) => (
-            <button key={m.key} type="button" role="tab" className={`an-tab${mode === m.key ? " on" : ""}`}
-              aria-selected={mode === m.key} onClick={() => setMode(m.key)} data-testid={`mode-${m.key}`}>
+            <button key={m.key} id={`analysis-tab-${m.key}`} type="button" role="tab" className={`an-tab${mode === m.key ? " on" : ""}`}
+              aria-controls={`analysis-panel-${m.key}`} aria-selected={mode === m.key} tabIndex={mode === m.key ? 0 : -1}
+              onKeyDown={(event) => moveMode(event, m.key)} onClick={() => setMode(m.key)} data-testid={`mode-${m.key}`}>
               {t(m.label)}
             </button>
           ))}</div>
         </header>
-        <OpeningRoutePage embedded />
+        <div id="analysis-panel-opening" role="tabpanel" aria-labelledby="analysis-tab-opening">
+          <OpeningRoutePage embedded />
+        </div>
+        <div id="analysis-panel-upload" role="tabpanel" aria-labelledby="analysis-tab-upload" hidden />
       </div>
     );
   }
 
-  if (matches.isLoading) return <p className="muted">{t("กำลังโหลด…")}</p>;
-  if (matches.error) return <p className="err">{t("โหลดรายการแมตช์ไม่ได้: {msg}", { msg: (matches.error as Error).message })}</p>;
+  if (matches.isLoading) return <p className="muted" role="status">{t("กำลังโหลด…")}</p>;
+  if (matches.error) return <p className="err" role="alert">{t("โหลดรายการแมตช์ไม่ได้: {msg}", { msg: (matches.error as Error).message })}</p>;
   if (maps.length === 0) return <div className="analysis" data-testid="analysis-page">
     <header className="an-head"><h1>{t("เครื่องมือวิเคราะห์")}</h1></header>
     <section className="card an-no-match" role="status">
-      <DatabaseSearchIcon />
+      <DatabaseSearchIcon aria-hidden="true" />
       <div><h2>ยังไม่มีแมตช์ที่พร้อมวิเคราะห์</h2><p className="muted">เลือกแมตช์ที่ประมวลผลเสร็จแล้วจากหน้า Matches เพื่อดูผลวิเคราะห์ ข้อมูลอัปโหลดเดโมยังอยู่ที่หน้าหลักของระบบ</p></div>
       <Link className="btn-primary" to="/matches">ไปหน้า Matches</Link>
     </section>
@@ -159,14 +182,17 @@ export function AnalysisPage() {
         <h1>{t("เครื่องมือวิเคราะห์")}</h1>
         <div className="an-tabs" role="tablist" aria-label={t("สิ่งที่ดู")}>
           {MODES.map((m) => (
-            <button key={m.key} type="button" role="tab" className={`an-tab${mode === m.key ? " on" : ""}`}
-              aria-selected={mode === m.key} onClick={() => setMode(m.key)} data-testid={`mode-${m.key}`}>
+            <button key={m.key} id={`analysis-tab-${m.key}`} type="button" role="tab" className={`an-tab${mode === m.key ? " on" : ""}`}
+              aria-controls={`analysis-panel-${m.key}`} aria-selected={mode === m.key} tabIndex={mode === m.key ? 0 : -1}
+              onKeyDown={(event) => moveMode(event, m.key)} onClick={() => setMode(m.key)} data-testid={`mode-${m.key}`}>
               {t(m.label)}
             </button>
           ))}
         </div>
       </header>
 
+      <div id="analysis-panel-opening" role="tabpanel" aria-labelledby="analysis-tab-opening" hidden />
+      <div id="analysis-panel-upload" role="tabpanel" aria-labelledby="analysis-tab-upload">
       <div className="an-filters">
         {maps.length > 1 ? (
           <label className="an-select">
@@ -199,8 +225,8 @@ export function AnalysisPage() {
         </div>
       )}
 
-      {error && <p className="err">{t("โหลดข้อมูลไม่ได้: {msg}", { msg: error.message })}</p>}
-      {loading && <p className="muted">{t("กำลังนับจุดตาย…")}</p>}
+      {error && <p className="err" role="alert">{t("โหลดข้อมูลไม่ได้: {msg}", { msg: error.message })}</p>}
+      {loading && <p className="muted" role="status">{t("กำลังนับจุดตาย…")}</p>}
 
       {!loading && !error && (
         <div className="an-grid">
@@ -252,6 +278,7 @@ export function AnalysisPage() {
         </div>
       )}
       <PlayerBehaviorSection data={behaviorQ.data} loading={behaviorQ.isLoading} error={behaviorQ.error as Error | null} />
+      </div>
     </div>
   );
 }
@@ -279,15 +306,15 @@ export function PlayerBehaviorSection({ data, loading, error }: {
     : (["t", "ct"] as const).map((side) => ({ team: `${side.toUpperCase()} side`, profiles: (data?.players ?? []).filter((player) => player.side === side) }));
   return <section className="behavior" aria-labelledby="behavior-title" data-testid="player-behavior">
     <header className="behavior-head">
-      <div className="behavior-title-icon"><PlayerIcon /></div>
+      <div className="behavior-title-icon" aria-hidden="true"><PlayerIcon /></div>
       <div>
         <h2 id="behavior-title">{t("รูปแบบการเล่นของผู้เล่น")}</h2>
       </div>
     </header>
-    {loading && <p className="muted behavior-state">{t("กำลังคำนวณรูปแบบการเล่น…")}</p>}
-    {error && <p className="err behavior-state">{t("โหลดรูปแบบการเล่นไม่ได้: {msg}", { msg: error.message })}</p>}
+    {loading && <p className="muted behavior-state" role="status">{t("กำลังคำนวณรูปแบบการเล่น…")}</p>}
+    {error && <p className="err behavior-state" role="alert">{t("โหลดรูปแบบการเล่นไม่ได้: {msg}", { msg: error.message })}</p>}
     {!loading && !error && data && !data.available && <div className="behavior-state behavior-empty">
-      <DatabaseSearchIcon /><div><b>{t("ยังแสดงรูปแบบการเล่นไม่ได้")}</b><p className="muted">{t(`player_behavior_${data.reason ?? "unavailable"}`)}</p></div>
+      <span aria-hidden="true"><DatabaseSearchIcon /></span><div><b>{t("ยังแสดงรูปแบบการเล่นไม่ได้")}</b><p className="muted">{t(`player_behavior_${data.reason ?? "unavailable"}`)}</p></div>
     </div>}
     {!loading && !error && data?.available && <>
       <div className="behavior-grid">

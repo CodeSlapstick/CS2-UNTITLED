@@ -1,8 +1,3 @@
-"""Opening Route derivation owner. Pure functions; SQL stays in app.py.
-
-Coordinates and utility projection reuse review.py. No guessed match dates,
-freeze ticks, projectile paths, or effect durations are supplied here.
-"""
 import math
 import re
 from collections import defaultdict

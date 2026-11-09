@@ -55,6 +55,8 @@ services:
     <<: *backend
     container_name: cs2-api
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
     environment:
       <<: *backend-env
       SECRET_KEY: ${SECRET_KEY:-}              # กุญแจเซ็น JWT — ไม่ตั้ง = สุ่มใหม่ทุกครั้งที่ api รีสตาร์ต (ทุกคนต้องล็อกอินใหม่)

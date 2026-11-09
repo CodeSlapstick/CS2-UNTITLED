@@ -76,7 +76,7 @@ export function LoginPage() {
   return (
     <div className="login-shell">
       {/* แผงบรีฟฝั่งซ้าย: เรดาร์ de_mirage จริงจาก assets + ตัวเลขจริงของระบบ */}
-      <section className="brief" aria-label="CS2 UNTITLED">
+      <section className="brief" aria-label="CS2 SCOUTING">
         <div className="brief-radar" aria-hidden="true">
           <img src={radarLines} alt="" draggable={false} />
           <div className="brief-sweep" />
@@ -84,7 +84,7 @@ export function LoginPage() {
 
         <div className="brief-brand">
           <LogoMark />
-          <span>CS2 UNTITLED</span>
+          <span>CS2 SCOUTING</span>
         </div>
 
         <div className="brief-copy">
@@ -158,7 +158,7 @@ export function LoginPage() {
           )}
 
           <p className="lc-note">
-            {t("โหมดเยี่ยมชมใช้ฟีเจอร์ทั้งหมดได้ สถิติส่วนตัวจะแสดงหลังล็อกอินด้วย Steam")}
+            {t("โหมดเยี่ยมชมเปิดดูเดโมตัวอย่างได้หนึ่งรายการแบบอ่านอย่างเดียว สถิติส่วนตัวและการอัปโหลดต้องล็อกอินด้วย Steam")}
           </p>
         </div>
 

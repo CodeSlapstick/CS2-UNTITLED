@@ -92,8 +92,8 @@ export function MatchesPage() {
         )}
       </div>
 
-      {matches.isLoading && <p className="muted">{t("กำลังโหลด…")}</p>}
-      {matches.error && <p className="err">{t("โหลดรายการไม่ได้: {msg}", { msg: (matches.error as Error).message })}</p>}
+      {matches.isLoading && <p className="muted" role="status">{t("กำลังโหลด…")}</p>}
+      {matches.error && <p className="err" role="alert">{t("โหลดรายการไม่ได้: {msg}", { msg: (matches.error as Error).message })}</p>}
 
       {matches.data && (
         <>
@@ -249,13 +249,22 @@ function useUploader() {
 
   const onFiles = (list: FileList | null) => {
     if (!list) return;
-    const files = Array.from(list).filter((f) => f.name.toLowerCase().endsWith(".dem"));
-    if (!files.length) return;
+    const selected = Array.from(list);
+    const files = selected.filter((file) => file.name.toLowerCase().endsWith(".dem"));
+    const rejected = selected.filter((file) => !file.name.toLowerCase().endsWith(".dem"));
+    if (!selected.length) return;
     setItems((prev) => [
       ...files.map((f) => ({ name: f.name, size: f.size, file: f, state: "waiting" as const })),
-      ...prev.filter((it) => !files.some((f) => f.name === it.name)),
+      ...rejected.map((file) => ({
+        name: file.name,
+        size: file.size,
+        file,
+        state: "failed" as const,
+        msg: "รองรับเฉพาะไฟล์ .dem เท่านั้น",
+      })),
+      ...prev.filter((item) => !selected.some((file) => file.name === item.name)),
     ]);
-    void send(files, false);
+    if (files.length) void send(files, false);
   };
 
   useEffect(() => () => { depth.current = 0; }, []);

@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_radar.py — ตรวจว่าค่าปรับเทียบเรดาร์ใน assets/radars.json ถูกต้องไหม
+check_radar.py — validate radar calibration values in assets/radars.json
 
-    python research/tools/check_radar.py                        ตรวจทุกแมพที่มีค่าปรับเทียบ
-    python research/tools/check_radar.py de_dust2               ตรวจแมพเดียว
-    python research/tools/check_radar.py de_dust2 --try -2476 3239 4.4    ลองค่าใหม่โดยยังไม่แก้ไฟล์
-    python research/tools/check_radar.py de_dust2 --png         เซฟภาพจุดตายทับเรดาร์ไว้ดูด้วยตา
+    python research/tools/check_radar.py                        check every calibrated map
+    python research/tools/check_radar.py de_dust2               check one map
+    python research/tools/check_radar.py de_dust2 --try -2476 3239 4.4    try values without modifying files
+    python research/tools/check_radar.py de_dust2 --png         save an image with death positions overlaid
 
-ปัญหาที่สคริปต์นี้แก้
-    ค่า pos_x / pos_y / scale ผิดแล้ว "ไม่มี error" ให้เห็นเลย ภาพเรดาร์ยังขึ้นปกติ
-    heatmap ยังวาดออกมาสวย ๆ แค่จุดไปตกผิดที่ทั้งหมด อ่านผลแล้วสรุปผิดโดยไม่รู้ตัว
+Problem addressed by this script
+    Incorrect pos_x, pos_y, or scale values do not produce an obvious error because the radar still renders.
+    A heatmap may look plausible while every point is misplaced, leading to incorrect conclusions.
 
-วิธีตรวจ
-    ภาพเรดาร์ของ CS2 เป็น PNG ที่ "พื้นที่เดินได้ทึบ ส่วนนอกแมพโปร่งใส"
-    เอาพิกัดจุดที่คนตายจริงมาฉายลงภาพด้วยสูตรเดียวกับหน้าเว็บ
+Validation method
+    CS2 radar PNGs use opaque pixels for walkable areas and transparency outside the map.
+    Project real death positions onto the image using the same formula as the application:
         px = (game_x - pos_x) / scale
         py = (pos_y - game_y) / scale
-    แล้วนับว่ากี่ % ตกลงบนพิกเซลที่ทึบ — คนตายต้องอยู่ในที่ที่เดินได้เสมอ
+    Then measure the percentage that lands on opaque pixels; deaths should occur in walkable areas.
 
-    ค่าที่ถูก  99%+     ค่าที่ผิด  ร่วงชัดเจน (ค่าเก่าสมัย CSGO ของ dust2 ได้ 80.3%)
+    Correct calibration normally scores 99% or more; incorrect values drop noticeably.
 
-    เกณฑ์นี้ตรวจได้เพราะ "เฉลยอยู่ในข้อมูลอยู่แล้ว" ไม่ใช่คะแนนที่เราตั้งเอง
-    เป็นแนวคิดเดียวกับที่ใช้ทั้งโปรเจกต์
+    This works because the validation signal is already present in the data rather than being a subjective score.
+    The same principle is used throughout the project.
 """
 import argparse
 import asyncio
@@ -75,19 +75,19 @@ def _from_db(map_name: str | None) -> pd.DataFrame:
 
 def _from_csv(map_name: str | None) -> pd.DataFrame:
     if not CSV.exists():
-        raise FileNotFoundError(f"ไม่พบ {CSV} — รัน python research/prep/demoparser.py ก่อน")
+        raise FileNotFoundError(f"Missing {CSV}; run python research/prep/demoparser.py first")
     df = pd.read_csv(CSV)
     if map_name and "map_name" in df.columns:
         df = df[df["map_name"] == map_name]
-    df.attrs["source"] = f"csv {CSV.name}"     # ตั้งหลังกรอง เพราะ attrs ไม่รับประกันว่าจะติดไปกับผลของการกรอง
+    df.attrs["source"] = f"csv {CSV.name}"     # Set after filtering because pandas may not preserve attrs.
     return df
 
 
 def load_kills(map_name: str | None = None, source: str = "auto") -> pd.DataFrame:
-    """คืนคิลของแมพที่ขอ (None = ทุกแมพ) จากแหล่งที่เลือก: "db" / "csv" / "auto"
+    """Load kills for one map (or all maps) from db, csv, or auto.
 
-    auto = ลอง DB ก่อน ถ้าต่อไม่ได้หรือไม่มีคิลของแมพนั้น ถอยไป csv พร้อมพิมพ์บอก
-    ตั้งค่าเริ่มต้นได้ด้วย environment ML_SOURCE (เช่นใน Dockerfile ตั้ง ML_SOURCE=csv)
+    auto tries the database first and falls back to CSV when unavailable or empty.
+    The ML_SOURCE environment variable can provide the default source.
     """
     source = (source or os.environ.get("ML_SOURCE") or "auto").lower()
     if source == "db":
@@ -95,22 +95,22 @@ def load_kills(map_name: str | None = None, source: str = "auto") -> pd.DataFram
     if source == "csv":
         return _from_csv(map_name)
     if source != "auto":
-        raise ValueError(f"source ต้องเป็น db / csv / auto ไม่ใช่ {source!r}")
+        raise ValueError(f"source must be db, csv, or auto; received {source!r}")
 
     try:
         df = _from_db(map_name)
         if not df.empty:
             return df
-        print(f"!! ต่อ DB ได้แต่ไม่มีคิลของแมพ {map_name} — ถอยไปใช้ csv")
-    except Exception as e:                        # DB ปิดอยู่ / ไม่มี asyncpg / รหัสผ่านผิด — ถอยไป csv ทั้งหมด
-        print(f"!! ต่อ DB ไม่ได้ ({type(e).__name__}) — ถอยไปใช้ csv")
+        print(f"!! Database contains no kills for map {map_name}; falling back to CSV")
+    except Exception as e:                        # Database unavailable, asyncpg missing, or credentials invalid.
+        print(f"!! Database connection failed ({type(e).__name__}); falling back to CSV")
     return _from_csv(map_name)
 
 
 RADARS = ROOT / "assets" / "radars.json"
 ASSETS = ROOT / "assets"
-ALPHA_MIN = 8       # อัลฟ่าต่ำกว่านี้ถือว่าโปร่งใส (นอกแมพ)
-PASS_PCT = 99.0     # ต่ำกว่านี้ถือว่าค่าปรับเทียบน่าสงสัย
+ALPHA_MIN = 8       # Lower alpha values are treated as transparent and outside the map.
+PASS_PCT = 99.0     # Lower scores indicate suspicious calibration.
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -120,7 +120,7 @@ for _s in (sys.stdout, sys.stderr):
 
 
 def project(xs, ys, cal):
-    """พิกัดเกม -> พิกเซลบนภาพ (สูตรเดียวกับ frontend/static/map.js และ /api/radar)"""
+    """Convert game coordinates to image pixels using the application's projection formula."""
     return (xs - cal["pos_x"]) / cal["scale"], (cal["pos_y"] - ys) / cal["scale"]
 
 
@@ -128,15 +128,15 @@ def check(map_name: str, cal: dict, source: str = "auto", save_png: bool = False
     df = load_kills(map_name, source=source)
     df = df.dropna(subset=["victim_X", "victim_Y"])
     if df.empty:
-        print(f"{map_name}: ไม่มีจุดตายในข้อมูล — ตรวจไม่ได้ (โหลดเดโมของแมพนี้เข้ามาก่อน)")
+        print(f"{map_name}: no death positions available; upload a demo for this map first")
         return float("nan")
 
     img = Image.open(ASSETS / cal["image"].lstrip("/")).convert("RGBA")
     size = img.size[0]
     if img.size[0] != img.size[1]:
-        print(f"{map_name}: !! ภาพไม่เป็นจัตุรัส {img.size} — สูตรนี้รองรับเฉพาะภาพจัตุรัส")
+        print(f"{map_name}: image is not square ({img.size}); this projection supports square images only")
     if size != cal["size"]:
-        print(f"{map_name}: !! ภาพจริง {size}px แต่ radars.json เขียน size={cal['size']} — แก้ให้ตรงกันก่อน")
+        print(f"{map_name}: image is {size}px but radars.json declares size={cal['size']}; fix the mismatch")
 
     px, py = project(df["victim_X"].to_numpy(float), df["victim_Y"].to_numpy(float), cal)
     inside = (px >= 0) & (px < size) & (py >= 0) & (py < size)
@@ -148,8 +148,8 @@ def check(map_name: str, cal: dict, source: str = "auto", save_png: bool = False
     walkable[inside] = alpha[yi[inside], xi[inside]] > ALPHA_MIN
 
     pct_in, pct_ok = inside.mean() * 100, walkable.mean() * 100
-    mark = "ผ่าน" if pct_ok >= PASS_PCT else "น่าสงสัย"
-    print(f"{map_name}: {len(df):,} จุด | ในกรอบภาพ {pct_in:5.1f}% | บนพื้นที่เดินได้ {pct_ok:5.1f}%  -> {mark}"
+    mark = "PASS" if pct_ok >= PASS_PCT else "SUSPICIOUS"
+    print(f"{map_name}: {len(df):,} points | inside image {pct_in:5.1f}% | on walkable area {pct_ok:5.1f}%  -> {mark}"
           f"   (pos {cal['pos_x']}/{cal['pos_y']} scale {cal['scale']})")
 
     if save_png:
@@ -158,21 +158,21 @@ def check(map_name: str, cal: dict, source: str = "auto", save_png: bool = False
         canvas = Image.alpha_composite(Image.new("RGBA", img.size, (10, 19, 34, 255)), img)
         a = np.array(canvas)
         for x, y, ok in zip(xi[inside], yi[inside], walkable[inside]):
-            colour = (110, 231, 168) if ok else (255, 90, 70)      # เขียว = ตกถูกที่, แดง = ตกนอกพื้นที่เดินได้
+            colour = (110, 231, 168) if ok else (255, 90, 70)      # Green = valid; red = outside walkable area.
             a[max(y - 1, 0):y + 2, max(x - 1, 0):x + 2, :3] = colour
         Image.fromarray(a).convert("RGB").save(out)
-        print(f"          เซฟภาพตรวจไว้ที่ {out}  (เขียว = ตกถูกที่, แดง = ตกนอกแมพ)")
+        print(f"          Saved validation image to {out} (green = valid, red = outside map)")
 
     return pct_ok
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ตรวจค่าปรับเทียบเรดาร์ด้วยจุดตายจริง")
-    ap.add_argument("map", nargs="?", help="ชื่อแมพ เช่น de_dust2 (ไม่ใส่ = ตรวจทุกแมพใน radars.json)")
+    ap = argparse.ArgumentParser(description="Validate radar calibration using real death positions")
+    ap.add_argument("map", nargs="?", help="Map name, e.g. de_dust2 (omit to check all maps in radars.json)")
     ap.add_argument("--try", dest="trial", nargs=3, type=float, metavar=("POS_X", "POS_Y", "SCALE"),
-                    help="ลองค่าชุดใหม่โดยยังไม่แก้ radars.json")
-    ap.add_argument("--source", default="auto", help="db / csv / auto (ค่าตั้งต้น auto)")
-    ap.add_argument("--png", action="store_true", help="เซฟภาพจุดตายทับเรดาร์ไว้ดูด้วยตา")
+                    help="Try new calibration values without modifying radars.json")
+    ap.add_argument("--source", default="auto", help="Data source: db, csv, or auto (default)")
+    ap.add_argument("--png", action="store_true", help="Save a radar image with death positions overlaid")
     args = ap.parse_args()
 
     data = json.loads(RADARS.read_text(encoding="utf-8"))
@@ -180,7 +180,7 @@ def main() -> None:
 
     if args.map:
         if args.map not in maps and not args.trial:
-            sys.exit(f"ไม่มี {args.map} ใน radars.json — ใส่ --try POS_X POS_Y SCALE เพื่อลองค่าใหม่")
+            sys.exit(f"{args.map} is not in radars.json; use --try POS_X POS_Y SCALE to test new values")
         cal = dict(maps.get(args.map, {"image": f"/maps/{args.map}.png", "size": 1024}))
         if args.trial:
             cal["pos_x"], cal["pos_y"], cal["scale"] = args.trial[0], args.trial[1], args.trial[2]
@@ -189,12 +189,12 @@ def main() -> None:
     worst = 100.0
     for name, cal in maps.items():
         pct = check(name, cal, source=args.source, save_png=args.png)
-        if pct == pct:                      # ไม่ใช่ NaN (แมพที่ไม่มีข้อมูลไม่นับเป็นตก)
+        if pct == pct:                      # Ignore NaN results for maps without data.
             worst = min(worst, pct)
 
     if worst < PASS_PCT:
-        sys.exit(f"\nมีแมพที่ต่ำกว่า {PASS_PCT}% — ค่าปรับเทียบน่าจะผิด อย่าเพิ่งเชื่อ heatmap ของแมพนั้น")
-    print(f"\nทุกแมพที่ตรวจได้ผ่านเกณฑ์ {PASS_PCT}%")
+        sys.exit(f"\nAt least one map scored below {PASS_PCT}%; its calibration is likely wrong")
+    print(f"\nAll maps with available data passed the {PASS_PCT}% threshold")
 
 
 if __name__ == "__main__":

@@ -1,24 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-backend/services/etl.py — เอาผลจาก parser (dict/JSON ที่ normalize แล้ว) ใส่ PostgreSQL
-
-    python backend/etl_loader.py                      # โหลดทุกไฟล์ใน output/json (ข้ามที่เคยโหลด)
-    python backend/etl_loader.py output/json/X.json   # ไฟล์เดียว
-    python backend/etl_loader.py --force              # โหลดทับของเดิม (ใช้ backfill ฟีเจอร์ให้แมตช์เก่าด้วย)
-
-    จากโค้ดอื่น:
-        from backend.etl_loader import load_match_doc, load_match_json
-        match_id = await load_match_doc(conn, doc, match_id=42)      # worker: แถว matches มีอยู่แล้ว (status=queued)
-        match_id = await load_match_json(conn, Path("x.json"))       # CLI: ให้หาเอาว่าเคยโหลดไหม
-
-idempotent ด้วยวิธีเดียว
-    ก่อน INSERT ลูก ๆ ของแมตช์ (rounds -> kills/damages/player_rounds/grenades) จะ DELETE rounds ของแมตช์นั้นทิ้งก่อนเสมอ
-    (ตารางลูกทั้งหมด ON DELETE CASCADE จาก rounds) แล้วค่อยใส่ใหม่ในทรานแซกชันเดียว
-    รันซ้ำแมตช์เดิมกี่ครั้งจึงได้ข้อมูลชุดเดียว และ matches.id ไม่เปลี่ยน (หน้าเว็บที่ poll อยู่ไม่หลุด)
-
-ฟีเจอร์ (opening / trade / buy type / clutch / KAST) คำนวณที่นี่ด้วย backend/services/features.py
-แล้วเก็บลง player_rounds — คำนวณครั้งเดียวตอนโหลด ไม่ต้องคิดใหม่ทุกครั้งที่หน้าเว็บถาม
-"""
 import argparse
 import asyncio
 import json

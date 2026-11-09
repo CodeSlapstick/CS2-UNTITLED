@@ -130,9 +130,9 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
     }
   }, [view.player]); // เปิด modal ต้องหยุด replay โดยไม่เปลี่ยนเวลา
 
-  if (q.isLoading) return <p className="muted">{t("กำลังโหลดรอบ {n}…", { n: roundNum })}</p>;
+  if (q.isLoading) return <p className="muted" role="status">{t("กำลังโหลดรอบ {n}…", { n: roundNum })}</p>;
   if (q.error instanceof ApiError && q.error.status === 404) return <NotFound title={t("ไม่พบรอบนี้")} detail={q.error.message} />;
-  if (q.error) return <p className="err">{t("โหลดรอบนี้ไม่ได้: {msg}", { msg: (q.error as Error).message })}</p>;
+  if (q.error) return <p className="err" role="alert">{t("โหลดรอบนี้ไม่ได้: {msg}", { msg: (q.error as Error).message })}</p>;
   if (!q.data) return null;
 
   const d = q.data;
@@ -858,9 +858,20 @@ export function MapView({ radar, deaths, bomb, defuseBombPx, bombPlantedT, grena
               transform={`translate(${d.victim_px[0]}, ${d.victim_px[1]})`}
               className="death-dot"
               opacity={focus(d) ? 1 : 0.22}
+              role={!live ? "button" : undefined}
+              tabIndex={!live ? 0 : undefined}
+              aria-label={!live ? `${d.order}. ${d.victim.name}, ${fmtT(d.t_round)}, ${weaponLabel(d.weapon)}` : undefined}
+              aria-pressed={!live ? selected === d.order : undefined}
               onClick={!live ? (e) => {
                 e.stopPropagation();
                 onSelect(selected === d.order ? null : d.order);
+              } : undefined}
+              onKeyDown={!live ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelect(selected === d.order ? null : d.order);
+                }
               } : undefined}
               data-testid="death-dot"
               data-mode={live ? "playback" : "normal"}
@@ -903,8 +914,9 @@ export function MapView({ radar, deaths, bomb, defuseBombPx, bombPlantedT, grena
               <title>{p.name}</title>
             </text>
             {p.activeWeapon && <WeaponIcon name={p.activeWeapon}
-              x={(label.anchor === "middle" ? label.x + label.textWidth / 2 : label.anchor === "start" ? label.x + label.textWidth : label.x) + liveNameSize * .25}
-              y={label.y - liveNameSize * .55} width={liveNameSize * 1.3} height={liveNameSize * .48}
+              x={p.px[0] - liveNameSize * .75}
+              y={p.px[1] - z.dot * .9 - liveNameSize * .48 - 2 * U}
+              width={liveNameSize * 1.5} height={liveNameSize * .48}
               className="live-weapon-icon" />}
           </g>;
         })}

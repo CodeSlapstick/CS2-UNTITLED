@@ -1,31 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-import_overviews.py — เติมค่าปรับเทียบเรดาร์ของทุกแมพลง assets/radars.json จากไฟล์เกม CS2 โดยตรง
-
-    python research/tools/import_overviews.py                 ดูว่าจะเปลี่ยนอะไรบ้าง (ไม่เขียนไฟล์)
-    python research/tools/import_overviews.py --write         เขียน radars.json + คัดลอกภาพเรดาร์ที่ขาด
-    python research/tools/import_overviews.py --vpk "D:/.../game/csgo/pak01_dir.vpk"
-
-ทำไมต้องมีสคริปต์นี้
-    radars.json เขียนไว้ว่า "อย่าเดาค่าเอง และอย่าหาค่าด้วยการ fit จากข้อมูล"
-    ค่าที่ถูกอยู่ในไฟล์ resource/overviews/<map>.txt ของเกม ซึ่งถูกแพ็กไว้ใน pak01_dir.vpk
-    สคริปต์นี้อ่านไฟล์นั้นตรง ๆ (ต้องมีเกม CS2 ในเครื่อง + pip install vpk) แล้วลอกค่ามาทั้งชุด
-    แพตช์เกมเปลี่ยนแมพเมื่อไร ก็รันใหม่ได้ทันที
-
-สิ่งที่เขียนลงแต่ละแมพ
-    pos_x / pos_y / scale   ค่าทางการจากไฟล์เกม (ทับค่าเดิมได้ ถ้าเกมเปลี่ยน)
-    image / size / grid     ภาพ /maps/<map>.png ขนาดตามไฟล์จริง กริด 300 หน่วยเท่าแมพอื่น
-    sites                   ศูนย์กลางไซต์ A/B — เก็บค่าเดิมไว้ถ้ามี (ค่าเดิมมาจากค่าเฉลี่ยจุดตายจริง ดีกว่า)
-                            แมพใหม่ใช้ตำแหน่งไอคอนไซต์ bombA/bombB ในไฟล์เกมเดียวกัน (สัดส่วนของภาพ -> พิกัดเกม)
-
-ภาพเรดาร์มาจาก images/maps/cs2/radars/ (ชุดภาพ 1024px จากเกม) — ตรวจแล้วว่ากรอบภาพตรงกับค่าในไฟล์เกม:
-    Mirage จุดตายจริง 7,571 จุดตกบนพื้นที่เดินได้ 99.7% ทั้งภาพเดิมและภาพชุดนี้ · Dust2 100% ทั้งคู่
-ภาพที่มีอยู่แล้วใน assets/maps จะถูกแทนเฉพาะเมื่อรูปร่างพื้นที่เดินได้ต่างกันจริง (แมพถูกแก้ในแพตช์)
-
-ข้อจำกัด: แมพสองชั้น (Nuke / Train / Vertigo) ใช้ภาพชั้นบนภาพเดียว — จุดของชั้นล่างวาดทับบนภาพชั้นบน
-แมพที่ยังไม่มีเดโมในระบบ ตรวจด้วย check_radar.py ไม่ได้ จนกว่าจะมีคนอัปโหลดเดโมของแมพนั้น
-"""
 import argparse
 import json
 import re
@@ -51,7 +23,7 @@ KV = re.compile(r'"(\w+)"\s+"([^"]*)"')
 
 
 def parse_overview(text: str) -> dict[str, str]:
-    """"key" "value" ทุกคู่ในไฟล์ (ตัดคอมเมนต์ // ทิ้งก่อน) — ไม่ต้องใช้ parser KeyValues เต็มรูป"""
+    """Return every "key" "value" pair after removing // comments."""
     body = "\n".join(line.split("//", 1)[0] for line in text.splitlines())
     return {k: v for k, v in KV.findall(body)}
 
@@ -64,43 +36,43 @@ def alpha_mask(path: Path, size: int) -> np.ndarray:
 
 
 def same_shape(a: Path, b: Path) -> float:
-    """IoU ของพื้นที่เดินได้สองภาพ — 1.0 = รูปร่างแมพเหมือนกัน (สีต่างกันได้)"""
+    """Return the walkable-area IoU of two images; 1.0 means identical shapes."""
     ma, mb = alpha_mask(a, 1024), alpha_mask(b, 1024)
     return float((ma & mb).sum() / max(1, (ma | mb).sum()))
 
 
 def fix_readme(lines: list[str]) -> list[str]:
-    """_readme เคยถูกบันทึกผิดเป็นตัวอักษรละรายการ (list("...")) — ต่อกลับเป็นบรรทัดเดียว + ชี้มาที่สคริปต์นี้"""
+    """Repair legacy _readme values stored as one character per list item."""
     out: list[str] = []
     run: list[str] = []
-    for x in [*lines, None]:                   # ตัวปิดท้าย ให้ run สุดท้ายถูกเก็บ
+    for x in [*lines, None]:                   # Sentinel flushes the final run.
         if x is not None and len(x) <= 1:
             run.append(x)
             continue
-        if len(run) > 3:                       # สายตัวอักษรที่หลุดมา
-            out.append("".join(run).strip(" ·"))
+        if len(run) > 3:                       # Recover an accidentally split character run.
+            out.append("".join(run).strip(" ."))
         else:
             out.extend(run)
         run = []
         if x is not None:
             out.append(x)
-    note = "เพิ่ม/อัปเดตหลายแมพพร้อมกันจากไฟล์เกม: python research/tools/import_overviews.py --write"
+    note = "Add or update maps from game files: python research/tools/import_overviews.py --write"
     return out if note in out else [*out, note]
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
-    ap.add_argument("--vpk", type=Path, help="pak01_dir.vpk ของ CS2 (ไม่ใส่ = หาเองจากที่ติดตั้งทั่วไป)")
-    ap.add_argument("--write", action="store_true", help="เขียนไฟล์จริง (ไม่ใส่ = แค่แสดงผล)")
+    ap.add_argument("--vpk", type=Path, help="Path to CS2 pak01_dir.vpk (auto-detected when omitted)")
+    ap.add_argument("--write", action="store_true", help="Write files; otherwise only preview changes")
     args = ap.parse_args()
 
     try:
-        import vpk  # noqa: PLC0415 — เครื่องมือเสริม ไม่ใช่ของที่ระบบจริงต้องมี
+        import vpk  # noqa: PLC0415 — optional maintenance dependency
     except ImportError:
-        sys.exit("ต้องติดตั้งก่อน: pip install vpk")
+        sys.exit("Missing optional dependency; install it with: pip install vpk")
     path = args.vpk or next((p for p in VPK_GUESSES if p.exists()), None)
     if not path or not path.exists():
-        sys.exit("หา pak01_dir.vpk ของ CS2 ไม่เจอ — ระบุเองด้วย --vpk")
+        sys.exit("Could not find CS2 pak01_dir.vpk; specify its path with --vpk")
     pak = vpk.open(str(path))
 
     data = json.loads(RADARS.read_text(encoding="utf-8"))
@@ -123,8 +95,8 @@ def main() -> None:
             "pos_y": int(pos_y) if pos_y.is_integer() else pos_y,
             "scale": scale, "grid": old.get("grid", GRID),
             "source_note": old.get("source_note") or (
-                f"ค่าทางการจาก resource/overviews/{m}.txt ของ CS2 (research/tools/import_overviews.py) — "
-                "ยังไม่มีเดโมของแมพนี้ในระบบ ตรวจด้วย check_radar.py ได้เมื่อมีคนอัปโหลด"),
+                f"Official values from CS2 resource/overviews/{m}.txt (research/tools/import_overviews.py). "
+                "No demo for this map is available yet; validate it with check_radar.py after an upload."),
         }
         if "sites" in old:
             entry["sites"] = old["sites"]
@@ -134,35 +106,35 @@ def main() -> None:
                 s: [round(pos_x + float(ov[f"bomb{s}_x"]) * span), round(pos_y - float(ov[f"bomb{s}_y"]) * span)]
                 for s in ("A", "B")
             }
-            entry["sites"]["source_note"] = f"ตำแหน่งไอคอนไซต์ bombA/bombB ใน resource/overviews/{m}.txt ของเกม"
+            entry["sites"]["source_note"] = f"bombA/bombB icon positions from game file resource/overviews/{m}.txt"
         if old and any(old.get(k) != entry[k] for k in ("pos_x", "pos_y", "scale", "size")):
-            changes.append(f"{m}: ค่าปรับเทียบเปลี่ยน {old.get('pos_x')},{old.get('pos_y')},{old.get('scale')} -> "
+            changes.append(f"{m}: calibration changed {old.get('pos_x')},{old.get('pos_y')},{old.get('scale')} -> "
                            f"{entry['pos_x']},{entry['pos_y']},{entry['scale']}")
         elif not old:
-            changes.append(f"{m}: เพิ่มใหม่ pos=({entry['pos_x']}, {entry['pos_y']}) scale={entry['scale']}")
+            changes.append(f"{m}: added pos=({entry['pos_x']}, {entry['pos_y']}) scale={entry['scale']}")
         data[m] = entry
 
         dest = MAPS_DIR / f"{m}.png"
         if not dest.exists():
-            changes.append(f"{m}: คัดลอกภาพเรดาร์ใหม่")
+            changes.append(f"{m}: copied new radar image")
             if args.write:
                 shutil.copyfile(src, dest)
         else:
             iou = same_shape(src, dest)
             if iou < 0.99:
-                changes.append(f"{m}: ภาพเดิมเป็นแมพรุ่นเก่า (รูปร่างตรงกัน {iou:.1%}) -> ใช้ภาพชุดใหม่")
+                changes.append(f"{m}: existing image is from an older map version (shape IoU {iou:.1%}); replaced it")
                 if args.write:
                     shutil.copyfile(src, dest)
 
     maps = {k: data[k] for k in sorted(data)}
     out = {"_readme": fix_readme(readme), **maps}
-    print("\n".join(changes) or "ไม่มีอะไรเปลี่ยน")
-    print(f"\nรวม {len(maps)} แมพใน radars.json")
+    print("\n".join(changes) or "No changes")
+    print(f"\n{len(maps)} maps in radars.json")
     if args.write:
         RADARS.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("เขียนแล้ว:", RADARS)
+        print("Written:", RADARS)
     else:
-        print("(ยังไม่เขียน — ใส่ --write เพื่อบันทึก)")
+        print("(Preview only; pass --write to save changes)")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-backend/models/tables.py — SQLAlchemy 2.0 models ของทุกตาราง (แหล่งความจริงของสคีมา)
-
-ตารางจริงในฐานข้อมูลถูกสร้างด้วย Alembic (backend/alembic/versions/) ไม่ใช่ Base.metadata.create_all
-ไฟล์นี้ต้องตรงกับ migration ล่าสุดเสมอ — เวลาแก้สคีมาให้แก้ที่นี่ แล้วเขียน migration คู่กัน
-
-ชื่อตารางเทียบกับเอกสารดีไซน์ Sprint 2
-    player_round_stats ในเอกสาร  =  ตาราง player_rounds ที่นี่ (ชื่อเดิมจาก Sprint 1, view ทุกตัวอ้างชื่อนี้อยู่)
-"""
 from datetime import datetime
 
 from sqlalchemy import (

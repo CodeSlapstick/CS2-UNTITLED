@@ -1,6 +1,6 @@
 import type { GrenadeType, Px, ReviewGrenade } from "@/shared/api";
 
-export const PROJECTILE_TRAIL_SECONDS = 0.7;
+export const PROJECTILE_TRAIL_SECONDS = 0.8;
 export const EFFECT_FADE_SECONDS = 0.45;
 export const PULSE_SECONDS: Partial<Record<GrenadeType, number>> = { flash: 0.55, he: 0.7, decoy: 0.65 };
 

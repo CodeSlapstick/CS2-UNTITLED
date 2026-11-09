@@ -46,7 +46,7 @@ const COPY = {
     step3d: "เลื่อนเวลา เลือกผู้เล่น แล้วแชร์ลิงก์มุมมองเดียวกันให้ทุกคนในทีม",
     finalTitle: "เปิดเดโมแล้วเลือกรอบที่ต้องการทบทวน",
     finalBody: "ลองดูระบบได้ทันทีในโหมดผู้เยี่ยมชม หรือล็อกอินด้วย Steam เพื่อเชื่อมสถิติเข้ากับบัญชีของคุณ",
-    finalCta: "ลองใช้งาน CS2 UNTITLED",
+    finalCta: "ลองใช้งาน CS2 SCOUTING",
   },
   en: {
     navAbout: "About",
@@ -82,7 +82,7 @@ const COPY = {
     step3d: "Scrub time, select a player, and share the exact view by URL.",
     finalTitle: "Open a demo and choose a round to review",
     finalBody: "Explore immediately as a guest, or sign in with Steam to connect stats to your account.",
-    finalCta: "Explore CS2 UNTITLED",
+    finalCta: "Explore CS2 SCOUTING",
   },
 } as const;
 
@@ -179,7 +179,7 @@ export function HomePage() {
   return (
     <div className="home-page">
       <header className="home-nav">
-        <Link className="home-brand" to="/" aria-label="CS2 UNTITLED home"><Mark /><span>CS2 UNTITLED</span></Link>
+        <Link className="home-brand" to="/" aria-label="CS2 SCOUTING home"><Mark /><span>CS2 UNITITLED</span></Link>
         <nav aria-label="Home navigation">
           <a href="#about">{c.navAbout}</a>
           <a href="#workflow">{c.navFlow}</a>
@@ -228,7 +228,7 @@ export function HomePage() {
           <Link className="home-primary" to="/login?next=%2Fmatches">{c.finalCta}<Arrow /></Link>
         </section>
       </div>
-      <footer className="home-footer"><Link className="home-brand" to="/"><Mark /><span>CS2 UNTITLED</span></Link></footer>
+      <footer className="home-footer"><Link className="home-brand" to="/"><Mark /><span>CS2 SCOUTING</span></Link></footer>
     </div>
   );
 }

@@ -1,36 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-backend/services/parser.py — อ่านไฟล์ .dem หนึ่งไฟล์ ออกมาเป็น JSON ที่ normalize แล้ว
-
-    python -m backend.parser                       # ทุกไฟล์ใน demos/ -> output/json/<ชื่อเดโม>.json
-    python -m backend.parser demos/X.dem           # ไฟล์เดียว
-    python -m backend.parser --limit 1 --force     # ลอง 1 ไฟล์ ไม่สนแคช
-
-    หรือเรียกจากโค้ดอื่น:
-        from backend.parser import parse_demo
-        doc = parse_demo(Path("demos/X.dem"))               # dict พร้อม json.dumps
-
-"normalized" แปลว่าอะไร
-    ไม่ใช่ตารางแบน ๆ ที่ชื่อผู้เล่นซ้ำทุกแถวเหมือน all_kills.csv
-    แต่แยกเป็น 7 ก้อนตามตารางใน backend/models/tables.py แล้วอ้างถึงกันด้วยคีย์:
-        match          1 ก้อน   ข้อมูลระดับแมตช์
-        players        n แถว    steam_id -> ชื่อ (เก็บครั้งเดียว)
-        rounds         n แถว    คีย์คือ round_num
-        kills          n แถว    อ้าง rounds ด้วย round_num, อ้าง players ด้วย steam_id
-        damages        n แถว    ทุกครั้งที่มีคนโดนดาเมจ ไม่ใช่แค่ครั้งที่ตาย — ADR ใช้ตัวนี้
-        player_rounds  n แถว    หนึ่งแถวต่อคนต่อรอบ: ฝั่ง / มูลค่าอุปกรณ์ / รอดถึงจบรอบไหม — KAST, win rate, เศรษฐกิจ ใช้ตัวนี้
-        grenades       n แถว    ระเบิดทุกลูกที่ขว้าง — utility per round ใช้ตัวนี้
-    ETL loader (backend/) รับไฟล์นี้แล้ว INSERT ตามลำดับ players -> match -> rounds -> kills -> damages -> player_rounds -> grenades ได้เลย
-    ชื่อฟิลด์ตั้งให้ตรงกับคอลัมน์ใน backend/models/tables.py ทุกตัว จะได้ไม่ต้อง map ชื่ออีกรอบ
-
-หนึ่งเดโม = หนึ่งไฟล์ JSON
-    เพราะ "แมตช์" คือหน่วยที่ ETL ใช้ตัดสินว่าโหลดแล้วหรือยัง (matches.demo_file UNIQUE)
-    รันซ้ำจึงข้ามได้ทีละไฟล์ ไม่ต้องไล่ดูทีละแถว
-
-ทำไมไม่ต่อยอดจาก all_kills.csv
-    csv คือ "ผลลัพธ์รวม" ที่สร้างจากเดโมอีกที ถ้า ETL อ่านจาก csv จะเพิ่มเดโมใหม่ทีละไฟล์ไม่ได้
-    ไฟล์นี้อ่านจาก .dem ตรง ๆ (1-2 วินาทีต่อไฟล์) เดโมใหม่มาก็ parse แค่ไฟล์นั้น
-"""
 import argparse
 import json
 import math
@@ -225,19 +192,6 @@ def _kill_table(dem) -> pl.DataFrame:
 
 
 def _damage_table(dem) -> pl.DataFrame:
-    """ดาเมจ — player_hurt ไม่มีเลขรอบติดมา ต้องปะเองจากขอบเขต tick ของแต่ละรอบ
-
-    apply_round_num คือฟังก์ชันเดียวกับที่ awpy ใช้ปะเลขรอบให้ตาราง kills เกณฑ์จึงตรงกันแน่นอน
-    แถวที่ปะไม่ได้ (round_num ว่าง) คือดาเมจตอน warmup หรือระหว่างพักรอบ — ตัดทิ้ง
-    ส่วน user_steamid ว่างแปลว่าหาคนโดนไม่เจอ ซึ่ง damages.victim_id เป็น NOT NULL จึงตัดทิ้งเหมือนกัน
-
-    ทำไมไม่ใช้ dmg_health ที่เดโมให้มา
-    dmg_health คือ "ดาเมจดิบของกระสุน" — AWP เข้าตัวขึ้น 148 ทั้งที่คนโดนเหลือเลือดแค่ 7
-    เอาไปรวมแล้ว ADR จะพองเกินจริง (ทดลองแล้วได้ 148 ต่อรอบ ทั้งที่โปรระดับโลกอยู่ 70-100)
-    ADR ตามเกณฑ์ HLTV นับเฉพาะเลือดที่เสียจริง = เลือดก่อนโดน - เลือดหลังโดน
-    health ในอีเวนต์คือเลือด "หลังโดน" ส่วนเลือดก่อนโดนคือ health ของนัดก่อนหน้าของคนเดิมในรอบเดิม
-    (ไม่มีนัดก่อนหน้า = ยังไม่เคยโดนในรอบนี้ = 100)
-    """
     return _clean(
         apply_round_num(dem.events["player_hurt"], dem.rounds)
         .drop_nulls(["round_num", "user_steamid"])
@@ -275,12 +229,6 @@ def position_sample_ticks(start_tick: int, end_tick: int, tickrate: int,
 
 
 def _wanted_ticks(dem, tickrate: int) -> tuple[dict[int, tuple[int, str]], dict[int, int]]:
-    """tick ที่ต้องขอจาก parser คืน (tick ของ player_rounds, tick ของ positions)
-
-    tick "start" = freeze จบ (ฝั่ง + เงิน)   tick "end" = round_end (ใครยังรอด)
-    ใช้ end สำหรับสถิติรอดจบรอบ แต่ตำแหน่ง replay เก็บถึง official_end
-    เพื่อให้เห็นการไล่ยิงหลังบอมบ์ถูกกู้หรือหลังรอบตัดสินแล้ว
-    """
     want: dict[int, tuple[int, str]] = {}
     pos_want: dict[int, int] = {}          # tick จริง -> round_num ของ snapshot replay
     for r in dem.rounds.iter_rows(named=True):
@@ -315,12 +263,6 @@ def _player_round_table(at_start: pl.DataFrame, at_end: pl.DataFrame) -> pl.Data
 
 
 def _position_table(all_ticks: pl.DataFrame, pos_want: dict[int, int]) -> pl.DataFrame:
-    """ตำแหน่งผู้เล่น 8 Hz เฉพาะช่วงที่รอบกำลังเล่นและคนนั้นยังมีชีวิต
-
-    เดโมบันทึก 64-128 tick/วินาที ถ้าเก็บทุก tick จะได้ ~2.7 ล้านแถวต่อแมตช์ และ 99% ซ้ำกัน
-    8 ครั้งต่อวินาทีเหลือราว 168,000 แถวต่อแมตช์ แต่ลื่นพอสำหรับ 2D replay
-    คนตายแล้วยังมีพิกัดค้างตรงที่ตาย ถ้าไม่กรอง is_alive จะกลายเป็น "ยืนนิ่งตรงนั้นทั้งรอบ"
-    """
     return _clean(
         all_ticks.join(pl.DataFrame({"tick": list(pos_want), "round_num": list(pos_want.values())}), on="tick")
         .filter(pl.col("is_alive"))
@@ -533,12 +475,6 @@ def read_detonations(parser) -> dict[str, list[dict]]:
 
 
 def attach_landings(throws: list[dict], detonations: dict[str, list[dict]], tickrate: int) -> list[dict]:
-    """เติม land_x / land_y / land_tick / end_tick ให้ลูกที่ขว้าง
-
-    คู่กัน = คนขว้างเดียวกัน ชนิดเดียวกัน ตกหลังขว้างไม่เกิน MAX_FLIGHT_SEC — ไล่ตามเวลา ลูกที่ขว้างก่อนได้จุดตกแรกที่ยังว่าง
-    ลูกที่หาคู่ไม่เจอ (decoy / ถือตาย) ยังอยู่ครบ แค่ไม่มีจุดตก
-    แฟลชกับ HE ทำงานทันทีที่แตก: end_tick = land_tick
-    """
     window = MAX_FLIGHT_SEC * int(tickrate)
     used: set[tuple[str, int]] = set()
     out = []
@@ -582,11 +518,6 @@ def read_projectile_trajectories(dem) -> list[dict]:
 
 
 def attach_trajectories(grenades: list[dict], points: list[dict], tickrate: int) -> list[dict]:
-    """จับ trajectory entity ที่เริ่มใกล้ tick ขว้าง แล้วแนบจุดจริง [tick,x,y,z]
-
-    entity_id ถูก reuse ได้ จึงแบ่ง segment เมื่อ tick ไม่ต่อกันก่อนจับคู่ และไม่ใช้ตำแหน่ง
-    ที่คาดเดาจาก throw/landing มาเติมช่องว่าง
-    """
     segments: dict[tuple[int, str], list[list[dict]]] = {}
     current: dict[tuple[int, str, int], list[dict]] = {}
     for p in points:

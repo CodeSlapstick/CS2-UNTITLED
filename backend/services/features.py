@@ -1,25 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-backend/services/features.py — ฟีเจอร์ของผู้เล่น: นิยาม + ผูกทีม + ตัวคำนวณ (แหล่งเดียว ห้ามนิยามซ้ำที่อื่น)
-
-    from backend.services.features import compute_features, aggregate_players, assign_teams
-
-    opening_kill  คิลแรกของรอบหลัง freeze-time จบ
-                  นับเฉพาะ "การดวล" (มีคนยิง และคนละฝั่ง) — ตายจาก C4 / ตกที่สูง / ทีมคิล ไม่ใช่การเปิดรอบ
-    trade         คนที่ฆ่าเหยื่อ ตายภายใน TRADE_WINDOW_SEC วินาที ด้วยมือเพื่อนของเหยื่อ
-                  (เพื่อน = อยู่ฝั่งเดียวกับเหยื่อในรอบนั้น)
-    buy_type      มูลค่าอุปกรณ์ "ต่อคน" ตอน freeze-time จบ
-                  Full >= BUY_FULL_MIN | Force ระหว่าง BUY_FORCE_MIN ถึง BUY_FULL_MIN | Eco < BUY_FORCE_MIN
-                  Pistol = รอบใน PISTOL_ROUNDS เสมอ ไม่ว่าเงินเท่าไร
-    clutch        เหลือคนเดียวฝั่งตัวเอง เจอศัตรู >= 1 และรอบยังไม่จบ
-                  clutch_vs = จำนวนศัตรูที่ยังอยู่ ณ วินาทีที่เหลือคนเดียว, won = ฝั่งนั้นชนะรอบ
-                  1v1 นับเป็น clutch ของทั้งสองฝั่ง
-    ADR           ดาเมจที่ทำใส่ศัตรูรวม / จำนวนรอบที่เล่น
-    KAST          % ของรอบที่ผู้เล่นทำได้อย่างน้อยหนึ่งอย่าง: Kill, Assist, Survived, Traded
-
-ตัวเลขทุกตัวเป็นค่าตาม brief ของ Sprint 2 — ถ้าเปลี่ยน ให้ขยับ FEATURES_VERSION ด้วย
-จะได้รู้ว่าแถวไหนในฐานข้อมูลคำนวณด้วยนิยามรุ่นเก่า (ต้อง backfill ใหม่)
-"""
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass, field
