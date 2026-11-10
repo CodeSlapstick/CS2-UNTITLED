@@ -1,15 +1,11 @@
-import { type KeyboardEvent, useEffect, useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { type KeyboardEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  api,
   type DeathCellCount,
   type DeathsOverlay,
   type Match,
-  matchesQuery,
   type PlayerBehavior,
   type PlayerBehaviorProfile,
-  type ScoreRow,
 } from "@/shared/api";
 import {
   DIFF_FILL,
@@ -26,13 +22,14 @@ import { useT } from "@/shared/i18n";
 import { PlayerIcon } from "@/shared/assets/icons/player-icon";
 import { DatabaseSearchIcon } from "@/shared/assets/icons/database-search-icon";
 import { OpeningRoutePage } from "@/features/opening/OpeningRoutePage";
+import { HeatmapControls } from "./HeatmapControls";
+import { useDeathAnalysis, type AnalysisMode as Mode } from "./useDeathAnalysis";
 
 /**
  *
  *
  *
  */
-type Mode = "upload" | "diff" | "opening";
 type Side = "all" | "ct" | "t";
 type TFn = (s: string, vars?: Record<string, string | number>) => string;
 
@@ -45,11 +42,6 @@ const MODES: { key: Mode; label: string }[] = [
     key: "opening",
     label: "Opening Route",
   },
-];
-const SIDES: { key: Side; label: string }[] = [
-  { key: "all", label: "ทั้งสองฝั่ง" },
-  { key: "ct", label: "ตอนเป็น CT" },
-  { key: "t", label: "ตอนเป็น T" },
 ];
 
 function modeFromParams(params: URLSearchParams): Mode {
@@ -84,59 +76,11 @@ export function AnalysisPage() {
       ?.focus();
     setMode(nextMode);
   }
-  const [side, setSide] = useState<Side>("all");
-  const [demo, setDemo] = useState<string>(""); // "" = ทุกแมตช์ที่อัปโหลด
-  const [hovered, setHovered] = useState<string | null>(null);
-  const [selRounds, setSelRounds] = useState<number[] | null>(null);
-  const [selPlayers, setSelPlayers] = useState<string[] | null>(null);
-  const matches = useQuery(matchesQuery);
-  const done = (matches.data ?? []).filter((m) => m.status === "done" && m.map_name);
-  const upMaps = new Set(done.filter((m) => m.source === "upload").map((m) => m.map_name!));
-  const maps = [...upMaps].sort();
-  const [map, setMap] = useState<string>("");
-  const activeMap = maps.includes(map) ? map : (maps[0] ?? "");
-  const mine = done.filter((m) => m.source === "upload" && m.map_name === activeMap);
-  const selectedDemo = mine.some((m) => m.demo_file === demo) ? demo : (mine[0]?.demo_file ?? "");
-  const activeMatch = mine.find((m) => m.demo_file === selectedDemo);
-
-  const roster = useQuery({
-    queryKey: ["match-roster", activeMatch?.id],
-    queryFn: () => api.match(activeMatch!.id),
-    enabled: !!activeMatch,
-    staleTime: 5 * 60_000,
-  });
-
-  useEffect(() => {
-    setSelRounds(null);
-    setSelPlayers(null);
-  }, [selectedDemo]);
-
-  const noRoundsPicked = selRounds !== null && selRounds.length === 0;
-  const noPlayersPicked = selPlayers !== null && selPlayers.length === 0;
-
-  const enabled = !!activeMap && !noRoundsPicked && !noPlayersPicked;
-  const upload = useQuery({
-    queryKey: ["analysis", activeMap, "upload", side, selectedDemo, selRounds, selPlayers],
-    queryFn: () => api.analysisDeaths(activeMap, "upload", side, selectedDemo || null, selRounds, selPlayers),
-    enabled,
-    staleTime: 5 * 60_000,
-  });
-  const reference = useQuery({
-    queryKey: ["analysis", activeMap, "reference", side],
-    queryFn: () => api.analysisDeaths(activeMap, "reference", side),
-    enabled: enabled && mode === "diff",
-    staleTime: 5 * 60_000,
-    placeholderData: keepPreviousData,
-  });
-  const target = selectedDemo;
-  const behaviorQ = useQuery({
-    queryKey: ["player-behavior", target, selPlayers],
-    queryFn: () => api.playerBehavior(target, selPlayers),
-    enabled: !!target && !noPlayersPicked,
-    staleTime: 5 * 60_000,
-  });
-
-  useEffect(() => setHovered(null), [mode, activeMap, side, selectedDemo]);
+  const {
+    side, setSide, hovered, setHovered, selRounds, setSelRounds, selPlayers, setSelPlayers,
+    matches, maps, mapMatches, activeMap, setMap, selectedDemo, setDemo, activeMatch,
+    roster, noRoundsPicked, noPlayersPicked, upload, reference, behaviorQ,
+  } = useDeathAnalysis(mode);
 
   if (mode === "opening") {
     return (
@@ -210,7 +154,7 @@ export function AnalysisPage() {
         <label className="an-select">
           {t("แมตช์ของทีม")}
           <select name="analysis-demo" autoComplete="off" value={selectedDemo} onChange={(e) => setDemo(e.target.value)}>
-            {mine.map((m) => (
+            {mapMatches.map((m) => (
               <option key={m.demo_file} value={m.demo_file}>{matchLabel(m)}</option>
             ))}
           </select>
@@ -357,101 +301,6 @@ function BehaviorTeam({ team, ours, profiles }: {
 // ================================================================================================
 //
 // ================================================================================================
-interface HeatmapControlsProps {
-  side: Side;
-  onSide: (s: Side) => void;
-  demoSelected: boolean;
-  roundsTotal: number;
-  selRounds: number[] | null;
-  onRounds: (r: number[] | null) => void;
-  roster: ScoreRow[];
-  rosterLoading: boolean;
-  selPlayers: string[] | null;
-  onPlayers: (p: string[] | null) => void;
-}
-
-function HeatmapControls({
-  side, onSide,
-  demoSelected, roundsTotal, selRounds, onRounds, roster, rosterLoading, selPlayers, onPlayers,
-}: HeatmapControlsProps) {
-  const { t } = useT();
-  const roundOn = (n: number) => selRounds === null || selRounds.includes(n);
-  const toggleRound = (n: number) => {
-    const base = selRounds ?? Array.from({ length: roundsTotal }, (_, i) => i + 1);
-    onRounds(base.includes(n) ? base.filter((x) => x !== n) : [...base, n].sort((a, b) => a - b));
-  };
-  const playerOn = (id: string) => selPlayers === null || selPlayers.includes(id);
-  const togglePlayer = (id: string) => {
-    const base = selPlayers ?? roster.map((p) => p.steam_id);
-    onPlayers(base.includes(id) ? base.filter((x) => x !== id) : [...base, id]);
-  };
-
-  return (
-    <aside className="hm-panel" aria-label={t("ตั้งค่าการแสดงผล heatmap")}>
-      <div className="hm-field">
-        <div className="hm-field-h"><span>{t("ฝั่งของคนที่ตาย")}</span></div>
-        <div className="seg hm-seg" role="group" aria-label={t("ฝั่งของคนที่ตาย")}>
-          {SIDES.map((s) => (
-            <button key={s.key} type="button" className={`seg-btn${side === s.key ? ` ${s.key} on` : ""}`}
-              aria-pressed={side === s.key} onClick={() => onSide(s.key)}>
-              {t(s.label)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {!demoSelected ? (
-        <p className="muted small hm-note">{t('เลือก "แมตช์ของทีม" แมตช์เดียวด้านบนก่อน ถึงจะเจาะจงรอบหรือผู้เล่นได้')}</p>
-      ) : (
-        <>
-          <div className="hm-field">
-            <div className="hm-field-h">
-              <span>{t("รอบ")}</span>
-              <span className="hm-quick">
-                <button type="button" className="link-btn" onClick={() => onRounds(null)}>{t("ทั้งหมด")}</button>
-                {" · "}
-                <button type="button" className="link-btn" onClick={() => onRounds([])}>{t("ไม่เอาเลย")}</button>
-              </span>
-            </div>
-            <div className="hm-round-grid" role="group" aria-label={t("เลือกรอบ")}>
-              {Array.from({ length: roundsTotal }, (_, i) => i + 1).map((n) => (
-                <button key={n} type="button" className={`hm-round-btn${roundOn(n) ? " on" : ""}`}
-                  aria-pressed={roundOn(n)} onClick={() => toggleRound(n)}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="hm-field">
-            <div className="hm-field-h">
-              <span>{t("ผู้เล่น")}</span>
-              <span className="hm-quick">
-                <button type="button" className="link-btn" onClick={() => onPlayers(null)}>{t("ทั้งหมด")}</button>
-                {" · "}
-                <button type="button" className="link-btn" onClick={() => onPlayers([])}>{t("ไม่เอาเลย")}</button>
-              </span>
-            </div>
-            {rosterLoading ? (
-              <p className="muted small">{t("กำลังโหลดรายชื่อ…")}</p>
-            ) : (
-              <div className="hm-pills" role="group" aria-label={t("เลือกผู้เล่น")}>
-                {roster.map((p) => (
-                  <button key={p.steam_id} type="button"
-                    className={`hm-pill${playerOn(p.steam_id) ? ` ${p.start_side ?? ""} on` : ""}`}
-                    aria-pressed={playerOn(p.steam_id)} onClick={() => togglePlayer(p.steam_id)}>
-                    {p.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-    </aside>
-  );
-}
 
 // ================================================================================================
 //

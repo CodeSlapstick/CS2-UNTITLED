@@ -9,7 +9,8 @@ backend/services/review.py — ประกอบข้อมูลหน้า 
 grid_ml1.json
     อ่านครั้งเดียวแล้วเก็บในหน่วยความจำ (อ่านใหม่เฉพาะเมื่อไฟล์ถูกเขียนทับ) — ไม่รัน grid_ml1.py ตอน request
     ตัวเลขทุกตัวในนั้นมาจาก "ทั้งดาต้าเซ็ต N แมตช์" (รวมแมตช์ที่กำลังดูอยู่ด้วย) ไม่ใช่จากรอบนี้
-    ct_win = สัดส่วนที่ CT เป็นฝ่ายชนะ "การดวล" ในช่อง/กลุ่มนั้น — ไม่ใช่โอกาสชนะรอบ
+    โมเดลใหม่มีเฉพาะ MeanShift hotspots; ยังอ่าน cells/clusters จาก artifact เก่าได้
+    ct_win เป็นสถิติการดวลในชุดอ้างอิง ไม่ใช่โอกาสชนะรอบ
 """
 import json
 import math
@@ -109,7 +110,7 @@ def radar_frame(map_name: str) -> RadarFrame | None:
 
 
 def cells_of(xs, ys, frame: RadarFrame, grid_n: int) -> tuple[np.ndarray, np.ndarray]:
-    """พิกัดเกม -> ช่องกริด (cx, cy) แบบ vectorized — สูตรเดียวกับ research/models/grid_ml1.py
+    """พิกัดเกม -> ช่องกริด (cx, cy) แบบ vectorized สำหรับนับและแสดงจุดตาย
 
     (พิกัด - ขอบ) // ขนาดช่อง = อยู่ช่องที่เท่าไร
     np.clip บีบให้อยู่ในช่วง 0 ถึง grid_n-1 กันจุดที่ตกริมขอบพอดีหลุดออกนอกตาราง
@@ -138,7 +139,7 @@ def cell_rect_world(cx: int, cy: int, frame: RadarFrame, grid_n: int) -> tuple[f
 def world_to_pixel(x: float, y: float, frame: RadarFrame) -> tuple[float, float]:
     """พิกัดเกม -> พิกเซลบนภาพเรดาร์ (มุมบนซ้ายของภาพ = 0, 0 และ y พิกเซลนับลง)
 
-    ตรงกับ imshow(extent=frame.extent, origin="upper") ที่ grid_ml1.py ใช้วาดรูป
+    ใช้แกน y จากบนลงล่าง เพื่อให้ตรงกับภาพเรดาร์บนหน้าเว็บ
     """
     return (x - frame.pos_x) / frame.scale, (frame.pos_y - y) / frame.scale
 
@@ -210,11 +211,12 @@ _cache: dict[str, tuple[float, GridModel]] = {}
 def parse_grid_model(d: dict) -> GridModel:
     m = d["metrics"]
     return GridModel(
-        map_name=d["map"], grid_n=int(d["grid_n"]), min_kills=int(d["min_kills"]),
+        map_name=d["map"], grid_n=int(d.get("grid_n", 0)), min_kills=int(d.get("min_kills", 0)),
         matches=int(m["matches"]), duels=int(m["duels"]), ct_win_overall=float(m["ct_win_overall"]),
         bandwidth=float(m["bandwidth"]),
-        clusters={int(c["id"]): c for c in d["clusters"]},             # id เริ่มที่ 1 เรียงต้นรอบ -> ท้ายรอบ (เบอร์เดียวกับรูป)
-        cells={(int(c["cx"]), int(c["cy"])): c for c in d["cells"]},
+        # Optional legacy fields; new training artifacts contain only hotspots.
+        clusters={int(c["id"]): c for c in d.get("clusters", [])},
+        cells={(int(c["cx"]), int(c["cy"])): c for c in d.get("cells", [])},
         hotspots=list(d["hotspots"]),
     )
 
@@ -240,39 +242,17 @@ def load_grid_model(path: Path | None = None, *, map_name: str | None = None) ->
     return model
 
 
-def grid_overlay(model: GridModel, frame: RadarFrame) -> dict:
-    """ผลของ grid_ml1 ทั้งก้อนเป็นพิกเซลบนภาพเรดาร์ — ช่องทุกช่อง + วง hotspot
-
-    ไม่มี endpoint ไหนเรียกแล้ว: หน้าเว็บไม่แสดงผลโมเดลให้ผู้ใช้เห็นอีกต่อไป (ตัดสินใจ 2026-09-18
-    "เอา ML ไว้หลังบ้าน") เก็บไว้เพราะเป็นทางเดียวที่แปลงผลโมเดลเป็นพิกัดบนภาพได้ถูกต้อง — ถ้าวันหนึ่ง
-    อยากเปิดหน้าให้ทีมงาน/อาจารย์ดูผลโมเดล ต่อ endpoint กลับเข้ากับฟังก์ชันนี้ได้เลย (มีเทสต์คุมอยู่)
-    """
-    cells = []
-    for (cx, cy), c in sorted(model.cells.items()):
-        x, y, w = cell_rect_pixel(cx, cy, frame, model.grid_n)
-        cells.append({"cx": cx, "cy": cy, "cluster_id": int(c["cluster"]), "x": x, "y": y, "w": w,
-                      "ct_win": float(c["ct_win"]), "duels": int(c["kills"]), "place": c.get("place") or None})
-    hotspots = []
-    for h in model.hotspots:
-        px, py = world_to_pixel(h["x"], h["y"], frame)
-        hotspots.append({"id": h["id"], "place": h["place"], "share": h["share"], "duels": h["duels"],
-                         "ct_win": h["ct_win"], "px": px, "py": py, "r": h["radius"] / frame.scale})
-    clusters = [{"id": cid, "name": c["name"], "ct_win": c["ct_win"], "n_cells": c["n_cells"], "duels": c["duels"]}
-                for cid, c in sorted(model.clusters.items())]
-    radar = {"image": "/assets" + frame.image, "size": frame.size, "map": frame.map_name}
-    return {"available": True, "radar": radar, "source": model.source, "ct_win_overall": model.ct_win_overall,
-            "min_kills": model.min_kills, "clusters": clusters, "cells": cells, "hotspots": hotspots}
 
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-ANALYSIS_GRID_N = 32      # ช่องเดียวกับ grid_ml1 ผลของหน้านี้จึงวางทับผลของโมเดลได้ตรงช่อง
+ANALYSIS_GRID_N = 32      # ความละเอียดสำหรับนับจุดตายบนหน้า Analysis; ไม่ได้ใช้ KMeans
 
 
 def deaths_overlay(xs, ys, frame: RadarFrame, places=None, grid_n: int = ANALYSIS_GRID_N) -> dict:
     """จุดตาย -> ช่องกริดพร้อมจำนวนและสัดส่วน เป็นพิกเซลบนภาพเรดาร์
 
-    ใช้สูตรพิกัดชุดเดียวกับหน้ารอบและ grid_ml1 (ดูหัวข้อ coordinate) — ช่องจึงเป็นช่องเดียวกันเสมอ
+    ใช้ RadarFrame เดียวกับหน้ารอบ แต่นับข้อมูลแมตช์โดยตรงโดยไม่ต้องใช้โมเดล ML
     share = สัดส่วนของจุดตายทั้งหมดในชุดนั้น ไม่ใช่จำนวนดิบ เพราะสองชุดมีจำนวนแมตช์ไม่เท่ากัน
     เทียบจำนวนดิบกันตรง ๆ จะแปลว่า "ชุดที่มีแมตช์เยอะกว่าตายเยอะกว่า" ซึ่งไม่ได้บอกอะไรเลย
 
@@ -302,12 +282,21 @@ def deaths_overlay(xs, ys, frame: RadarFrame, places=None, grid_n: int = ANALYSI
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+def _hotspot_at(x: float, y: float, model: GridModel) -> dict | None:
+    index = nearest_within(x, y, [(h["x"], h["y"]) for h in model.hotspots], model.bandwidth)
+    if index is None:
+        return None
+    hotspot = model.hotspots[index]
+    return {"id": hotspot["id"], "place": hotspot["place"], "share": hotspot["share"]}
+
+
 def death_context(x: float | None, y: float | None, victim_side: str | None, is_duel: bool,
                   model: GridModel | None, frame: RadarFrame | None) -> dict:
-    """ช่อง / กลุ่ม / hotspot ที่จุดตายตกอยู่ ตาม grid_ml1 — ไม่มีข้อมูลก็บอกว่าไม่มี ไม่เดา ไม่เฉลี่ยจากช่องข้าง ๆ
+    """หา hotspot จากโมเดลใหม่ และยังรองรับบริบทช่อง/กลุ่มจาก artifact เก่า
 
     reason: None = มีข้อมูลครบ | "no_model" = ยังไม่มี grid_ml1 ของแมพนี้
-            "insufficient" = ช่องนี้มีดวลน้อยกว่า MIN_KILLS ใน grid_ml1 | "no_position" = ไม่มีพิกัด
+            "insufficient" = ไม่มี hotspot ใกล้จุดนี้ หรือไม่มีช่องใน artifact เก่า
+            "no_position" = ไม่มีพิกัด
     """
     out = {"cell": None, "hotspot": None, "reason": None, "disadvantaged": None, "enemy_win": None}
     if x is None or y is None:
@@ -315,6 +304,13 @@ def death_context(x: float | None, y: float | None, victim_side: str | None, is_
         return out
     if model is None or frame is None or model.map_name != frame.map_name:
         out["reason"] = "no_model"
+        return out
+
+    if not model.cells:
+        # No cell types or inferred disadvantage in the hotspot-only model.
+        out["hotspot"] = _hotspot_at(x, y, model)
+        if out["hotspot"] is None:
+            out["reason"] = "insufficient"
         return out
 
     cx, cy = cell_of(x, y, frame, model.grid_n)
@@ -329,10 +325,7 @@ def death_context(x: float | None, y: float | None, victim_side: str | None, is_
     out["cell"] = {"cx": cx, "cy": cy, "cluster_id": cid, "cluster_name": cluster["name"], "ct_win": ct_win,
                    "cell_ct_win": float(cell["ct_win"]), "cell_duels": int(cell["kills"])}
 
-    i = nearest_within(x, y, [(h["x"], h["y"]) for h in model.hotspots], model.bandwidth)
-    if i is not None:
-        h = model.hotspots[i]
-        out["hotspot"] = {"id": h["id"], "place": h["place"], "share": h["share"]}
+    out["hotspot"] = _hotspot_at(x, y, model)
 
     if victim_side in ("ct", "t"):
         enemy = other_side(victim_side)

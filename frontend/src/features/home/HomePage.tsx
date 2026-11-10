@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LangToggle, useT } from "@/shared/i18n";
 import { ThemeToggle } from "@/shared/theme";
-import { MapView } from "@/features/rounds/RoundView";
+import { MapView } from "@/features/rounds/RoundMap";
 import { SAMPLE_DURATION, sampleDeaths, sampleGrenades, sampleLiveAt, samplePeople, sampleRound, samplePositions, sampleDefuseAt } from "./homeReplay";
 import "./home-replay.css";
 

@@ -7,7 +7,7 @@
 | `prep/demoparser.py` | อ่านเดโมอ้างอิง รวม kill events และสร้างฟีเจอร์สำหรับเทรน | `demos/reference/**/*.dem` → `data/all_kills.csv` |
 | `tools/check_radar.py` | ตรวจค่าปรับเทียบใน `assets/radars.json` กับจุดตายจริง | DB หรือ `data/all_kills.csv` |
 | `tools/import_overviews.py` | นำเข้าค่าพิกัดและภาพเรดาร์จากไฟล์เกม CS2 | ไฟล์เกม → `assets/` |
-| `models/grid_ml1.py` | เทรน MeanShift/KMeans สำหรับกริดและจุดปะทะ | `data/all_kills.csv` → `output/models/<map>/grid_ml1.json` |
+| `models/grid_ml1.py` | เทรน MeanShift เพื่อหาจุดปะทะหนาแน่น | `data/all_kills.csv` → `output/models/<map>/grid_ml1.json` และ `grid_ml1_hotspots.csv` |
 | `models/coach_ml.py` | สร้างตัวเลือกแผนจากรอบอ้างอิง | DB → `output/coach_model.json` |
 | `models/player_role.py` | จัดกลุ่มรูปแบบการเล่นแยกฝั่ง T/CT | CSV → `output/models/<map>/player_role.json` |
 
@@ -25,13 +25,17 @@ python research/models/player_role.py --csv data/all_kills.csv --map de_ancient
 
 ```bash
 python research/prep/demoparser.py
-python research/models/grid_ml1.py --map de_ancient --min-kills 3
+python research/models/grid_ml1.py --map de_ancient
 python research/models/player_role.py --map de_ancient
 ```
 
-รันสองคำสั่งเทรนท้ายสุดซ้ำตามชื่อแมพที่มีใน CSV; `--min-kills 3` เหมาะกับชุดที่มีเพียง 5 แมตช์ต่อแมพ (ค่าเริ่มต้นคือ 10) อย่าใช้แคชของแมพที่ไม่มีไฟล์ demo ต้นทางมาปะปนใน CSV
+รันสองคำสั่งเทรนท้ายสุดซ้ำตามชื่อแมพที่มีใน CSV อย่าใช้แคชของแมพที่ไม่มีไฟล์ demo ต้นทางมาปะปนใน CSV
+
+`grid_ml1.py` เหลือเฉพาะ MeanShift และการวัดความคงที่ของ hotspot ด้วย match-level bootstrap ไม่มี KMeans, การเลือกค่า k, cell profiles หรือ `--min-kills` อีกต่อไป สร้างเฉพาะ JSON กับ CSV ของ hotspots; ไฟล์ `grid_ml1_cells.csv` ที่สร้างไว้ก่อนหน้านี้ไม่ได้ถูกลบอัตโนมัติ Backend ยังอ่าน JSON รูปแบบเดิมได้
+
+หน้า Analysis ที่แสดงจุดตาย จำนวนครั้ง และสัดส่วน ใช้ข้อมูลแมตช์จาก PostgreSQL แล้วนับลงกริดโดยตรง จึงไม่ต้องเทรน `grid_ml1.py` เพื่อให้หน้านี้ทำงาน MeanShift เป็นบริบทเพิ่มเติมของจุดตายใน API หน้า Round Review
 
 API เลือก artifact ตาม `match.map_name` จาก `output/models/<map>/` โดยอัตโนมัติ และยังรองรับไฟล์ legacy ใน `output/` เป็น fallback
 ตัวเลือกแมพหน้า Analysis อ่านจาก PostgreSQL: หลังเทรนให้รัน `python -m backend.parser <ไฟล์.dem>` และ `python -m backend.etl_loader output/json/<ชื่อไฟล์>.json` สำหรับเดโมอ้างอิงแต่ละไฟล์ แล้วรัน `python -m backend.etl_loader --mark-reference` เพื่อให้ endpoint ของหน้า Analysis เห็นแมพนั้น (คำสั่งนี้ค้นโฟลเดอร์รายแมพและไม่เปลี่ยน source ของชุดอ้างอิงที่ archive ไปแล้ว)
 เมื่อสร้างหรือเปลี่ยน artifact ของแมพ ให้วางไฟล์ไว้ใน `output/models/<map>/` เพื่อให้ backend โหลด artifact ของแมพนั้นได้
-สูตรพิกัดอยู่ที่ `backend/services/review.py` ที่เดียว — `models/grid_ml1.py` import ไปใช้ ช่องบนหน้าเว็บจึงตรงกับช่องของโมเดลเสมอ
+สูตรแปลงพิกัดบนหน้าเว็บอยู่ที่ `backend/services/review.py` ที่เดียว กริดนับจุดตายของหน้า Analysis แยกจาก MeanShift ซึ่งใช้พิกัดเกมโดยตรง

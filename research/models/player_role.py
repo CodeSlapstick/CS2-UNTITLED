@@ -138,26 +138,37 @@ def _resolve_team_round_sides(participants: pd.DataFrame) -> pd.DataFrame:
     return resolved
 
 
-def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS) -> pd.DataFrame:
+_COMBAT_COUNT_COLUMNS = [
+    "kills", "opening_kills", "early_attacks", "postplant_kills", "site_attacks",
+    "trade_kills", "kill_time_sum", "awp_kills", "deaths", "opening_deaths",
+    "early_deaths", "postplant_deaths", "site_deaths", "traded_deaths", "assists",
+    "flash_assists",
+]
 
-    participants = _csv_participants(kills)
-    if participants.empty:
-        return pd.DataFrame()
-    participants = _resolve_team_round_sides(participants)
 
+def _round_roster(participants: pd.DataFrame) -> pd.DataFrame:
+    """Include each known teammate in every round their team played."""
     roster = (participants.groupby(["demo_file", "map_name", "steam_id"], as_index=False)
               .agg(name=("name", _mode), team=("team", _mode)))
     team_rounds = (participants[["demo_file", "map_name", "round_num", "team", "side"]]
                    .drop_duplicates())
     base = roster.merge(team_rounds, on=["demo_file", "map_name", "team"], how="inner")
     base["match_id"] = base["demo_file"]
-    keys = ["demo_file", "round_num", "steam_id"]
+    return base
 
+
+def _live_kills(kills: pd.DataFrame) -> pd.DataFrame:
+    """Prepare the combat events used by counts and location profiles."""
     live = kills[kills["is_live_round_kill"].fillna(False).astype(bool)].copy()
     live["round_time_seconds"] = pd.to_numeric(live["round_time_seconds"], errors="coerce")
     live["trade_kill_count"] = pd.to_numeric(live["trade_kill_count"], errors="coerce").fillna(0)
     live["is_awp"] = live["weapon"].fillna("").str.lower().eq("awp")
+    return live
 
+
+def _add_combat_counts(base: pd.DataFrame, live: pd.DataFrame) -> pd.DataFrame:
+    """Merge attacker, victim and assist counts onto player-round rows."""
+    keys = ["demo_file", "round_num", "steam_id"]
     attack = (live.groupby(["demo_file", "round_num", "attacker_steamid"], as_index=False)
               .agg(
                   kills=("is_live_round_kill", "sum"),
@@ -188,15 +199,13 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
             frame["steam_id"] = pd.to_numeric(frame["steam_id"], errors="coerce").astype("int64")
         base = base.merge(frame, on=keys, how="left")
 
-    count_columns = [
-        "kills", "opening_kills", "early_attacks", "postplant_kills", "site_attacks",
-        "trade_kills", "kill_time_sum", "awp_kills", "deaths", "opening_deaths",
-        "early_deaths", "postplant_deaths", "site_deaths", "traded_deaths", "assists",
-        "flash_assists",
-    ]
-    for column in count_columns:
+    for column in _COMBAT_COUNT_COLUMNS:
         base[column] = pd.to_numeric(base[column], errors="coerce").fillna(0.0)
+    return base
 
+
+def _place_profiles(live: pd.DataFrame) -> pd.DataFrame:
+    """Summarize callout diversity and concentration per player-match-side."""
     # Callout diversity/concentration is a kill-event proxy for anchor/rotation behaviour.
     attack_places = live[["demo_file", "attacker_steamid", "attacker_side", "attacker_place"]].rename(
         columns={"attacker_steamid": "steam_id", "attacker_side": "side", "attacker_place": "place"})
@@ -210,15 +219,23 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
                      .agg(place_diversity=("place", "nunique"), place_events=("events", "sum"),
                           top_place_events=("events", "max")).reset_index())
     place_profile["place_concentration"] = place_profile["top_place_events"] / place_profile["place_events"]
+    return place_profile
 
+
+def _summarize_profiles(base: pd.DataFrame, place_profile: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate player-round counts and attach the location summary."""
     profile_keys = ["match_id", "demo_file", "map_name", "steam_id", "name", "team", "side"]
-    sums = {column: "sum" for column in count_columns}
+    sums = {column: "sum" for column in _COMBAT_COUNT_COLUMNS}
     sums["round_num"] = "count"
     out = base.groupby(profile_keys, as_index=False).agg(sums).rename(columns={"round_num": "rounds"})
     out = out.merge(place_profile[["demo_file", "steam_id", "side", "place_diversity", "place_concentration"]],
                     on=["demo_file", "steam_id", "side"], how="left")
     out[["place_diversity", "place_concentration"]] = out[["place_diversity", "place_concentration"]].fillna(0.0)
+    return out
 
+
+def _add_profile_rates(out: pd.DataFrame) -> pd.DataFrame:
+    """Keep all training feature formulas together, including zero-kill handling."""
     rounds = out["rounds"].clip(lower=1)
     kills_n = out["kills"].clip(lower=1)
     out["kills_per_round"] = out["kills"] / rounds
@@ -238,7 +255,21 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
     out["survival_rate"] = (1 - out["deaths_per_round"]).clip(0, 1)
     out["awp_kill_share"] = out["awp_kills"] / kills_n
     out.loc[out["kills"] == 0, "awp_kill_share"] = 0.0
-    return out[out["rounds"] >= min_rounds].reset_index(drop=True)
+    return out
+
+
+def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS) -> pd.DataFrame:
+    """Build profiles through roster, event counts, locations and feature rates."""
+    participants = _csv_participants(kills)
+    if participants.empty:
+        return pd.DataFrame()
+    participants = _resolve_team_round_sides(participants)
+    base = _round_roster(participants)
+    live = _live_kills(kills)
+    base = _add_combat_counts(base, live)
+    profiles = _summarize_profiles(base, _place_profiles(live))
+    profiles = _add_profile_rates(profiles)
+    return profiles[profiles["rounds"] >= min_rounds].reset_index(drop=True)
 
 
 def assign_role_names(centers_z: np.ndarray, side: str, features: list[str],
