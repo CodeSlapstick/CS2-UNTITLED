@@ -81,7 +81,7 @@ export function AnalysisPage() {
   const {
     side, setSide, hovered, setHovered, selRounds, setSelRounds, selPlayers, setSelPlayers,
     matches, maps, mapMatches, activeMap, setMap, selectedDemo, setDemo, activeMatch,
-    roster, noRoundsPicked, noPlayersPicked, upload, reference, behaviorQ,
+    roster, teamRoster, teamIdentity, noRoundsPicked, noPlayersPicked, upload, reference, behaviorQ,
   } = useDeathAnalysis(mode);
 
   if (mode === "opening") {
@@ -217,6 +217,8 @@ export function AnalysisPage() {
               roundsTotal={activeMatch?.rounds ?? 0}
               selRounds={selRounds} onRounds={setSelRounds}
               roster={roster.data?.scoreboard ?? []}
+              teamRoster={teamRoster.data?.roster ?? []}
+              ownTeam={teamIdentity.data?.own_team ?? null}
               rosterLoading={roster.isLoading}
               selPlayers={selPlayers} onPlayers={setSelPlayers}
             />
@@ -234,7 +236,7 @@ function roleLabel(role: string): string {
     Entry: "Entry", Support: "Support", Lurker: "Lurker", Trader: "Trader",
     "Bomb carrier / Site executor": "Bomb carrier / Site executor",
     "Site Anchor": "Site Anchor", Rotator: "Rotator", "Aggressive Defender": "Aggressive Defender",
-    "Retake Player": "Retake Player", "Hybrid / Unresolved": "Hybrid / Unresolved",
+    "Retake Player": "Retake Player", Hybrid: "Hybrid", "Hybrid / Unresolved": "Hybrid",
   };
   return names[role] ?? role;
 }
@@ -292,8 +294,7 @@ function BehaviorTeam({ team, ours, profiles }: {
           <section className={`behavior-side-profile side-${p.side}`} key={p.side} data-available={p.available}>
             <div className="behavior-profile-head"><span className={`badge b-${p.side}`}>{sideLabel(p.side)}</span><span className="muted">{t("{n} รอบ", { n: p.rounds })}</span></div>
             {!p.available ? <p className="muted">{t("ข้อมูลยังไม่พอ ต้องมีอย่างน้อย {n} รอบในฝั่งนี้", { n: p.minimum_rounds ?? 5 })}</p> : <>
-              <strong className="behavior-role">{roleLabel(p.role ?? "Hybrid / Unresolved")}</strong>
-              <p className="muted small">{t("สรุปจากรูปแบบใน {n} รอบ", { n: p.rounds })}</p>
+              <strong className="behavior-role">{roleLabel(p.role ?? "Hybrid")}</strong>
             </>}
           </section>)}</div>
       </article>)}

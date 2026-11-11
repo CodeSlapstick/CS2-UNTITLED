@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
+import { useT } from "@/shared/i18n";
 import type { MatchEconomy } from "@/shared/api";
 
 export const ECONOMY_TEAM_COLORS = ["#b98300", "#6a55e0"] as const;
 
 export function ReportEconomyChart({ data }: { data: MatchEconomy }) {
+  const { t, lang } = useT();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const node = ref.current;
@@ -20,7 +22,7 @@ export function ReportEconomyChart({ data }: { data: MatchEconomy }) {
         tooltip: { show: false },
         legend: { top: 0, data: data.teams },
         xAxis: { type: "category", name: "รอบ", data: data.rounds.map((round) => round.round_num), axisLabel: { interval: 0, fontSize: 9 } },
-        yAxis: { type: "value", name: "มูลค่าอุปกรณ์ ($)", axisLabel: { formatter: (value: number) => `$${Math.round(value / 1000)}k` } },
+        yAxis: { type: "value", name: t("มูลค่าอุปกรณ์ ($)"), axisLabel: { formatter: (value: number) => `$${Math.round(value / 1000)}k` } },
         series: data.teams.map((team, index) => ({
           name: team,
           type: "line",
@@ -36,6 +38,6 @@ export function ReportEconomyChart({ data }: { data: MatchEconomy }) {
       requestAnimationFrame(() => { if (!disposed && node) node.dataset.ready = "true"; });
     }).catch(() => { if (node) node.dataset.ready = "error"; });
     return () => { disposed = true; chart?.dispose(); };
-  }, [data]);
+  }, [data, lang, t]);
   return <div ref={ref} className="pr-economy-chart" data-report-chart data-ready="false" role="img" aria-label="กราฟมูลค่าอุปกรณ์ของทั้งสองทีมแยกตามรอบ" />;
 }

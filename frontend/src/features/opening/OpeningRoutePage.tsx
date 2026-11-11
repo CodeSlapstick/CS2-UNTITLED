@@ -182,9 +182,7 @@ export function OpeningRoutePage({ embedded = false }: { embedded?: boolean }) {
 
 export function OpeningRouteStage({
   data,
-  playerName,
   map,
-  side,
 }: {
   data: OpeningRoutes;
   playerName: string;
@@ -202,7 +200,6 @@ export function OpeningRouteStage({
   const [hidden, setHidden] = useState<Set<string>>(
     () => new Set(data.rounds.slice(8).map((r) => r.key)),
   );
-  const visible = data.rounds.filter((r) => !hidden.has(r.key));
   useEffect(() => {
     if (!playing) return;
     let frame = 0;
@@ -238,19 +235,6 @@ export function OpeningRouteStage({
   const size = data.radar?.size ?? 1024;
   return (
     <>
-      <div className="opening-summary">
-        <strong>{playerName}</strong>
-        <span>
-          {map} · {side.toUpperCase()}
-        </span>
-        <span>{t("{n} แมตช์", { n: data.matches })}</span>
-        <span>
-          {t("แสดง {visible} / {total} รอบ", {
-            visible: visible.length,
-            total: data.rounds.length,
-          })}
-        </span>
-      </div>
       {!data.rounds.length ? (
         <div className="card">
           <h2>{t("ไม่มีรอบที่ตรงกับตัวกรอง")}</h2>

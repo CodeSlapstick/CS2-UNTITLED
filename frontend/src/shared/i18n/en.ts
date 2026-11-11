@@ -5,5 +5,6 @@ import { EN_CORE } from "./en-core";
 import { EN_MATCH } from "./en-match";
 import { EN_OPENING } from "./en-opening";
 import { EN_COACH } from "./en-coach";
+import { EN_REPORTS } from "./en-reports";
 
-export const EN: Record<string, string> = { ...EN_CORE, ...EN_MATCH, ...EN_ANALYSIS, ...EN_CHARTS, ...EN_OPENING, ...EN_COACH };
+export const EN: Record<string, string> = { ...EN_CORE, ...EN_MATCH, ...EN_ANALYSIS, ...EN_CHARTS, ...EN_OPENING, ...EN_COACH, ...EN_REPORTS };

@@ -23,7 +23,6 @@ const BUY_FILL: Record<TeamBuy, string> = {
 const BUY_INK: Record<TeamBuy, string> = {
   pistol: "#1e293b", eco: "#14351f", semi_eco: "#14351f", semi_buy: "#ffffff", full: "#ffffff",
 };
-const BUY_RULE = "ทั้งทีมรวมกัน ≤ $5,000 = Eco · ≤ $10,000 = Semi-eco · ≤ $20,000 = Semi-buy · มากกว่านั้น = Full buy · รอบ 1 และ 13 = ปืนสั้นเสมอ";
 const TEAM_COLOR = ["#b98300", "#6a55e0"];
 const BUY_TYPES: TeamBuy[] = ["pistol", "eco", "semi_eco", "semi_buy", "full"];
 type Side = "all" | "ct" | "t";
@@ -56,8 +55,7 @@ export function EconomyPage() {
       <div className="page-head mt-head">
         <MapThumb map={entry.map_name} className="mh-thumb" />
         <div>
-          <h1>{matchTitle(entry)}</h1>
-          <p className="muted small">{entry.map_name} · {t("{n} รอบ", { n: num(entry.rounds) })}</p>
+          <h1>{entry.map_name ?? "—"} · {t("{n} รอบ", { n: num(entry.rounds) })}</h1>
         </div>
       </div>
       <MatchTabs demo={entry.demo_file} />
@@ -68,10 +66,6 @@ export function EconomyPage() {
       {ready && (
         <>
           <div className="econ-report">
-            <div className="econ-report-title">
-              <strong>{matchTitle(entry)}</strong>
-              <span>{entry.map_name ?? d.map ?? "—"} · {t("ผลการซื้อ: {side}", { side: side === "all" ? t("ทั้งสองฝั่ง") : side.toUpperCase() })}</span>
-            </div>
             <div className="econ-teams" aria-label={t("สีของทีม")}>
               {d.teams.map((team, i) => (
                 <span key={team}><i style={{ background: TEAM_COLOR[i] }} />{i === 0 ? t("{team} (เริ่มฝั่ง CT)", { team }) : t("{team} (เริ่มฝั่ง T)", { team })}</span>
@@ -170,7 +164,6 @@ export function OutcomeByBuy({ data, side, onSideChange, demo }: { data: MatchEc
           );
         })}
       </div>
-      <p className="muted small econ-rule">{t(BUY_RULE)}</p>
     </section>
   );
 }

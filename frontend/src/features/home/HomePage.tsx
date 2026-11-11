@@ -166,7 +166,7 @@ export function HomePage() {
           </div>
         </div>
         <figure className="home-demo" id="demo">
-          <video controls playsInline preload="none" poster="/media/home/demo-poster.png"
+          <video controls autoPlay muted playsInline preload="auto" poster="/media/home/demo-poster.png"
             src="/media/home/demoweb1.mp4" aria-label={c.demoLabel}>
             <a href="/media/home/demoweb1.mp4">{c.demoLabel}</a>
           </video>

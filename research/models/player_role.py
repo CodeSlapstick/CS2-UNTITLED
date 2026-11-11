@@ -68,7 +68,9 @@ ROLE_SIGNATURES: dict[str, dict[str, dict[str, float]]] = {
 def load_kills_csv(path: Path, map_name: str | None = None) -> pd.DataFrame:
     if not path.is_file():
         raise ValueError(f"ไม่พบไฟล์ {path}")
-    kills = pd.read_csv(path, low_memory=False)
+    kills = pd.read_csv(path, low_memory=False, dtype={
+        "attacker_steamid": "Int64", "victim_steamid": "Int64", "assister_steamid": "Int64",
+    })
     required = {
         "demo_file", "map_name", "round_num", "attacker_steamid", "victim_steamid",
         "assister_steamid", "attacker_side", "victim_side", "assister_side",
@@ -281,7 +283,7 @@ def assign_role_names(centers_z: np.ndarray, side: str, features: list[str],
         if total > best_total:
             best_total, best_perm = total, perm
     assert best_perm is not None
-    names = ["Hybrid / Unresolved"] * len(centers_z)
+    names = ["Hybrid"] * len(centers_z)
     for role_idx, cluster_idx in enumerate(best_perm):
         names[cluster_idx] = roles[role_idx]
     return names, score
@@ -326,7 +328,7 @@ def fit_side(profiles: pd.DataFrame, side: str, seed: int = SEED,
     for cluster_id, role in enumerate(role_names):
         member = rows[rows["cluster"] == cluster_id + 1]
         top = sorted(zip(features, model.cluster_centers_[cluster_id], strict=True), key=lambda item: -abs(item[1]))[:5]
-        role_score = None if role == "Hybrid / Unresolved" else float(
+        role_score = None if role == "Hybrid" else float(
             role_scores[cluster_id, ROLE_ORDER[side].index(role)])
         clusters.append({
             "id": cluster_id + 1,
@@ -391,7 +393,7 @@ def train_from_kills_csv(kills: pd.DataFrame, csv_path: Path, map_name: str | No
             "or permanent identities. CSV-only training has no grenade throws, movement, or planter id. "
             "Support uses assist/flash-assist proxies; anchor/rotator use kill-event callout proxies; "
             "bomb carrier/site executor uses site and post-plant kill-event proxies. A sixth "
-            "Hybrid / Unresolved cluster prevents forcing a role name when kill events do not support one."
+            "Hybrid cluster covers mixed patterns when kill events do not support a specific role name."
         ),
         "models": models,
     }

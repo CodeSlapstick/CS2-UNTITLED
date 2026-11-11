@@ -52,8 +52,7 @@ export function CoachPage() {
     setParams(next);
   }
   return <section className="coach-page">
-    <h1>{t("แผนที่น่าลอง")}</h1>
-    <p className="muted">{t("เลือกแมตช์ ฝั่ง และรอบ เพื่อดูแผนที่เหมาะกับอุปกรณ์ของทีมก่อนเริ่มรอบ")}</p>
+    <h1>{t(side === "ct" ? "พื้นที่ที่น่าลองตั้งรับ" : "จุดที่น่าลองเข้าตี")}</h1>
     <div className="filters card coach-filters">
       <label>{t("แมตช์")}<select name="coach-demo" autoComplete="off" value={match?.demo_file ?? ""} onChange={(e) => change("demo", e.target.value)}>{ready.map((m) => <option key={m.id} value={m.demo_file}>{m.demo_file} · {m.map_name ?? "—"} · {m.source === "upload" ? t("ทีมเรา") : t("ทีมอาชีพ")}</option>)}</select></label>
       <label>{t("ฝั่ง")}<select name="coach-side" autoComplete="off" value={side} onChange={(e) => change("side", e.target.value)}><option value="t">T</option><option value="ct">CT</option></select></label>
@@ -74,8 +73,6 @@ export function CoachPage() {
               {planMap && <div className="coach-plan-media"><img src={`/site-prediction/${planMapFolder}/${area}.jpg`} alt={t("ภาพบริเวณ {area} ของแมพ {map}", { area: areaLabel, map: planMapName })} loading="lazy" /><span>{planMapName} · {areaLabel}</span></div>}
               <div className="coach-plan-body">
                 <h2>{index + 1}. {planLabel(option.name, t)}</h2>
-                <p className="coach-evidence">{t("หลักฐาน {rounds} รอบชนะ · {matches} แมตช์อาชีพ", { rounds: option.rounds, matches: option.matches })}</p>
-                <p className="coach-distribution-label">{t("ตำแหน่งทีมราว 0:15")}</p>
                 <dl className="coach-profile">{(["a", "mid", "b", "other"] as const).map((profileArea) => <div key={profileArea}><dt>{profileArea === "other" ? t("พื้นที่อื่น") : profileArea.toUpperCase()}</dt><dd>{Math.round(option.profile[`${profileArea}_15`] * 100)}%</dd></div>)}</dl>
               </div>
             </article>;

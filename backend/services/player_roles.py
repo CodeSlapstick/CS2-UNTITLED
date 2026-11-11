@@ -94,10 +94,12 @@ def assign_profile(profile: dict[str, Any], side: str, model: dict[str, Any]) ->
     ranked.sort(key=lambda item: (item[0], int(item[1]["id"])))
     distance, cluster = ranked[0]
     margin = ranked[1][0] - distance if len(ranked) > 1 else 0.0
-    role = cluster.get("role") if cluster.get("role_name_status") == "supported" else "Hybrid / Unresolved"
+    role = cluster.get("role") if cluster.get("role_name_status") == "supported" else "Hybrid"
+    if role == "Hybrid / Unresolved":
+        role = "Hybrid"
     signals = sorted(features, key=lambda f: (-abs(z[f]), f))[:3]
     return {
-        "role": role or "Hybrid / Unresolved",
+        "role": role or "Hybrid",
         "cluster": cluster["id"],
         "distance": round(distance, 4),
         "margin": round(margin, 4),

@@ -1,4 +1,4 @@
-import { useT } from "@/shared/i18n";
+import { LangToggle, useT } from "@/shared/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, type HeatEvent, type Match } from "@/shared/api";
@@ -362,6 +362,7 @@ export function AnalysisReportExport({ match, initialSide = "all" }: Props) {
           <h2 id="performance-report-title">{t("ดาวน์โหลดรายงาน")}</h2>
           <p>{t("สร้างจากข้อมูลแมตช์ที่เลือก ไม่ใช้ข้อมูลจำลอง")}</p>
         </div>
+        <LangToggle />
         <label className="pr-side-filter">
           {t("ขอบเขต")}
           <select

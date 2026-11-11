@@ -16,6 +16,8 @@ interface HeatmapControlsProps {
   selRounds: number[] | null;
   onRounds: (r: number[] | null) => void;
   roster: ScoreRow[];
+  teamRoster?: { steam_id: string; team: string | null }[];
+  ownTeam?: string | null;
   rosterLoading: boolean;
   selPlayers: string[] | null;
   onPlayers: (p: string[] | null) => void;
@@ -23,7 +25,7 @@ interface HeatmapControlsProps {
 
 export function HeatmapControls({
   side, onSide,
-  demoSelected, roundsTotal, selRounds, onRounds, roster, rosterLoading, selPlayers, onPlayers,
+  demoSelected, roundsTotal, selRounds, onRounds, roster, teamRoster = [], ownTeam, rosterLoading, selPlayers, onPlayers,
 }: HeatmapControlsProps) {
   const { t } = useT();
   const roundOn = (n: number) => selRounds === null || selRounds.includes(n);
@@ -36,6 +38,16 @@ export function HeatmapControls({
     const base = selPlayers ?? roster.map((p) => p.steam_id);
     onPlayers(base.includes(id) ? base.filter((x) => x !== id) : [...base, id]);
   };
+  const teamByPlayer = new Map(teamRoster.map((player) => [player.steam_id, player.team]));
+  const teamNames = [...new Set(roster.map((player) => teamByPlayer.get(player.steam_id)).filter((team): team is string => !!team))];
+  const groups = teamNames.length ? [
+    ...teamNames.map((team) => ({ team, players: roster.filter((player) => teamByPlayer.get(player.steam_id) === team) })),
+    { team: null, players: roster.filter((player) => !teamByPlayer.get(player.steam_id)) },
+  ].filter((group) => group.players.length) : (["ct", "t", null] as const).map((side) => ({
+    team: side ? `${t("ฝั่งเริ่ม")} ${side.toUpperCase()}` : null,
+    players: roster.filter((player) => (player.start_side ?? null) === side),
+  })).filter((group) => group.players.length);
+  if (ownTeam) groups.sort((a, b) => Number(b.team === ownTeam) - Number(a.team === ownTeam));
 
   return (
     <aside className="hm-panel card heat-panel" aria-label={t("ตั้งค่าการแสดงผล heatmap")}>
@@ -86,14 +98,21 @@ export function HeatmapControls({
             {rosterLoading ? (
               <p className="muted small">{t("กำลังโหลดรายชื่อ…")}</p>
             ) : (
-              <div className="hm-pills" role="group" aria-label={t("เลือกผู้เล่น")}>
-                {roster.map((p) => (
+              <div>
+                {groups.map(({ team, players }) => {
+                  const label = team && ownTeam ? `${team === ownTeam ? t("ทีมเรา") : t("คู่แข่ง")} · ${team}` : (team ?? t("ไม่ทราบทีม"));
+                  return <div className="hm-player-team" key={team ?? "unknown"}>
+                  <strong>{label}</strong>
+                  <div className="hm-pills" role="group" aria-label={label}>
+                {players.map((p) => (
                   <button key={p.steam_id} type="button"
                     className={`hm-pill${playerOn(p.steam_id) ? ` ${p.start_side ?? ""} on` : ""}`}
                     aria-pressed={playerOn(p.steam_id)} onClick={() => togglePlayer(p.steam_id)}>
                     {p.name}
                   </button>
                 ))}
+                  </div></div>;
+                })}
               </div>
             )}
           </div>

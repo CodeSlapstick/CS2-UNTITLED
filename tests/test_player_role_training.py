@@ -5,7 +5,7 @@ import math
 import pandas as pd
 import pytest
 
-from research.models.player_role import build_profiles_from_kills
+from research.models.player_role import build_profiles_from_kills, load_kills_csv
 
 
 def event(round_num=1, **changes):
@@ -21,6 +21,22 @@ def event(round_num=1, **changes):
         "trade_kill_count": 2, "victim_was_traded": True,
         **changes,
     }
+
+
+def test_csv_preserves_large_steam_ids_with_missing_attackers(tmp_path):
+    first, second = 76561198000827804, 76561198000827805
+    rows = pd.DataFrame([
+        event(attacker_steamid=first, victim_steamid=second, assister_steamid=None),
+        event(2, attacker_steamid=None, victim_steamid=second, assister_steamid=None,
+              is_live_round_kill=False),
+    ], dtype=object)
+    path = tmp_path / "kills.csv"
+    rows.to_csv(path, index=False)
+    loaded = load_kills_csv(path, "de_dust2")
+    assert loaded.loc[0, "attacker_steamid"] == first
+    assert loaded.loc[0, "victim_steamid"] == second
+    profiles = build_profiles_from_kills(loaded, min_rounds=1)
+    assert profiles["kills"].sum() == profiles["deaths"].sum() == 1
 
 
 @pytest.fixture

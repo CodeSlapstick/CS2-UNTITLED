@@ -41,10 +41,8 @@ export function MatchesPage() {
       <div className="page-head head-row">
         <div>
           <h1>{t("แมตช์")}</h1>
-          <p className="muted small">
-            {matches.data ? t("{n} นัดในระบบ", { n: num(rows.length) }) : t("กำลังโหลด…")}
-            {filtering && matches.data ? ` · ${t("ตรงกับที่ค้น {n} นัด", { n: num(shown.length) })}` : ""}
-          </p>
+          {!matches.data && <p className="muted small">{t("กำลังโหลด…")}</p>}
+          {filtering && matches.data && <p className="muted small">{t("ตรงกับที่ค้น {n} นัด", { n: num(shown.length) })}</p>}
         </div>
         {!guest && <>
           <button type="button" className="btn-primary btn-icon" onClick={upload.pick} data-testid="upload-button">

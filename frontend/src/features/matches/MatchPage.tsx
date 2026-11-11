@@ -162,7 +162,12 @@ export function MatchScoreboard({ matchId }: { matchId: number }) {
       <section className={`match-team-scoreboard side-${side ?? "unknown"}`} key={side ?? "unknown"}>
       <h3>{side ? `${t("ฝั่งเริ่ม")} ${sideLabel(side)}` : "—"} <span>{rows.length}</span></h3>
       <div className="tbl-wrap">
-      <table className="tbl compact">
+      <table className="tbl compact match-team-table">
+        <colgroup>
+          <col style={{ width: "22%" }} />
+          <col style={{ width: "11%" }} />
+          {Array.from({ length: 10 }, (_, index) => <col key={index} style={{ width: "6.7%" }} />)}
+        </colgroup>
         <thead>
           <tr>
             <th>{t("นักแข่ง")}</th>
@@ -184,7 +189,7 @@ export function MatchScoreboard({ matchId }: { matchId: number }) {
             const f = features[p.steam_id];
             return (
               <tr key={p.steam_id}>
-                <td><Link to={`/matches/${encodeURIComponent(q.data.match.demo_file)}/rounds/1?p=${encodeURIComponent(p.steam_id)}`} className="row-title">{p.name}</Link></td>
+                <td><Link to={`/player/${encodeURIComponent(p.steam_id)}`} className="row-title">{p.name}</Link></td>
                 <td>{p.start_side ? <span className={`badge b-${p.start_side}`}>{sideLabel(p.start_side)}</span> : "—"}</td>
                 <td className="num">{p.kills}</td>
                 <td className="num">{p.deaths}</td>

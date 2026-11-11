@@ -28,6 +28,18 @@ export function useDeathAnalysis(mode: AnalysisMode) {
     enabled: !!activeMatch,
     staleTime: 5 * 60_000,
   });
+  const teamRoster = useQuery({
+    queryKey: ["analysis-team-roster", selectedDemo],
+    queryFn: () => api.heatmap(selectedDemo, "kills", "all", null, null),
+    enabled: !!selectedDemo,
+    staleTime: 5 * 60_000,
+  });
+  const teamIdentity = useQuery({
+    queryKey: ["player-behavior", selectedDemo, null],
+    queryFn: () => api.playerBehavior(selectedDemo, null),
+    enabled: !!selectedDemo,
+    staleTime: 5 * 60_000,
+  });
 
   useEffect(() => {
     setSelRounds(null);
@@ -64,6 +76,6 @@ export function useDeathAnalysis(mode: AnalysisMode) {
   return {
     side, setSide, hovered, setHovered, selRounds, setSelRounds, selPlayers, setSelPlayers,
     matches, maps, mapMatches, activeMap, setMap, selectedDemo, setDemo, activeMatch,
-    roster, noRoundsPicked, noPlayersPicked, upload, reference, behaviorQ,
+    roster, teamRoster, teamIdentity, noRoundsPicked, noPlayersPicked, upload, reference, behaviorQ,
   };
 }

@@ -1,3 +1,5 @@
+import { tr, useT } from "@/shared/i18n";
+import { localizeReport } from "../utils/localizeReport";
 import type { RefObject, ReactNode } from "react";
 import type { MatchEconomy, PlayerBehavior } from "@/shared/api";
 import type {
@@ -12,11 +14,11 @@ import type {
 import { ECONOMY_TEAM_COLORS, ReportEconomyChart } from "./ReportEconomyChart";
 
 export function ReportDocument({
-  report,
+  report: originalReport,
   documentRef,
   economy,
   behavior,
-  documentKind = report.header.report_type,
+  documentKind = originalReport.header.report_type,
   coachOptions,
   coachHeatmap,
 }: {
@@ -28,6 +30,8 @@ export function ReportDocument({
   coachOptions?: CoachExportOptions;
   coachHeatmap?: CoachHeatmapDocumentData;
 }) {
+  const { lang } = useT();
+  const report = localizeReport(originalReport, lang);
   if (documentKind === "coach" && coachOptions)
     return (
       <CoachSelectedDocument
@@ -45,65 +49,65 @@ export function ReportDocument({
       ?.team ?? null;
   return (
     <div ref={documentRef} className="pr-document">
-      <Page n={1} report={report} title="ภาพรวมการแข่งขัน">
+      <Page n={1} report={report} title={tr("ภาพรวมการแข่งขัน")}>
         <div className="pr-title-block">
           <p>CS2 PERFORMANCE REPORT</p>
           <h1>
-            {h.team_a ?? "ทีม A"} vs {h.team_b ?? "ทีม B"}
+            {h.team_a ?? tr("ทีม A")} vs {h.team_b ?? tr("ทีม B")}
           </h1>
           <strong>
             {documentKind === "match"
               ? "Full match report"
               : documentKind === "coach"
-                ? `Coach report — ${h.team_a ?? "ทีม"}`
-                : `Player — ${h.player_name ?? "ไม่ระบุ"}`}
+                ? tr("Coach report — {v0}", {v0: h.team_a ?? tr("ทีม")})
+                : tr("Player — {v0}", {v0: h.player_name ?? tr("ไม่ระบุ")})}
           </strong>
         </div>
         <dl className="pr-meta">
-          <Row k="แมตช์" v={h.demo_file} />
-          <Row k="แผนที่" v={h.map_name ?? "—"} />
+          <Row k={tr("แมตช์")} v={h.demo_file} />
+          <Row k={tr("แผนที่")} v={h.map_name ?? "—"} />
           {documentKind === "player" && (
             <Row
-              k="ผู้เล่น / ทีม"
-              v={`${h.player_name ?? "ไม่ระบุ"} / ${playerTeam ?? "ไม่มีข้อมูลทีม"}`}
+              k={tr("ผู้เล่น / ทีม")}
+              v={tr("{v0} / {v1}", {v0: h.player_name ?? tr("ไม่ระบุ"), v1: playerTeam ?? tr("ไม่มีข้อมูลทีม")})}
             />
           )}
-          <Row k="ผลตามฝั่ง" v={`CT ${h.score_ct} — ${h.score_t} T`} />
-          <Row k="วันที่แข่งขัน" v={formatDate(h.match_date)} />
-          <Row k="วันที่สร้าง" v={formatDate(h.generated_at)} />
+          <Row k={tr("ผลตามฝั่ง")} v={`CT ${h.score_ct} — ${h.score_t} T`} />
+          <Row k={tr("วันที่แข่งขัน")} v={formatDate(h.match_date)} />
+          <Row k={tr("วันที่สร้าง")} v={formatDate(h.generated_at)} />
           <Row
-            k="ขอบเขต"
+            k={tr("ขอบเขต")}
             v={
-              report.side === "all" ? "ทั้งสองฝั่ง" : report.side.toUpperCase()
+              report.side === "all" ? tr("ทั้งสองฝั่ง") : report.side.toUpperCase()
             }
           />
-          <Row k="ความสมบูรณ์" v={`${report.data_quality.rounds} รอบ`} />
+          <Row k={tr("ความสมบูรณ์")} v={tr("{v0} รอบ", {v0: report.data_quality.rounds})} />
           <Row k="Dataset version" v={h.dataset_version} />
         </dl>
-        <Section n="1" title="สรุปสำหรับตัดสินใจ">
+        <Section n="1" title={tr("สรุปสำหรับตัดสินใจ")}>
           <ol>
             {report.executive_summary.slice(0, 5).map((text) => (
               <li key={text}>{text}</li>
             ))}
           </ol>
         </Section>
-        <Section n="2" title="ตัวเลขสำคัญ">
+        <Section n="2" title={tr("ตัวเลขสำคัญ")}>
           <table>
             <thead>
               <tr>
                 <th>KPI</th>
-                <th>ค่าปัจจุบัน</th>
-                <th>ค่าเปรียบเทียบ</th>
+                <th> {tr("ค่าปัจจุบัน")} </th>
+                <th> {tr("ค่าเปรียบเทียบ")} </th>
                 <th>Sample</th>
-                <th>คำอธิบาย</th>
+                <th> {tr("คำอธิบาย")} </th>
               </tr>
             </thead>
             <tbody>
               {report.kpis.map((k) => (
                 <tr key={k.key}>
                   <td>{k.label}</td>
-                  <td>{k.value ?? "ไม่มีข้อมูล"}</td>
-                  <td>{k.comparison ?? "ไม่มี"}</td>
+                  <td>{k.value ?? tr("ไม่มีข้อมูล")}</td>
+                  <td>{k.comparison ?? tr("ไม่มี")}</td>
                   <td>{k.sample_size}</td>
                   <td>{k.explanation}</td>
                 </tr>
@@ -112,25 +116,25 @@ export function ReportDocument({
           </table>
         </Section>
       </Page>
-      <Page n={2} report={report} title="ประเด็นสำคัญและหลักฐาน">
-        <Section n="3" title="ประเด็นสำคัญ">
+      <Page n={2} report={report} title={tr("ประเด็นสำคัญและหลักฐาน")}>
+        <Section n="3" title={tr("ประเด็นสำคัญ")}>
           {report.insights.map((i) => (
             <Insight key={i.key} insight={i} />
           ))}
           {!report.insights.length && (
-            <p>ข้อมูลยังไม่เพียงพอสำหรับสร้างประเด็นสำคัญ</p>
+            <p> {tr("ข้อมูลยังไม่เพียงพอสำหรับสร้างประเด็นสำคัญ")} </p>
           )}
         </Section>
       </Page>
-      <Page n={3} report={report} title="รอบสำคัญและการเล่นรายฝั่ง">
-        <Section n="4" title="รอบที่ควรเปิดดูย้อนหลัง">
+      <Page n={3} report={report} title={tr("รอบสำคัญและการเล่นรายฝั่ง")}>
+        <Section n="4" title={tr("รอบที่ควรเปิดดูย้อนหลัง")}>
           <table>
             <thead>
               <tr>
-                <th>รอบ</th>
+                <th> {tr("รอบ")} </th>
                 <th>Buy type</th>
-                <th>เหตุการณ์</th>
-                <th>จุดที่ควรแก้</th>
+                <th> {tr("เหตุการณ์")} </th>
+                <th> {tr("จุดที่ควรแก้")} </th>
               </tr>
             </thead>
             <tbody>
@@ -145,38 +149,37 @@ export function ReportDocument({
             </tbody>
           </table>
         </Section>
-        <Section n="5" title="วิเคราะห์รายฝั่ง">
+        <Section n="5" title={tr("วิเคราะห์รายฝั่ง")}>
           <div className="pr-two-col">
             {report.side_analysis.map((s) => (
               <article key={s.side}>
                 <h3>{s.side.toUpperCase()} SIDE</h3>
                 <p>
-                  <b>ผลงาน:</b> ชนะ {s.wins}/{s.rounds} รอบ
+                  <b> {tr("ผลงาน:")} </b> {tr("ชนะ")} {s.wins}/{s.rounds} {tr("รอบ")} </p>
+                <p>
+                  <b> {tr("สิ่งที่ทำได้ดี:")} </b> {s.strengths.join("; ")}
                 </p>
                 <p>
-                  <b>สิ่งที่ทำได้ดี:</b> {s.strengths.join("; ")}
+                  <b> {tr("ปัญหา:")} </b> {s.problems.join("; ")}
                 </p>
                 <p>
-                  <b>ปัญหา:</b> {s.problems.join("; ")}
+                  <b> {tr("หลักฐาน:")} </b> {s.evidence.join("; ")}
                 </p>
                 <p>
-                  <b>หลักฐาน:</b> {s.evidence.join("; ")}
-                </p>
-                <p>
-                  <b>แนวทางแก้:</b> {s.actions.join("; ")}
+                  <b> {tr("แนวทางแก้:")} </b> {s.actions.join("; ")}
                 </p>
               </article>
             ))}
           </div>
         </Section>
-        <Section n="6" title="วิเคราะห์ Economy">
+        <Section n="6" title={tr("วิเคราะห์ Economy")}>
           <table>
             <thead>
               <tr>
-                <th>รอบ</th>
-                <th>การซื้อ</th>
-                <th>ผล</th>
-                <th>ข้อเสนอแนะ</th>
+                <th> {tr("รอบ")} </th>
+                <th> {tr("การซื้อ")} </th>
+                <th> {tr("ผล")} </th>
+                <th> {tr("ข้อเสนอแนะ")} </th>
               </tr>
             </thead>
             <tbody>
@@ -190,14 +193,14 @@ export function ReportDocument({
               ))}
               {!report.economy.length && (
                 <tr>
-                  <td colSpan={4}>ไม่พบรอบที่เข้าเกณฑ์จากข้อมูลที่มี</td>
+                  <td colSpan={4}> {tr("ไม่พบรอบที่เข้าเกณฑ์จากข้อมูลที่มี")} </td>
                 </tr>
               )}
             </tbody>
           </table>
         </Section>
         {h.report_type === "player" && (
-          <Section n="7" title="รายงานสำหรับผู้เล่น">
+          <Section n="7" title={tr("รายงานสำหรับผู้เล่น")}>
             {report.players.map((p) => (
               <p key={p.steam_id}>
                 <b>{p.name}</b>: {p.kills}/{p.deaths}/{p.assists}, ADR {p.adr},
@@ -208,8 +211,8 @@ export function ReportDocument({
           </Section>
         )}
       </Page>
-      <Page n={4} report={report} title="Economy ของแมตช์">
-        <Section n="7" title="มูลค่าอุปกรณ์รายรอบ">
+      <Page n={4} report={report} title={tr("Economy ของแมตช์")}>
+        <Section n="7" title={tr("มูลค่าอุปกรณ์รายรอบ")}>
           {economy && economy.rounds.length ? (
             <>
               <div className="pr-economy-legend">
@@ -224,30 +227,30 @@ export function ReportDocument({
               <EconomyTable data={economy} />
             </>
           ) : (
-            <p>ไม่มีข้อมูล Economy สำหรับแมตช์นี้</p>
+            <p> {tr("ไม่มีข้อมูล Economy สำหรับแมตช์นี้")} </p>
           )}
           {economy && <EconomyShifts data={economy} />}
         </Section>
       </Page>
-      <Page n={5} report={report} title="แผนฝึกและเป้าหมายนัดถัดไป">
-        <Section n={h.report_type === "player" ? "8" : "7"} title="แผนการฝึก">
+      <Page n={5} report={report} title={tr("แผนฝึกและเป้าหมายนัดถัดไป")}>
+        <Section n={h.report_type === "player" ? "8" : "7"} title={tr("แผนการฝึก")}>
           {report.training_plan.map((a) => (
             <article className="pr-training" key={a.title}>
               <h3>{a.title}</h3>
               <dl>
-                <Row k="ปัญหา" v={a.problem} />
-                <Row k="หลักฐาน" v={a.evidence} />
-                <Row k="วิธีฝึก" v={a.method} />
-                <Row k="ผู้รับผิดชอบ" v={a.owner} />
-                <Row k="ระยะเวลา" v={a.duration} />
-                <Row k="KPI เป้าหมาย" v={a.target} />
-                <Row k="วันที่ตรวจผล" v={a.review_after} />
+                <Row k={tr("ปัญหา")} v={a.problem} />
+                <Row k={tr("หลักฐาน")} v={a.evidence} />
+                <Row k={tr("วิธีฝึก")} v={a.method} />
+                <Row k={tr("ผู้รับผิดชอบ")} v={a.owner} />
+                <Row k={tr("ระยะเวลา")} v={a.duration} />
+                <Row k={tr("KPI เป้าหมาย")} v={a.target} />
+                <Row k={tr("วันที่ตรวจผล")} v={a.review_after} />
               </dl>
             </article>
           ))}
         </Section>
         {documentKind === "player" && (
-          <Section n="Player Role" title="บทบาทและพฤติกรรมจากข้อมูล">
+          <Section n="Player Role" title={tr("บทบาทและพฤติกรรมจากข้อมูล")}>
             <PlayerBehaviorEvidence
               behavior={behavior}
               playerId={h.player_id}
@@ -256,7 +259,7 @@ export function ReportDocument({
         )}
         <Section
           n={h.report_type === "player" ? "9" : "8"}
-          title="เป้าหมายนัดถัดไป"
+          title={tr("เป้าหมายนัดถัดไป")}
         >
           <ol>
             {report.next_match_goals.slice(0, 3).map((g) => (
@@ -266,18 +269,14 @@ export function ReportDocument({
         </Section>
         <Section
           n={h.report_type === "player" ? "10" : "9"}
-          title="หมายเหตุเกี่ยวกับข้อมูล"
+          title={tr("หมายเหตุเกี่ยวกับข้อมูล")}
         >
           <ul>
-            <li>
-              ใช้ Demo {report.data_quality.demos} ไฟล์ จำนวน{" "}
-              {report.data_quality.rounds} รอบ
+            <li> {tr("ใช้ Demo")} {report.data_quality.demos} {tr("ไฟล์ จำนวน")} {" "}
+              {report.data_quality.rounds} {tr("รอบ")} </li>
+            <li> {tr("ข้อมูลที่ขาด:")} {report.data_quality.missing.join("; ") || tr("ไม่มี")}
             </li>
-            <li>
-              ข้อมูลที่ขาด: {report.data_quality.missing.join("; ") || "ไม่มี"}
-            </li>
-            <li>
-              ค่าประมาณ: {report.data_quality.estimated.join("; ") || "ไม่มี"}
+            <li> {tr("ค่าประมาณ:")} {report.data_quality.estimated.join("; ") || tr("ไม่มี")}
             </li>
             {report.data_quality.warnings.map((w) => (
               <li key={w}>{w}</li>
@@ -323,16 +322,16 @@ function CoachSelectedDocument({
         n={1}
         total={total}
         report={report}
-        title="สารบัญ"
-        section="สารบัญ"
+        title={tr("สารบัญ")}
+        section={tr("สารบัญ")}
       >
         <div className="pr-title-block">
           <p>CS2 COACH REPORT</p>
           <h1>
-            {report.header.team_a ?? "ทีม A"} vs{" "}
-            {report.header.team_b ?? "ทีม B"}
+            {report.header.team_a ?? tr("ทีม A")} vs{" "}
+            {report.header.team_b ?? tr("ทีม B")}
           </h1>
-          <strong>{report.header.map_name ?? "ไม่ระบุแผนที่"}</strong>
+          <strong>{report.header.map_name ?? tr("ไม่ระบุแผนที่")}</strong>
         </div>
         <ol className="pr-toc">
           {options.sections.map((id, i) => (
@@ -387,17 +386,17 @@ function CoachSection({
         <div className="pr-title-block">
           <p>CS2 PERFORMANCE REPORT</p>
           <h1>
-            {h.team_a ?? "ทีม A"} vs {h.team_b ?? "ทีม B"}
+            {h.team_a ?? tr("ทีม A")} vs {h.team_b ?? tr("ทีม B")}
           </h1>
         </div>
         <dl className="pr-meta">
-          <Row k="แมตช์" v={h.demo_file} />
-          <Row k="แผนที่" v={h.map_name ?? "ไม่มีข้อมูล"} />
-          <Row k="คะแนน" v={`CT ${h.score_ct} — ${h.score_t} T`} />
-          <Row k="จำนวนรอบ" v={String(h.rounds)} />
-          <Row k="วันที่แข่งขัน" v={formatDate(h.match_date)} />
+          <Row k={tr("แมตช์")} v={h.demo_file} />
+          <Row k={tr("แผนที่")} v={h.map_name ?? tr("ไม่มีข้อมูล")} />
+          <Row k={tr("คะแนน")} v={`CT ${h.score_ct} — ${h.score_t} T`} />
+          <Row k={tr("จำนวนรอบ")} v={String(h.rounds)} />
+          <Row k={tr("วันที่แข่งขัน")} v={formatDate(h.match_date)} />
         </dl>
-        <Section n="1" title="สรุป">
+        <Section n="1" title={tr("สรุป")}>
           <ol>
             {report.executive_summary.map((x) => (
               <li key={x}>{x}</li>
@@ -411,7 +410,7 @@ function CoachSection({
       <table>
         <thead>
           <tr>
-            <th>ผู้เล่น</th>
+            <th> {tr("ผู้เล่น")} </th>
             <th>K-D-A</th>
             <th>ADR</th>
             <th>KAST</th>
@@ -442,17 +441,17 @@ function CoachSection({
       <table>
         <thead>
           <tr>
-            <th>รอบ</th>
-            <th>การซื้อ</th>
-            <th>เหตุการณ์</th>
-            <th>จุดปรับ</th>
+            <th> {tr("รอบ")} </th>
+            <th> {tr("การซื้อ")} </th>
+            <th> {tr("เหตุการณ์")} </th>
+            <th> {tr("จุดปรับ")} </th>
           </tr>
         </thead>
         <tbody>
           {report.turning_points.map((r) => (
             <tr key={r.round_num}>
               <td>R{r.round_num}</td>
-              <td>{r.buy_type ?? "ไม่มีข้อมูล"}</td>
+              <td>{r.buy_type ?? tr("ไม่มีข้อมูล")}</td>
               <td>{r.event}</td>
               <td>{r.improvement}</td>
             </tr>
@@ -485,12 +484,11 @@ function CoachSection({
           </svg>
         </div>
         <p>
-          {heatmap.data.event} · {heatmap.data.count.toLocaleString()} จุด ·
-          ฝั่ง {heatmap.options.side.toUpperCase()}
+          {heatmap.data.event} · {heatmap.data.count.toLocaleString()} {tr("จุด · ฝั่ง")} {heatmap.options.side.toUpperCase()}
         </p>
       </div>
     ) : (
-      <p>ไม่มีข้อมูล Heatmap สำหรับตัวกรองที่เลือก</p>
+      <p> {tr("ไม่มีข้อมูล Heatmap สำหรับตัวกรองที่เลือก")} </p>
     );
   if (id === "economy") {
     const teams =
@@ -513,7 +511,7 @@ function CoachSection({
         <EconomyShifts data={filtered} />
       </>
     ) : (
-      <p>ไม่มีข้อมูล Economy ในช่วงรอบที่เลือก</p>
+      <p> {tr("ไม่มีข้อมูล Economy ในช่วงรอบที่เลือก")} </p>
     );
   }
   if (id === "roles")
@@ -526,19 +524,19 @@ function CoachSection({
             </h3>
             <p>
               <b>
-                {p.available ? (p.role ?? "ยังสรุปไม่ได้") : "ข้อมูลไม่เพียงพอ"}
+                {p.available ? (p.role ?? tr("ยังสรุปไม่ได้")) : tr("ข้อมูลไม่เพียงพอ")}
               </b>
             </p>
             <p>
               {p.available
-                ? `อ้างอิงจาก ${p.rounds} รอบ`
-                : "ต้องมีข้อมูลรอบเพิ่ม"}
+                ? tr("อ้างอิงจาก {v0} รอบ", {v0: p.rounds})
+                : tr("ต้องมีข้อมูลรอบเพิ่ม")}
             </p>
           </article>
         ))}
       </div>
     ) : (
-      <p>ข้อมูลไม่เพียงพอสำหรับ Player Roles</p>
+      <p> {tr("ข้อมูลไม่เพียงพอสำหรับ Player Roles")} </p>
     );
   if (id === "comparison")
     return (
@@ -546,14 +544,12 @@ function CoachSection({
         {report.side_analysis.map((s) => (
           <article key={s.side}>
             <h3>{s.side.toUpperCase()} SIDE</h3>
+            <p> {tr("ชนะ")} {s.wins}/{s.rounds} {tr("รอบ")} </p>
             <p>
-              ชนะ {s.wins}/{s.rounds} รอบ
+              <b> {tr("จุดแข็ง:")} </b> {s.strengths.join("; ")}
             </p>
             <p>
-              <b>จุดแข็ง:</b> {s.strengths.join("; ")}
-            </p>
-            <p>
-              <b>ปัญหา:</b> {s.problems.join("; ")}
+              <b> {tr("ปัญหา:")} </b> {s.problems.join("; ")}
             </p>
           </article>
         ))}
@@ -579,10 +575,10 @@ function CoachSection({
         <article className="pr-training" key={a.title}>
           <h3>{a.title}</h3>
           <dl>
-            <Row k="ปัญหา" v={a.problem} />
-            <Row k="หลักฐาน" v={a.evidence} />
-            <Row k="วิธีฝึก" v={a.method} />
-            <Row k="เป้าหมาย" v={a.target} />
+            <Row k={tr("ปัญหา")} v={a.problem} />
+            <Row k={tr("หลักฐาน")} v={a.evidence} />
+            <Row k={tr("วิธีฝึก")} v={a.method} />
+            <Row k={tr("เป้าหมาย")} v={a.target} />
           </dl>
         </article>
       ))}
@@ -614,10 +610,9 @@ function ReportPage({
       <div className="pr-page-content">{children}</div>
       <footer>
         <span>
-          {report.header.team_a ?? "ทีม"} · {report.header.map_name ?? "—"}
+          {report.header.team_a ?? tr("ทีม")} · {report.header.map_name ?? "—"}
         </span>
-        <b>
-          หน้า {n} / {total}
+        <b> {tr("หน้า")} {n} / {total}
         </b>
       </footer>
     </article>
@@ -644,13 +639,12 @@ function Page({
       </header>
       <div className="pr-page-content">{children}</div>
       <footer>
-        <span>
-          สร้างเมื่อ {formatDate(report.header.generated_at)} ·{" "}
+        <span> {tr("สร้างเมื่อ")} {formatDate(report.header.generated_at)} ·{" "}
           {report.header.report_type === "coach"
             ? "Coach report"
             : `Player report: ${report.header.player_name ?? "—"}`}
         </span>
-        <b>หน้า {n} / 5</b>
+        <b> {tr("หน้า")} {n} / 5</b>
       </footer>
     </article>
   );
@@ -686,19 +680,19 @@ function Insight({ insight: i }: { insight: ReportInsight }) {
     <article className="pr-issue">
       <h3>{i.title}</h3>
       <dl>
-        <Row k="สิ่งที่เกิดขึ้น" v={i.observation} />
-        <Row k="ผลกระทบ" v={i.impact} />
+        <Row k={tr("สิ่งที่เกิดขึ้น")} v={i.observation} />
+        <Row k={tr("ผลกระทบ")} v={i.impact} />
         <Row
-          k="หลักฐาน"
-          v={i.evidence.map((e) => e.text).join("; ") || "ไม่มีรอบอ้างอิง"}
+          k={tr("หลักฐาน")}
+          v={i.evidence.map((e) => e.text).join("; ") || tr("ไม่มีรอบอ้างอิง")}
         />
         <Row
-          k="สาเหตุที่เป็นไปได้"
-          v={i.possible_causes.join("; ") || "ยังไม่มีข้อมูลยืนยัน"}
+          k={tr("สาเหตุที่เป็นไปได้")}
+          v={i.possible_causes.join("; ") || tr("ยังไม่มีข้อมูลยืนยัน")}
         />
-        <Row k="ความเชื่อมั่น" v={`${i.confidence} (n=${i.sample_size})`} />
-        <Row k="วิธีแก้" v={i.recommendation} />
-        <Row k="เป้าหมาย" v={i.next_target} />
+        <Row k={tr("ความเชื่อมั่น")} v={`${i.confidence} (n=${i.sample_size})`} />
+        <Row k={tr("วิธีแก้")} v={i.recommendation} />
+        <Row k={tr("เป้าหมาย")} v={i.next_target} />
       </dl>
     </article>
   );
@@ -708,7 +702,7 @@ function formatDate(value: string | null) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : new Intl.DateTimeFormat("th-TH").format(date);
+    : new Intl.DateTimeFormat("en-GB").format(date);
 }
 
 const buyLabel: Record<string, string> = {
@@ -719,18 +713,18 @@ const buyLabel: Record<string, string> = {
   full: "Full-buy",
 };
 function money(value: number | null | undefined) {
-  return value == null ? "ไม่มีข้อมูล" : `$${value.toLocaleString()}`;
+  return value == null ? tr("ไม่มีข้อมูล") : `$${value.toLocaleString()}`;
 }
 function EconomyTable({ data }: { data: MatchEconomy }) {
   return (
     <table className="pr-economy-table">
       <thead>
         <tr>
-          <th>รอบ</th>
+          <th> {tr("รอบ")} </th>
           {data.teams.map((team) => (
             <th key={team}>{team}</th>
           ))}
-          <th>ผู้ชนะ</th>
+          <th> {tr("ผู้ชนะ")} </th>
         </tr>
       </thead>
       <tbody>
@@ -744,7 +738,7 @@ function EconomyTable({ data }: { data: MatchEconomy }) {
                   {money(item?.equip)}
                   <br />
                   <small>
-                    {item?.buy_type ? buyLabel[item.buy_type] : "ไม่มีข้อมูล"} ·{" "}
+                    {item?.buy_type ? buyLabel[item.buy_type] : tr("ไม่มีข้อมูล")} ·{" "}
                     {item?.side?.toUpperCase() ?? "—"}
                   </small>
                 </td>
@@ -753,7 +747,7 @@ function EconomyTable({ data }: { data: MatchEconomy }) {
             <td>
               {round.winner_team ??
                 round.winner_side?.toUpperCase() ??
-                "ไม่มีข้อมูล"}
+                tr("ไม่มีข้อมูล")}
             </td>
           </tr>
         ))}
@@ -778,24 +772,22 @@ function EconomyShifts({ data }: { data: MatchEconomy }) {
     .slice(0, 6);
   return (
     <div className="pr-economy-shifts">
-      <b>จุดเปลี่ยนที่ตรวจพบจากข้อมูล</b>
+      <b> {tr("จุดเปลี่ยนที่ตรวจพบจากข้อมูล")} </b>
       {shifts.length ? (
         <ul>
           {shifts.map((round) => (
-            <li key={round.round_num}>
-              รอบ {round.round_num}:{" "}
+            <li key={round.round_num}> {tr("รอบ")} {round.round_num}:{" "}
               {data.teams
                 .map(
                   (team) =>
-                    `${team} ${round.teams[team]?.buy_type ? buyLabel[round.teams[team].buy_type!] : "ไม่มีข้อมูล"}`,
+                    tr("{v0} {v1}", {v0: team, v1: round.teams[team]?.buy_type ? buyLabel[round.teams[team].buy_type!] : tr("ไม่มีข้อมูล")}),
                 )
-                .join(" · ")}{" "}
-              · ผู้ชนะ {round.winner_team ?? "ไม่มีข้อมูล"}
+                .join(" · ")}{" "} {tr("· ผู้ชนะ")} {round.winner_team ?? tr("ไม่มีข้อมูล")}
             </li>
           ))}
         </ul>
       ) : (
-        <p>ไม่พบ force/semi-buy หรือการลดลงของมูลค่าอุปกรณ์ตามเกณฑ์ที่ใช้</p>
+        <p> {tr("ไม่พบ force/semi-buy หรือการลดลงของมูลค่าอุปกรณ์ตามเกณฑ์ที่ใช้")} </p>
       )}
     </div>
   );
@@ -810,17 +802,15 @@ function PlayerBehaviorEvidence({
   const profiles =
     behavior?.players?.filter((profile) => profile.steamid === playerId) ?? [];
   if (!behavior?.available || !profiles.length)
-    return <p>ข้อมูลไม่เพียงพอสำหรับสรุป Player Role</p>;
+    return <p> {tr("ข้อมูลไม่เพียงพอสำหรับสรุป Player Role")} </p>;
   return (
     <div className="pr-two-col">
       {profiles.map((profile) => (
         <article key={`${profile.steamid}-${profile.side}`}>
           <h3>
-            {profile.side.toUpperCase()} · {profile.role ?? "ข้อมูลไม่เพียงพอ"}
+            {profile.side.toUpperCase()} · {profile.role ?? tr("ข้อมูลไม่เพียงพอ")}
           </h3>
-          <p>
-            ทีม: {profile.team ?? "ไม่ระบุ"} · อ้างอิงจาก {profile.rounds} รอบ
-          </p>
+          <p> {tr("ทีม:")} {profile.team ?? tr("ไม่ระบุ")} {tr("· อ้างอิงจาก")} {profile.rounds} {tr("รอบ")} </p>
         </article>
       ))}
     </div>

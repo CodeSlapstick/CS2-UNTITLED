@@ -4,7 +4,7 @@ import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import { api, matchesQuery, type HeatEvent, type MatchHeatmap } from "@/shared/api";
 import { useT } from "@/shared/i18n";
 import { useViewportFit } from "@/shared/ui/useViewportFit";
-import { Breadcrumb, MapThumb, MatchTabs, matchTitle, NADE_ICON, NotFound, num } from "@/shared/ui/utils";
+import { Breadcrumb, MapThumb, MatchTabs, NADE_ICON, NotFound, num } from "@/shared/ui/utils";
 
 // ================================================================================================
 // ================================================================================================
@@ -60,11 +60,11 @@ export function HeatmapPage() {
   if (!entry) return <NotFound title={t("ไม่พบแมตช์นี้")} detail={t("ไม่มีแมตช์ {demo} ในระบบ", { demo: demo ?? "" })} />;
   if (entry.status !== "done") return <Navigate to={`/matches/${encodeURIComponent(entry.demo_file)}`} replace />;
 
-  return <HeatmapBody demo={entry.demo_file} title={matchTitle(entry)} totalRounds={entry.rounds} />;
+  return <HeatmapBody demo={entry.demo_file} totalRounds={entry.rounds} />;
 }
 
-function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string; totalRounds: number }) {
-  const { t, tn } = useT();
+function HeatmapBody({ demo, totalRounds }: { demo: string; totalRounds: number }) {
+  const { t } = useT();
   const viewportRef = useViewportFit();
   const [params, setParams] = useSearchParams();
   const ev = (EVENTS.find((e) => e.key === params.get("ev"))?.key ?? "kills") as HeatEvent;
@@ -120,7 +120,6 @@ function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string
     setPlayers(next.length === roster.length ? null : next);
   };
 
-  const meta = EVENTS.find((e) => e.key === ev)!;
   const data = q.data;
   const currentData = q.isPlaceholderData && !none ? null : data;
   const empty = none || (currentData?.count === 0);
@@ -128,12 +127,11 @@ function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string
 
   return (
     <div className="heat-page" data-testid="heatmap-page">
-      <Breadcrumb items={[{ label: t("แมตช์"), to: "/matches" }, { label: title }]} />
+      <Breadcrumb items={[{ label: t("แมตช์"), to: "/matches" }]} />
       <div className="page-head mt-head">
         <MapThumb map={data?.map} className="mh-thumb" />
         <div>
-          <h1>{title}</h1>
-          <p className="muted small">{data?.map ?? "…"} · {t("{n} รอบ", { n: num(totalRounds) })}</p>
+          <h1>{data?.map ?? "…"} · {t("{n} รอบ", { n: num(totalRounds) })}</h1>
         </div>
       </div>
       <MatchTabs demo={demo} />
@@ -161,10 +159,6 @@ function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string
           <div className="heat-foot">
             <span className="heat-key" aria-hidden="true">
               <span>{t("น้อย")}</span><i /><span>{t("มาก")}</span>
-            </span>
-            <span className="small">
-              {tn("{n} จุด · {who}", { n: <b>{none ? 0 : q.isPlaceholderData ? "…" : num(data?.count ?? 0)}</b>, who: t(meta.who) })}
-              {q.isFetching && <span className="muted"> · {t("กำลังอัปเดต…")}</span>}
             </span>
           </div>
         </section>
@@ -238,15 +232,18 @@ function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string
                 <button type="button" className="link-btn" onClick={() => setPlayers([])}>{t("ไม่เอาเลย")}</button>
               </span>
             </legend>
-            <div className="hm-pills" role="group" aria-label={t("เลือกผู้เล่น")}>
-              {roster.map((p) => (
+            {teams.map(([team, ids]) => <div className="hm-player-team" key={team}>
+              <strong>{team === "ไม่ทราบทีม" ? t(team) : team}</strong>
+              <div className="hm-pills" role="group" aria-label={team}>
+              {roster.filter((p) => ids.includes(p.steam_id)).map((p) => (
                 <button key={p.steam_id} type="button"
                   className={`hm-pill${playerOn(p.steam_id) ? ` ${p.start_side ?? ""} on` : ""}`}
                   aria-pressed={playerOn(p.steam_id)} onClick={() => togglePlayer(p.steam_id)}>
                   {p.name}
                 </button>
               ))}
-            </div>
+              </div>
+            </div>)}
             {none && <p className="muted small hp-note">{t('ยังไม่ได้เลือกใคร — กดชื่อผู้เล่น หรือ "ทั้งหมด"')}</p>}
           </fieldset>
 

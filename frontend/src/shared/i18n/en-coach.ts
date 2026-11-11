@@ -1,6 +1,8 @@
 export const EN_COACH: Record<string, string> = {
   "โค้ช": "Coach",
   "แผนที่น่าลอง": "Plans to try",
+  "จุดที่น่าลองเข้าตี": "Areas to try attacking",
+  "พื้นที่ที่น่าลองตั้งรับ": "Areas to try defending",
   "เลือกแมตช์ ฝั่ง และรอบ เพื่อดูแผนที่เหมาะกับอุปกรณ์ของทีมก่อนเริ่มรอบ": "Choose a match, side, and round to see plans suited to the team's pre-round equipment.",
   "กำลังหาแผนที่เหมาะกับรอบนี้…": "Finding plans for this round…",
   "ยังหาแผนสำหรับรอบนี้ไม่ได้": "No plan is available for this round yet",

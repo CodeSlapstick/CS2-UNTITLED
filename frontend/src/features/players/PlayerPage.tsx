@@ -370,7 +370,7 @@ export function PlayerPage() {
                     key: weapon.weapon,
                     label: weaponLabel(weapon.weapon),
                     value: weapon.kills,
-                    note: `${t("เฮดช็อต {pct}%", { pct: weapon.hs_rate.toFixed(0) })} · ${t("ความแม่นยำ: ไม่มีข้อมูล")}`,
+                    note: t("เฮดช็อต {pct}%", { pct: weapon.hs_rate.toFixed(0) }),
                     ratio: weapon.hs_rate / 100,
                   }))}
                   empty={t("ยังไม่มีข้อมูลอาวุธ")}
