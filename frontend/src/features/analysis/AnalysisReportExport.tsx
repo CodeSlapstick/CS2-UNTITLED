@@ -1,4 +1,4 @@
-import { LangToggle, useT } from "@/shared/i18n";
+import { ReportLangProvider, useT, type Lang } from "@/shared/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, type HeatEvent, type Match } from "@/shared/api";
@@ -138,7 +138,8 @@ function customRounds(value: string) {
   ];
 }
 export function AnalysisReportExport({ match, initialSide = "all" }: Props) {
-  const { t } = useT();
+  const { t, lang } = useT();
+  const [reportLang, setReportLang] = useState<Lang>(lang);
   const documentRef = useRef<HTMLDivElement>(null);
   const [side, setSide] = useState<ReportSide>(initialSide);
   const [target, setTarget] = useState<Target>({ kind: "match" });
@@ -362,7 +363,12 @@ export function AnalysisReportExport({ match, initialSide = "all" }: Props) {
           <h2 id="performance-report-title">{t("ดาวน์โหลดรายงาน")}</h2>
           <p>{t("สร้างจากข้อมูลแมตช์ที่เลือก ไม่ใช้ข้อมูลจำลอง")}</p>
         </div>
-        <LangToggle />
+        <div className="lang-toggle" role="group" aria-label="PDF language">
+          {(["th", "en"] as const).map((l) => (
+            <button key={l} type="button" className={reportLang === l ? "on" : ""}
+              aria-pressed={reportLang === l} onClick={() => setReportLang(l)}>{l.toUpperCase()}</button>
+          ))}
+        </div>
         <label className="pr-side-filter">
           {t("ขอบเขต")}
           <select
@@ -470,7 +476,7 @@ export function AnalysisReportExport({ match, initialSide = "all" }: Props) {
       )}
       {current.data && (
         <div className="pr-preview" aria-label={t("ตัวอย่างรายงาน")}>
-          <ReportDocument
+          <ReportLangProvider lang={reportLang}><ReportDocument
             report={current.data}
             documentRef={documentRef}
             economy={economy.data}
@@ -482,7 +488,7 @@ export function AnalysisReportExport({ match, initialSide = "all" }: Props) {
                 ? { data: heatmap.data, options: options.heatmap }
                 : undefined
             }
-          />
+          /></ReportLangProvider>
         </div>
       )}
       {open && (

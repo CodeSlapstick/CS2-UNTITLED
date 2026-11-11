@@ -1,4 +1,4 @@
-import { tr, useT } from "@/shared/i18n";
+import { useT } from "@/shared/i18n";
 import { localizeReport } from "../utils/localizeReport";
 import type { RefObject, ReactNode } from "react";
 import type { MatchEconomy, PlayerBehavior } from "@/shared/api";
@@ -30,6 +30,7 @@ export function ReportDocument({
   coachOptions?: CoachExportOptions;
   coachHeatmap?: CoachHeatmapDocumentData;
 }) {
+  const { t: tr } = useT();
   const { lang } = useT();
   const report = localizeReport(originalReport, lang);
   if (documentKind === "coach" && coachOptions)
@@ -315,6 +316,7 @@ function CoachSelectedDocument({
   options: CoachExportOptions;
   heatmap?: CoachHeatmapDocumentData;
 }) {
+  const { t: tr } = useT();
   const total = options.sections.length + 1;
   return (
     <div ref={documentRef} className="pr-document">
@@ -379,6 +381,7 @@ function CoachSection({
   options: CoachExportOptions;
   heatmap?: CoachHeatmapDocumentData;
 }) {
+  const { t: tr } = useT();
   const h = report.header;
   if (id === "overview")
     return (
@@ -600,6 +603,7 @@ function ReportPage({
   section: string;
   children: ReactNode;
 }) {
+  const { t: tr } = useT();
   return (
     <article className="pr-page" data-report-section={section}>
       <header>
@@ -630,6 +634,7 @@ function Page({
   title: string;
   children: ReactNode;
 }) {
+  const { t: tr } = useT();
   return (
     <article className="pr-page">
       <header>
@@ -676,6 +681,7 @@ function Row({ k, v }: { k: string; v: string }) {
   );
 }
 function Insight({ insight: i }: { insight: ReportInsight }) {
+  const { t: tr } = useT();
   return (
     <article className="pr-issue">
       <h3>{i.title}</h3>
@@ -712,10 +718,11 @@ const buyLabel: Record<string, string> = {
   semi_buy: "Semi-buy",
   full: "Full-buy",
 };
-function money(value: number | null | undefined) {
+function money(value: number | null | undefined, tr: ReturnType<typeof useT>["t"]) {
   return value == null ? tr("ไม่มีข้อมูล") : `$${value.toLocaleString()}`;
 }
 function EconomyTable({ data }: { data: MatchEconomy }) {
+  const { t: tr } = useT();
   return (
     <table className="pr-economy-table">
       <thead>
@@ -735,7 +742,7 @@ function EconomyTable({ data }: { data: MatchEconomy }) {
               const item = round.teams[team];
               return (
                 <td key={team}>
-                  {money(item?.equip)}
+                  {money(item?.equip, tr)}
                   <br />
                   <small>
                     {item?.buy_type ? buyLabel[item.buy_type] : tr("ไม่มีข้อมูล")} ·{" "}
@@ -756,6 +763,7 @@ function EconomyTable({ data }: { data: MatchEconomy }) {
   );
 }
 function EconomyShifts({ data }: { data: MatchEconomy }) {
+  const { t: tr } = useT();
   const shifts = data.rounds
     .filter((round, index) =>
       data.teams.some((team) => {
@@ -799,6 +807,7 @@ function PlayerBehaviorEvidence({
   behavior?: PlayerBehavior;
   playerId: string | null;
 }) {
+  const { t: tr } = useT();
   const profiles =
     behavior?.players?.filter((profile) => profile.steamid === playerId) ?? [];
   if (!behavior?.available || !profiles.length)

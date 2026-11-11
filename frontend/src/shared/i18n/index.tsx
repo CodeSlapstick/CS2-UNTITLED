@@ -81,6 +81,18 @@ export function useT(): LangCtx {
   return v;
 }
 
+export function ReportLangProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
+  const parent = useT();
+  const value = useMemo<LangCtx>(() => ({
+    ...parent,
+    lang,
+    t: (s, vars) => fill(lookup(lang, s), vars),
+    tn: (s, vars) => lookup(lang, s).split(/\{(\w+)\}/g).map((p, i) =>
+      <Fragment key={i}>{i % 2 === 1 ? (p in vars ? vars[p] : `{${p}}`) : p}</Fragment>),
+  }), [lang, parent]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
 export function LangToggle({ className = "lang-toggle" }: { className?: string }) {
   const { lang, setLang } = useT();
   return (
