@@ -65,6 +65,25 @@ const ALIASES: Record<string, string> = {
 };
 const NORMALIZED_ALIASES = Object.fromEntries(Object.entries(ALIASES).map(([key, value]) => [normalize(key), value]));
 
+export function isFirearm(name: string | null | undefined): boolean {
+  if (!name) return false;
+  const key = normalize(name);
+  const weapon = NORMALIZED_ALIASES[key] ?? key;
+  return weapon !== "knife" && weapon !== "bomb" && weapon !== "world" && weapon in WEAPONS;
+}
+
+export function isHeldUtility(name: string | null | undefined): boolean {
+  return !!name && /smoke|flash|hegrenade|molotov|incendiary|decoy|^he$/.test(normalize(name));
+}
+
+export function isKnife(name: string | null | undefined): boolean {
+  return !!name && /knife|bayonet|karambit|daggers|talon|stiletto|ursus|kukri/.test(normalize(name));
+}
+
+export function isReplayWeapon(name: string | null | undefined): boolean {
+  return isFirearm(name) || isKnife(name);
+}
+
 export type UtilityKind = "smoke" | "flash" | "he" | "molotov" | "decoy";
 const UTILITIES: Record<UtilityKind, Icon> = {
   smoke: SmokeGrenadeIcon, flash: FlashbangIcon, he: HeGrenadeIcon, molotov: MolotovIcon, decoy: DecoyIcon,
@@ -73,6 +92,7 @@ const UTILITIES: Record<UtilityKind, Icon> = {
 export function weaponIconFor(name: string | null | undefined): LazyIcon | Icon | null {
   if (!name) return null;
   const key = normalize(name);
+  if (isKnife(name)) return WEAPONS.knife;
   if (key.includes("incendiary")) return IncendiaryGrenadeIcon;
   if (key.includes("molotov")) return MolotovIcon;
   if (key.includes("smoke")) return SmokeGrenadeIcon;

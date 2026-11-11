@@ -235,6 +235,7 @@ export interface RoundPositions {
     flash_remaining?: number | null; is_flashed?: boolean | null;
     active_weapon?: string | null; armor?: number | null; has_helmet?: boolean | null; has_defuser?: boolean | null;
     money?: number | null; has_bomb?: boolean | null;
+    utility_inventory?: string[] | null;
   }[] }[];
 }
 
@@ -379,7 +380,7 @@ export interface OpeningPoint { t: number; px: Px }
 export interface OpeningRound {
   key: string; demo_file: string; match_name: string; match_date: string | null;
   round_num: number; side: Side; clock_available: boolean;
-  segments: OpeningPoint[][]; max_gap: number; death_t: number | null; utility: ReviewGrenade[] | null;
+  segments: OpeningPoint[][]; max_gap: number; death_t: number | null; death_px?: Px | null; utility: ReviewGrenade[] | null;
 }
 export interface OpeningRoutes {
   radar: RoundDetail["radar"]; rounds: OpeningRound[]; matches: number;

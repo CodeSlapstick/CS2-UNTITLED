@@ -6,6 +6,7 @@ import {
   playerApi,
   type ReviewTeam,
   type RoundDetail,
+  type ScoreRow,
 } from "@/shared/api";
 import {
   clampZoom,
@@ -16,8 +17,6 @@ import {
   NADE_TYPES,
   type NadeType,
   NotFound,
-  playerFill,
-  playerInk,
   sideLabel,
   type ViewState,
   weaponLabel,
@@ -29,7 +28,7 @@ import { clampRadarCenter, DefuseHud, MapView, NadeMiniIcon } from "./RoundMap";
 
 // Preserve existing imports while rendering lives in its own module.
 export { DefuseHud, GrenadeGlyph, MapView, placeLivePlayerLabels, PlantedBomb, PlaybackDeathMarker, truncatePlayerName } from "./RoundMap";
-import { EquipmentIcon, WeaponIcon } from "@/shared/ui/gameIcons";
+import { EquipmentIcon, WeaponIcon, isReplayWeapon, isHeldUtility } from "@/shared/ui/gameIcons";
 
 // ================================================================================================
 // ================================================================================================
@@ -57,6 +56,12 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
     queryFn: () => api.reviewPositions(demo, roundNum),
     enabled: true,
     staleTime: Infinity, // ตำแหน่งของรอบที่แกะแล้วไม่เปลี่ยน
+  });
+  const match = useQuery({
+    queryKey: ["match", q.data?.match.id],
+    queryFn: () => api.match(q.data!.match.id),
+    enabled: !!q.data?.match.id,
+    staleTime: Infinity,
   });
   const latestEventT = Math.max(0, q.data?.round.latest_event_t ?? 0,
     ...(q.data?.deaths.map((death) => death.t_round ?? 0) ?? []));
@@ -144,6 +149,7 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
           <TeamRoster
             teams={d.teams}
             scores={scores}
+            scoreboard={match.data?.scoreboard}
             highlight={focusPlayer}
             onHighlight={(p) => setView({ player: p })}
             onHover={setHover}
@@ -305,6 +311,7 @@ function useReducedMotion(): boolean {
 
 interface RosterProps {
   teams: ReviewTeam[];
+  scoreboard?: ScoreRow[];
   scores?: { ct: number; t: number };
   highlight: string | null;
   onHighlight: (steamid: string | null) => void;
@@ -372,9 +379,10 @@ function ViewerPlayerDetails({ steamid, matchId, team, current, onClose }: {
  *
  *
  */
-export function TeamRoster({ teams, scores, highlight, onHighlight, onHover, playback, live, bombPlanted = false }: RosterProps) {
+export function TeamRoster({ teams, scores, scoreboard, highlight, onHighlight, onHover, playback, live, bombPlanted = false }: RosterProps) {
   const { t: tx } = useT();
   const liveById = new Map((live ?? []).map((p) => [p.steamid, p]));
+  const statsById = new Map((scoreboard ?? []).map((p) => [p.steam_id, p]));
   return (
     <div className="roster" data-testid="team-roster">
       {teams.map((t) => (
@@ -387,7 +395,10 @@ export function TeamRoster({ teams, scores, highlight, onHighlight, onHover, pla
           <ul>
             {[...t.players].sort((a, b) => (a.slot ?? 99) - (b.slot ?? 99)).map((p) => {
               const now = liveById.get(p.steamid);
+              const stats = statsById.get(p.steamid);
+              const utilities = now?.utilityInventory ?? (isHeldUtility(now?.activeWeapon) ? [now!.activeWeapon!] : []);
               const deadNow = playback && live ? !now : !p.survived;
+              const hp = Math.max(0, Math.min(100, now?.hp ?? (deadNow ? 0 : 100)));
               return (
               <li
                 key={p.steamid}
@@ -407,25 +418,26 @@ export function TeamRoster({ teams, scores, highlight, onHighlight, onHover, pla
                   onClick={() => onHighlight(highlight === p.steamid ? null : p.steamid)}
                   title={tx("กดเพื่อไฮไลต์เฉพาะเหตุการณ์ของคนนี้ค้างไว้")}
                 >
-                  <span
-                    className="pslot php"
-                    style={{ background: playerFill(t.side_this_round), color: playerInk(t.side_this_round) }}
-                    aria-hidden="true"
-                  >
-                    {now?.hp ?? (deadNow ? 0 : 100)}
-                  </span>
                   <span className="pn">{p.name}</span>
-                  <span className="player-money" title={now?.money == null ? tx("ไม่มีข้อมูลเงินใน replay นี้") : undefined}>{now?.money == null ? "—" : `$${now.money.toLocaleString()}`}</span>
+                  <span className="player-money" title={now?.money == null ? tx("ไม่มีข้อมูลเงินใน replay นี้") : undefined}>{now?.money == null ? "—" : <><span className="player-currency">$</span>{now.money.toLocaleString()}</>}</span>
                   {!bombPlanted && now?.hasBomb && <span className="roster-c4" title={tx("ถือ C4")} aria-label={tx("ถือ C4")}><EquipmentIcon kind="bomb" /></span>}
-                  <span className="roster-weapon-slot">{now?.activeWeapon ? <WeaponIcon name={now.activeWeapon} className="roster-weapon" /> : <span aria-hidden="true">—</span>}</span>
+                  <span className="roster-weapon-slot">{isReplayWeapon(now?.activeWeapon) && <WeaponIcon name={now?.activeWeapon} className="roster-weapon" />}</span>
+                  <span className="roster-health" role="meter" aria-label={`${p.name} HP`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={hp} title={`${hp} HP`}>
+                    <span style={{ width: `${hp}%` }} />
+                  </span>
                 </button>
-                {playback && now && (now.activeWeapon || now.armor || now.hasHelmet || now.hasDefuser) && (
+                <div className="roster-loadout">
+                {playback && now && (utilities.length > 0 || now.armor || now.hasHelmet || now.hasDefuser) && (
                   <div className="pgear" aria-label={tx("อุปกรณ์ปัจจุบัน")}>
-                    {now.activeWeapon && <><WeaponIcon name={now.activeWeapon} className="pgear-weapon" /><span>{weaponLabel(now.activeWeapon)}</span></>}
                     {now.hasHelmet ? <EquipmentIcon kind="helmet" className="pgear-small" /> : now.armor ? <EquipmentIcon kind="kevlar" className="pgear-small" /> : null}
                     {now.hasDefuser && <EquipmentIcon kind="defuser" className="pgear-small" />}
+                    {utilities.map((name, index) => <span className="roster-utility" title={weaponLabel(name)} key={`${name}-${index}`}><WeaponIcon name={name} className="pgear-small" /></span>)}
                   </div>
                 )}
+                <span className="roster-kda" title={`${tx("สถิติทั้งแมตช์นี้")} · K / D / A`} aria-label={`${p.name} · ${tx("สถิติทั้งแมตช์นี้")} · K / D / A: ${stats ? `${stats.kills} / ${stats.deaths} / ${stats.assists}` : "—"}`}>
+                  <small>K / D / A</small> {stats ? `${stats.kills} / ${stats.deaths} / ${stats.assists}` : "— / — / —"}
+                </span>
+                </div>
                 <div className="pstat">
                   {p.survived ? (
                     <span className="alive">{tx("รอดถึงจบรอบ")}</span>

@@ -38,7 +38,7 @@ export function HeatmapControls({
   };
 
   return (
-    <aside className="hm-panel" aria-label={t("ตั้งค่าการแสดงผล heatmap")}>
+    <aside className="hm-panel card heat-panel" aria-label={t("ตั้งค่าการแสดงผล heatmap")}>
       <div className="hm-field">
         <div className="hm-field-h"><span>{t("ฝั่งของคนที่ตาย")}</span></div>
         <div className="seg hm-seg" role="group" aria-label={t("ฝั่งของคนที่ตาย")}>

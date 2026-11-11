@@ -1,9 +1,3 @@
-"""Train per-map MeanShift death hotspots from reference kills.
-
-Flow: prepare duels -> bootstrap matches -> train hotspots -> save JSON and CSV.
-The Analysis page counts deaths directly from match data; it does not use cell clusters.
-"""
-
 import argparse
 import json
 import sys
@@ -15,7 +9,6 @@ from sklearn.cluster import MeanShift
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Training settings. Keep these stable when comparing model artifacts.
 BANDWIDTH = 300
 MIN_BIN_FREQ = 15
 N_BOOT = 20
@@ -26,7 +19,7 @@ ARTIFACT_NAMES = ("grid_ml1_hotspots.csv", "grid_ml1.json")
 
 
 class GridInputError(ValueError):
-    """An input problem the CLI can explain without hiding unexpected training errors."""
+    pass
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,7 +30,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def prepare_duels(csv_path: Path, map_name: str) -> tuple[pd.DataFrame, int, dict]:
-    """Filter one map and add the descriptive timing and duel outcome fields."""
     kills = pd.read_csv(csv_path)
     raw_rows = len(kills)
 
@@ -50,7 +42,6 @@ def prepare_duels(csv_path: Path, map_name: str) -> tuple[pd.DataFrame, int, dic
     if "demo_file" in kills.columns:
         kills["match_id"] = kills["demo_file"]
     else:
-        # Legacy CSVs identify a new match when the recorded tick moves backward.
         kills["match_id"] = (kills["tick"].diff() < 0).cumsum()
 
     if "round_start_tick" not in kills.columns:
@@ -70,13 +61,11 @@ def prepare_duels(csv_path: Path, map_name: str) -> tuple[pd.DataFrame, int, dic
 
 
 def top_place(places: pd.Series) -> str:
-    """Use the most common callout to make a hotspot or cell easier to locate."""
     modes = places.dropna().mode()
     return modes.iloc[0] if len(modes) else "Unknown"
 
 
 def resample_matches(duels: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
-    """Sample the same number of matches with replacement, retaining all their duels."""
     match_ids = duels["match_id"].unique()
     sampled_ids = rng.choice(match_ids, size=len(match_ids), replace=True)
     return pd.concat(
@@ -86,13 +75,11 @@ def resample_matches(duels: pd.DataFrame, rng: np.random.Generator) -> pd.DataFr
 
 
 def bootstrap_matches(duels: pd.DataFrame) -> list[pd.DataFrame]:
-    """Use seeded match-level samples to validate hotspot recurrence."""
     rng = np.random.default_rng(SEED)
     return [resample_matches(duels[BOOT_COLS], rng) for _ in range(N_BOOT)]
 
 
 def find_hotspots(duels: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Fit spatial peaks; points outside every peak remain noise with label -1."""
     model = MeanShift(
         bandwidth=BANDWIDTH,
         bin_seeding=True,
@@ -103,7 +90,6 @@ def find_hotspots(duels: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
 
 
 def hotspot_stability(centers: np.ndarray, bootstrap_samples: list[pd.DataFrame]) -> float:
-    """Measure how often original peaks reappear within half the bandwidth."""
     recurrence_rates = []
     for sample in bootstrap_samples:
         _, sample_centers = find_hotspots(sample)
@@ -116,7 +102,6 @@ def train_hotspots(
     duels: pd.DataFrame,
     bootstrap_samples: list[pd.DataFrame],
 ) -> tuple[pd.DataFrame, float, float]:
-    """Describe MeanShift peaks in descending duel count and evaluate recurrence."""
     labels, centers = find_hotspots(duels)
     busiest_first = np.argsort(-np.bincount(labels[labels >= 0]))
     label_to_rank = {old: new for new, old in enumerate(busiest_first)}
@@ -138,7 +123,6 @@ def train_hotspots(
                 "place": top_place(members["victim_place"]),
                 "t_mean": float(members["t_round"].mean()),
                 "planted_share": float(members["planted"].mean()),
-                # Descriptive statistic from the same data, not a held-out test.
                 "ct_win": float(members["ct_won"].mean()),
             }
         )
@@ -149,7 +133,6 @@ def train_hotspots(
 
 
 def train_grid_model(csv_path: Path, map_name: str) -> tuple[dict, pd.DataFrame]:
-    """Train hotspots and build artifacts without writing any files."""
     duels, raw_rows, radar = prepare_duels(csv_path, map_name)
     bootstrap_samples = bootstrap_matches(duels)
     hotspots, noise_share, stability = train_hotspots(duels, bootstrap_samples)
@@ -174,7 +157,6 @@ def train_grid_model(csv_path: Path, map_name: str) -> tuple[dict, pd.DataFrame]
 
 
 def print_training_summary(payload: dict, hotspots: pd.DataFrame) -> None:
-    """Keep human-readable reporting separate from model calculations."""
     metrics = payload["metrics"]
     print(f"{metrics['rows_raw']:,} rows -> {metrics['duels']:,} valid duels | {metrics['matches']} matches")
     print(
@@ -200,7 +182,6 @@ def print_training_summary(payload: dict, hotspots: pd.DataFrame) -> None:
 
 
 def save_results(payload: dict, hotspots: pd.DataFrame, output_dir: Path) -> None:
-    """Write the hotspot-only model and its readable CSV table."""
     output_dir.mkdir(parents=True, exist_ok=True)
     hotspots.to_csv(output_dir / "grid_ml1_hotspots.csv", index=False, encoding="utf-8-sig")
     (output_dir / "grid_ml1.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")

@@ -47,6 +47,7 @@ export interface LivePlayer {
   color: string;
   slot: number | null;
   activeWeapon: string | null;
+  utilityInventory?: string[] | null;
   armor: number | null;
   hasHelmet: boolean | null;
   hasDefuser: boolean | null;
@@ -170,6 +171,7 @@ export function playersAt(pos: RoundPositions, t: number, roster: PlaybackRoster
         color: info?.color ?? "#9aa4b2",
         slot: info?.slot ?? null,
         activeWeapon: p.active_weapon ?? null,
+        utilityInventory: p.utility_inventory ?? null,
         armor: p.armor ?? null,
         hasHelmet: p.has_helmet ?? null,
         hasDefuser: p.has_defuser ?? null,

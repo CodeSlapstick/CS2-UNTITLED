@@ -36,7 +36,7 @@ export function ProtectedRoute() {
   }
   if (!me.data) {
     const next = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?next=${next}`} replace />;
+    return <Navigate to={`/?next=${next}`} replace />;
   }
   return <Outlet />;
 }

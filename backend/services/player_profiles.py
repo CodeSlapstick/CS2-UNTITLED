@@ -226,19 +226,22 @@ async def _behavior(conn: Any, steam_id: int, match_ids: list[int], selected_sid
     return result
 
 
-async def build_profile(conn: Any, steam_id: int, *, recent: int = 0, date_from: date | None = None,
-                        date_to: date | None = None, map_name: str | None = None,
-                        side: str = "all") -> dict[str, Any] | None:
-    identity = await conn.fetchrow("""
+async def _load_player_identity(conn: Any, steam_id: int) -> Any:
+    """Load the player's display identity and unfiltered match count."""
+    return await conn.fetchrow("""
         SELECT p.steam_id, p.name, COALESCE(a.avatar, p.avatar) AS avatar, a.username,
                COUNT(DISTINCT f.match_id)::int AS all_matches
         FROM players p JOIN player_round_facts f ON f.steam_id = p.steam_id
         LEFT JOIN accounts a ON a.steam_id = p.steam_id
         WHERE p.steam_id = $1 GROUP BY p.steam_id, p.name, p.avatar, a.avatar, a.username
     """, steam_id)
-    if not identity:
-        return None
 
+
+async def _load_filtered_facts(
+    conn: Any, steam_id: int, *, recent: int, date_from: date | None,
+    date_to: date | None, map_name: str | None, side: str,
+) -> list[dict[str, Any]]:
+    """Select matches first, then apply the side filter to their round facts."""
     records = await conn.fetch("""
         WITH eligible AS (
           SELECT m.id, m.imported_at
@@ -262,22 +265,31 @@ async def build_profile(conn: Any, steam_id: int, *, recent: int = 0, date_from:
         WHERE f.steam_id = $1 AND ($6 = 'all' OR f.side = $6)
         ORDER BY m.imported_at DESC, m.id DESC, f.round_num
     """, steam_id, date_from, date_to, map_name, recent, side)
-    facts = [dict(row) for row in records]
-    match_ids = sorted({int(row["match_id"]) for row in facts})
-    if match_ids:
-        outcomes = await conn.fetch("""
-            SELECT match_id,
-                   CASE WHEN COUNT(*) FILTER (WHERE won) * 2 > COUNT(*) THEN 'win'
-                        WHEN COUNT(*) FILTER (WHERE won) * 2 = COUNT(*) THEN 'draw'
-                        ELSE 'loss' END AS result
-            FROM player_round_facts
-            WHERE steam_id = $1 AND match_id = ANY($2::int[])
-            GROUP BY match_id
-        """, steam_id, match_ids)
-        result_by_match = {int(row["match_id"]): row["result"] for row in outcomes}
-        for fact in facts:
-            fact["_match_result"] = result_by_match.get(int(fact["match_id"]))
-    round_ids = [int(row["round_id"]) for row in facts]
+    return [dict(row) for row in records]
+
+
+async def _attach_match_results(
+    conn: Any, steam_id: int, facts: list[dict[str, Any]], match_ids: list[int],
+) -> None:
+    """Keep whole-match win/loss separate from the filtered round statistics."""
+    if not match_ids:
+        return
+    outcomes = await conn.fetch("""
+        SELECT match_id,
+               CASE WHEN COUNT(*) FILTER (WHERE won) * 2 > COUNT(*) THEN 'win'
+                    WHEN COUNT(*) FILTER (WHERE won) * 2 = COUNT(*) THEN 'draw'
+                    ELSE 'loss' END AS result
+        FROM player_round_facts
+        WHERE steam_id = $1 AND match_id = ANY($2::int[])
+        GROUP BY match_id
+    """, steam_id, match_ids)
+    result_by_match = {int(row["match_id"]): row["result"] for row in outcomes}
+    for fact in facts:
+        fact["_match_result"] = result_by_match.get(int(fact["match_id"]))
+
+
+async def _load_weapon_stats(conn: Any, steam_id: int, round_ids: list[int]) -> list[dict[str, Any]]:
+    """Count enemy kills only within the selected rounds."""
     weapons = []
     if round_ids:
         weapons = [dict(row) for row in await conn.fetch("""
@@ -290,8 +302,11 @@ async def build_profile(conn: Any, steam_id: int, *, recent: int = 0, date_from:
               AND k.attacker_side <> k.victim_side
             GROUP BY k.weapon ORDER BY kills DESC, k.weapon LIMIT 8
         """, round_ids, steam_id)]
+    return weapons
 
-    summary = summarize_rows(facts, weapons)
+
+async def _load_profile_metadata(conn: Any, steam_id: int) -> tuple[list[str], str | None]:
+    """Keep all map choices and the latest team available regardless of filters."""
     all_maps = [row["map_name"] for row in await conn.fetch("""
         SELECT DISTINCT m.map_name FROM player_round_facts f JOIN matches m ON m.id = f.match_id
         WHERE f.steam_id = $1 ORDER BY m.map_name
@@ -300,10 +315,31 @@ async def build_profile(conn: Any, steam_id: int, *, recent: int = 0, date_from:
         SELECT mp.team_clan FROM match_players mp JOIN matches m ON m.id = mp.match_id
         WHERE mp.steam_id = $1 ORDER BY m.imported_at DESC, m.id DESC LIMIT 1
     """, steam_id)
+    return all_maps, latest["team_clan"] if latest else None
+
+
+async def build_profile(conn: Any, steam_id: int, *, recent: int = 0, date_from: date | None = None,
+                        date_to: date | None = None, map_name: str | None = None,
+                        side: str = "all") -> dict[str, Any] | None:
+    """Load filtered facts, enrich them, summarize, then assemble the response."""
+    identity = await _load_player_identity(conn, steam_id)
+    if not identity:
+        return None
+
+    facts = await _load_filtered_facts(
+        conn, steam_id, recent=recent, date_from=date_from, date_to=date_to, map_name=map_name, side=side,
+    )
+    match_ids = sorted({int(row["match_id"]) for row in facts})
+    await _attach_match_results(conn, steam_id, facts, match_ids)
+    round_ids = [int(row["round_id"]) for row in facts]
+    weapons = await _load_weapon_stats(conn, steam_id, round_ids)
+
+    summary = summarize_rows(facts, weapons)
+    all_maps, latest_team = await _load_profile_metadata(conn, steam_id)
     return {
         "player": {"steam_id": str(identity["steam_id"]), "name": identity["name"],
                    "avatar": identity["avatar"], "account_name": identity["username"],
-                   "latest_team": latest["team_clan"] if latest else None},
+                   "latest_team": latest_team},
         **summary,
         "behavior": await _behavior(conn, steam_id, match_ids, side),
         "filters": {"recent": recent, "date_from": date_from, "date_to": date_to,

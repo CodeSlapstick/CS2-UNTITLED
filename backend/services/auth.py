@@ -12,8 +12,8 @@ backend/services/auth.py — ล็อกอินด้วย Steam (OpenID 2.0
     steam   ล็อกอินผ่าน Steam มีแถวใน accounts และมี steam_id เสมอ
     guest   โหมดเยี่ยมชม ไม่มีแถวใน accounts มีแต่รหัส session สุ่มในคุกกี้
 
-ตอนนี้ทั้งสองแบบมีสิทธิ์เท่ากันทุก endpoint ยังไม่แบ่ง role
-วันไหนจะแยกสิทธิ์ ให้แก้ที่ app.require_viewer() กับ app.can_modify_match() เท่านั้น
+โมดูลนี้สร้างและอ่านตัวตนจาก token ส่วนสิทธิ์เป็นหน้าที่ของแต่ละ endpoint
+guest ดูได้เฉพาะเดโมตัวอย่าง; การอัปโหลด/ข้อมูลผู้เล่นต้องใช้ Steam และการลบต้องตรวจเจ้าของแมตช์
 """
 import json
 import logging
@@ -62,7 +62,7 @@ def create_token(user_id: int, username: str, *, secret: str | None = None,
                  ttl: timedelta = TOKEN_TTL, now: datetime | None = None) -> str:
     """สร้าง JWT ของผู้ใช้ที่ล็อกอินผ่าน Steam แล้ว
 
-    ไม่มีฟิลด์สิทธิ์ใน payload เพราะระบบไม่แบ่ง role — ล็อกอินแล้วทำได้เท่ากันหมด
+    payload ระบุตัวตนบัญชี Steam; endpoint เป็นผู้ตรวจว่าบัญชีนี้ทำรายการนั้นได้หรือไม่
     สิทธิ์ที่ยังแยกอยู่คือ "เจ้าของข้อมูล" ซึ่งเทียบจาก id ในฐานข้อมูล ไม่ใช่จาก token
     """
     now = now or datetime.now(UTC)

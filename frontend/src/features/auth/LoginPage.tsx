@@ -5,18 +5,14 @@ import "@fontsource/anuphan/500.css";
 import "@fontsource/anuphan/600.css";
 import { type ReactNode, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { ApiError, auth } from "@/shared/api";
 import { LangToggle, useT } from "@/shared/i18n";
 import { ThemeToggle } from "@/shared/theme";
+import { safeNext } from "@/shared/authNavigation";
 import radarLines from "@/features/analysis/assets/brief-mirage-lines.png";
 
-export const DEFAULT_AFTER_LOGIN = "/matches";
-
-export function safeNext(next: string | null): string {
-  const unsafe = !next || /[\\\u0000-\u001f\u007f]/.test(next);
-  return !unsafe && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") ? next : DEFAULT_AFTER_LOGIN;
-}
+export { DEFAULT_AFTER_LOGIN, safeNext } from "@/shared/authNavigation";
 
 const CHANNELS = [
   { name: "X", href: "https://x.com/UntitledCs2", icon: <IconX /> },
@@ -76,16 +72,16 @@ export function LoginPage() {
   return (
     <div className="login-shell">
       {/* แผงบรีฟฝั่งซ้าย: เรดาร์ de_mirage จริงจาก assets + ตัวเลขจริงของระบบ */}
-      <section className="brief" aria-label="CS2 SCOUTING">
+      <section className="brief" aria-label="CS2 UNTITLED">
         <div className="brief-radar" aria-hidden="true">
           <img src={radarLines} alt="" draggable={false} />
           <div className="brief-sweep" />
         </div>
 
-        <div className="brief-brand">
+        <Link className="brief-brand" to="/" aria-label={t("หน้าแรก")}>
           <LogoMark />
-          <span>CS2 SCOUTING</span>
-        </div>
+          <span>CS2 UNTITLED</span>
+        </Link>
 
         <div className="brief-copy">
           <p className="brief-slogan" lang="en">
@@ -116,7 +112,6 @@ export function LoginPage() {
           </ul>
         </div>
 
-        <p className="brief-caption">{t("เรดาร์ de_mirage จากไฟล์ของเกม CS2")}</p>
       </section>
 
       <section className="login-side">

@@ -1,5 +1,6 @@
 // คำแปลภาษาอังกฤษ — กุญแจคือข้อความภาษาไทยในโค้ดแบบตรงตัวอักษร (ดู ../i18n.tsx)
 export const EN_CORE: Record<string, string> = {
+  "หน้าแรก": "Home",
   // ---- main.tsx: แถบบน / เมนูผู้ใช้ / ด่าน session
   "กำลังตรวจสอบการเข้าใช้งาน…": "Checking your session…",
   "ติดต่อเซิร์ฟเวอร์ไม่ได้: {msg}": "Can't reach the server: {msg}",
@@ -68,7 +69,6 @@ export const EN_CORE: Record<string, string> = {
   "แมตช์ในระบบ": "matches in the system",
   "คิลที่แกะจากเดโมแล้ว": "kills parsed from demos",
   "เรดาร์ปรับเทียบพิกัดแล้ว": "radars with calibrated coordinates",
-  "เรดาร์ de_mirage จากไฟล์ของเกม CS2": "de_mirage radar from the CS2 game files",
   "ยินดีต้อนรับ, Operator": "Welcome, Operator",
   "ล็อกอินด้วย Steam เพื่อผูกสถิติกับบัญชีของคุณ หรือเข้าชมก่อนก็ได้": "Sign in with Steam to link stats to your account, or look around first as a guest",
   "เข้าสู่ระบบด้วย Steam": "Sign in with Steam",

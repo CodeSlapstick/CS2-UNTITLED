@@ -126,9 +126,9 @@ def require_viewer(request: Request) -> dict:
         {"type": "steam", "id": int,  "username": str,  "guest_id": None}
         {"type": "guest", "id": None, "username": None, "guest_id": str}
 
-    ตอนนี้ทั้งสองแบบมีสิทธิ์เท่ากันทุก endpoint ยังไม่แบ่ง role
-    ทุก route เรียกตัวนี้ตัวเดียว เวลาจะแยกสิทธิ์จริงจึงแก้ได้ที่นี่กับ can_modify_match()
-    ไม่ต้องไปตามแก้ 13 route (ดูตัวอย่างกฎที่จะเขียนได้ในคอมเมนต์ของ can_modify_match)
+    ฟังก์ชันนี้ตรวจเฉพาะ session และคืนตัวตน ยังไม่ได้อนุญาตทุกการกระทำ
+    แต่ละ endpoint ตรวจสิทธิ์ต่อ: guest ดูได้เฉพาะเดโมตัวอย่าง,
+    งานที่ต้องใช้บัญชีตรวจด้วย require_steam_viewer() และการลบตรวจ can_modify_match()
     """
     viewer = auth.viewer_from_token(request.cookies.get(auth.COOKIE_NAME))
     if not viewer:
@@ -599,7 +599,7 @@ async def api_upload_demo(
         raise HTTPException(400, "รับเฉพาะไฟล์ .dem และชื่อไฟล์ใช้ได้แค่ตัวอักษร ตัวเลข . _ - ( )")
 
     existing = await conn.fetchrow("""
-        SELECT id FROM matches WHERE demo_file = $1
+        SELECT id FROM matches WHERE lower(demo_file) = lower($1)
     """, name)
     if existing:
         raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
@@ -612,8 +612,16 @@ async def api_upload_demo(
     size = await run_in_threadpool(save_upload, file, staged_path)
 
     published = False
+    orphan_path = None
+    locked = False
+    lock_name = f"demo-upload:{name.lower()}"
     try:
+        await conn.execute("SELECT pg_advisory_lock(hashtextextended($1, 0))", lock_name)
+        locked = True
         async with conn.transaction():
+            existing = await conn.fetchrow("SELECT id FROM matches WHERE lower(demo_file) = lower($1)", name)
+            if existing:
+                raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
             # The unique key also arbitrates requests that passed the early check together.
             match_id = await conn.fetchval("""
                 INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
@@ -623,15 +631,24 @@ async def api_upload_demo(
             if match_id is None:
                 raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
             if dem_path.exists():
-                raise HTTPException(409, f"ไฟล์ {name} มีอยู่บนดิสก์แล้ว — กรุณาตรวจสอบไฟล์เดิมก่อน")
+                orphan_dir = DEMOS_DIR / ".orphaned"
+                orphan_dir.mkdir(exist_ok=True)
+                orphan_path = orphan_dir / f"{name}.{secrets.token_hex(8)}.bak"
+                dem_path.replace(orphan_path)
             staged_path.replace(dem_path)
             published = True
     except Exception:
         if published:
             dem_path.unlink(missing_ok=True)
+        if orphan_path is not None and orphan_path.exists() and not dem_path.exists():
+            orphan_path.replace(dem_path)
         raise
     finally:
-        staged_path.unlink(missing_ok=True)
+        try:
+            staged_path.unlink(missing_ok=True)
+        finally:
+            if locked:
+                await conn.execute("SELECT pg_advisory_unlock(hashtextextended($1, 0))", lock_name)
 
     try:
         job_id = await run_in_threadpool(enqueue_parse, match_id)
@@ -919,8 +936,13 @@ async def api_opening_route(steamid: str, map: str, side: str = "t", limit: int 
     ids = [m["id"] for m in matches]
     rounds_ = rows(await conn.fetch("""
         SELECT r.id, r.match_id, r.round_num, r.start_tick, pr.side,
-               (SELECT MIN(k.tick) FROM kills k WHERE k.round_id = r.id AND k.victim_id = $2) AS death_tick
+               death.tick AS death_tick, death.victim_x AS death_x, death.victim_y AS death_y
         FROM rounds r JOIN player_rounds pr ON pr.round_id = r.id
+        LEFT JOIN LATERAL (
+            SELECT k.tick, k.victim_x, k.victim_y FROM kills k
+            WHERE k.round_id = r.id AND k.victim_id = $2
+            ORDER BY k.tick, k.id LIMIT 1
+        ) death ON TRUE
         WHERE r.match_id = ANY($1::int[]) AND pr.steam_id = $2 AND pr.side = $3
         ORDER BY r.match_id, r.round_num
     """, ids, sid, side))
@@ -1013,11 +1035,11 @@ async def api_review_positions(demo_file: str, round_num: int, viewer: dict = De
         "SELECT id, round_num, start_tick FROM rounds WHERE match_id = $1 AND round_num = $2", m["id"], round_num)
     if not rnd:
         raise HTTPException(404, f"แมตช์นี้ไม่มีรอบที่ {round_num}")
-    equipment = ("active_weapon", "armor", "has_helmet", "has_defuser", "yaw", "flash_remaining", "money", "has_bomb")
+    equipment = ("active_weapon", "armor", "has_helmet", "has_defuser", "yaw", "flash_remaining", "money", "has_bomb", "utility_inventory")
     available = await _optional_columns(conn, "player_positions", equipment)
     defaults = {"active_weapon": "NULL::text", "armor": "NULL::integer",
                 "has_helmet": "NULL::boolean", "has_defuser": "NULL::boolean", "yaw": "NULL::real",
-                "flash_remaining": "NULL::real", "money": "NULL::integer", "has_bomb": "NULL::boolean"}
+                "flash_remaining": "NULL::real", "money": "NULL::integer", "has_bomb": "NULL::boolean", "utility_inventory": "NULL::text[]"}
     equipment_sql = ", ".join(name if name in available else f"{defaults[name]} AS {name}"
                               for name in equipment)
     pos = await conn.fetch(f"""

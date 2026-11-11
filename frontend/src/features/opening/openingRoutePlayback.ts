@@ -1,23 +1,24 @@
 import type { OpeningPoint, OpeningRound, Px } from "@/shared/api";
 
-/** Never interpolate outside a recorded continuous segment or after death. */
-export function openingAt(round: OpeningRound, time: number): { trails: Px[][]; marker: Px | null } {
-  const trails: Px[][] = [];
+export function openingAt(round: OpeningRound, time: number): { marker: Px | null; deathMarker: Px | null } {
   let marker: Px | null = null;
+  if (round.death_t != null && round.death_t >= 0 && time >= round.death_t) {
+    const last = round.segments.flat().filter((point) => point.t <= round.death_t!).at(-1);
+    return { marker: null, deathMarker: round.death_px ?? last?.px ?? null };
+  }
   for (const segment of round.segments) {
     const seen = segment.filter((p) => p.t <= time);
     if (!seen.length) continue;
     const last = seen[seen.length - 1];
     const next = segment[seen.length];
-    const points = seen.map((p) => p.px);
-    if (time <= segment[segment.length - 1].t && (round.death_t == null || time < round.death_t)) {
+    if (time <= segment[segment.length - 1].t) {
       marker = next && next.t > last.t && next.t - last.t <= round.max_gap
         ? between(last, next, time) : last.px;
-      if (next && marker && time > last.t) points.push(marker);
+    } else if (segment === round.segments.at(-1) && time - last.t <= round.max_gap) {
+      marker = last.px;
     }
-    trails.push(points);
   }
-  return { trails, marker };
+  return { marker, deathMarker: null };
 }
 
 function between(a: OpeningPoint, b: OpeningPoint, time: number): Px {

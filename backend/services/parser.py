@@ -10,6 +10,7 @@ from pathlib import Path
 import polars as pl
 from awpy import Demo
 from awpy.parsers.rounds import apply_round_num, create_round_df
+from backend.services.utility_inventory import utility_inventory
 
 from backend.config.settings import ROOT
 from backend.services.review import site_of  # บอมบ์ลงไซต์ไหน — สูตรเดียวกับที่ backfill ใช้
@@ -282,6 +283,8 @@ def _position_table(all_ticks: pl.DataFrame, pos_want: dict[int, int]) -> pl.Dat
             pl.col("has_helmet").cast(pl.Boolean),
             pl.col("has_defuser").cast(pl.Boolean),
             pl.col("balance").cast(pl.Int32).alias("money"),
+            (pl.col("inventory").map_elements(utility_inventory, return_dtype=pl.List(pl.String))
+             if "inventory" in all_ticks.columns else pl.lit(None, pl.List(pl.String))).alias("utility_inventory"),
             (pl.col("inventory").map_elements(
                 lambda items: False if items is None else any(
                     str(item).lower().removeprefix("weapon_") == "c4" for item in items

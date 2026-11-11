@@ -19,6 +19,7 @@ import {
   sideLabel,
 } from "@/shared/ui/utils";
 import { useT } from "@/shared/i18n";
+import { useViewportFit } from "@/shared/ui/useViewportFit";
 import { PlayerIcon } from "@/shared/assets/icons/player-icon";
 import { DatabaseSearchIcon } from "@/shared/assets/icons/database-search-icon";
 import { OpeningRoutePage } from "@/features/opening/OpeningRoutePage";
@@ -50,6 +51,7 @@ function modeFromParams(params: URLSearchParams): Mode {
 
 export function AnalysisPage() {
   const { t } = useT();
+  const viewportRef = useViewportFit();
   const [params, setParams] = useSearchParams();
   const mode = modeFromParams(params);
   function setMode(nextMode: Mode) {
@@ -121,7 +123,7 @@ export function AnalysisPage() {
   const diffGroups = mode === "diff" ? groupDiffRows(rows) : [];
 
   return (
-    <div className="analysis" data-testid="analysis-page">
+    <div className="analysis analysis-deaths" data-testid="analysis-page">
       <header className="an-head">
         <h1>{t("เครื่องมือวิเคราะห์")}</h1>
         <div className="an-tabs" role="tablist" aria-label={t("สิ่งที่ดู")}>
@@ -173,52 +175,52 @@ export function AnalysisPage() {
       {loading && <p className="muted" role="status">{t("กำลังนับจุดตาย…")}</p>}
 
       {!loading && !error && (
-        <div className="an-grid">
-          {/* แผงนี้อยู่เสมอไม่ว่าจะเลือกรอบ/ผู้เล่นไว้กี่คน — กด "ไม่เอาเลย" แล้วต้องยังเห็นปุ่ม "ทั้งหมด"
-              เพื่อย้อนกลับได้ ไม่ใช่ทั้งแผงหายไปพร้อมกับแผนที่จนหาทางกลับไม่เจอ */}
-          <HeatmapControls
-            side={side} onSide={setSide}
-            demoSelected={!!activeMatch}
-            roundsTotal={activeMatch?.rounds ?? 0}
-            selRounds={selRounds} onRounds={setSelRounds}
-            roster={roster.data?.scoreboard ?? []}
-            rosterLoading={roster.isLoading}
-            selPlayers={selPlayers} onPlayers={setSelPlayers}
-          />
-
+        <div className="an-grid heat-grid" ref={viewportRef}>
           {noRoundsPicked || noPlayersPicked ? (
-            <p className="muted an-empty an-empty-fill" data-testid="analysis-nothing-picked">
+            <p className="muted an-empty" data-testid="analysis-nothing-picked">
               {noRoundsPicked
                 ? t('เลือกรอบอย่างน้อยหนึ่งรอบ หรือกด "ทั้งหมด"')
                 : t('เลือกผู้เล่นอย่างน้อยหนึ่งคน หรือกด "ทั้งหมด"')}
             </p>
           ) : (
-            <>
-              <section className="an-map-col">
-                <div className="an-map">
-                  {mode === "diff" ? (
-                    <DeathMap radar={upload.data!.radar} cells={rows} paint={(r) => diffPaint(r.level)}
-                      zoneFill={zoneRatioFill(diffGroups)}
+            <section className="an-map-col heat-map-col" aria-label={t("แผนที่ heatmap")}>
+              <div className="an-map heat-map">
+                {mode === "diff" ? (
+                  <DeathMap radar={upload.data!.radar} cells={rows} paint={(r) => diffPaint(r.level)}
+                    zoneFill={zoneRatioFill(diffGroups)}
+                    highlightKey={hovered} onHoverKey={setHovered} />
+                ) : (
+                  single && (
+                    <DeathMap radar={single.radar} cells={single.cells} paint={continuousFreqPaint(single.cells, side)}
                       highlightKey={hovered} onHoverKey={setHovered} />
-                  ) : (
-                    single && (
-                      <DeathMap radar={single.radar} cells={single.cells} paint={continuousFreqPaint(single.cells, side)}
-                        highlightKey={hovered} onHoverKey={setHovered} />
-                    )
-                  )}
-                </div>
-                {mode === "diff" ? <DiffKey /> : <GradientKey cells={single?.cells ?? []} side={side} />}
-              </section>
+                  )
+                )}
+              </div>
+              {mode === "diff" ? <DiffKey /> : <GradientKey cells={single?.cells ?? []} side={side} />}
+            </section>
+          )}
 
-              <aside className="an-side">
+          <div className="an-sidebar">
+            {!noRoundsPicked && !noPlayersPicked && (
+              <section className="an-side card">
                 {mode === "diff" ? (
                   <DiffTable groups={diffGroups} upload={upload.data!} reference={reference.data!} hovered={hovered} onHover={setHovered} />
                 ) : (
                   <SingleSummary data={single!} hovered={hovered} onHover={setHovered} />
                 )}
-              </aside>
-            </>
-          )}
+              </section>
+            )}
+
+            <HeatmapControls
+              side={side} onSide={setSide}
+              demoSelected={!!activeMatch}
+              roundsTotal={activeMatch?.rounds ?? 0}
+              selRounds={selRounds} onRounds={setSelRounds}
+              roster={roster.data?.scoreboard ?? []}
+              rosterLoading={roster.isLoading}
+              selPlayers={selPlayers} onPlayers={setSelPlayers}
+            />
+          </div>
         </div>
       )}
       <PlayerBehaviorSection data={behaviorQ.data} loading={behaviorQ.isLoading} error={behaviorQ.error as Error | null} />

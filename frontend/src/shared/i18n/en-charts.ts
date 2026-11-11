@@ -1,5 +1,14 @@
 // คำแปลภาษาอังกฤษ — กุญแจคือข้อความภาษาไทยในโค้ดแบบตรงตัวอักษร (ดู ../i18n.tsx)
 export const EN_CHARTS: Record<string, string> = {
+  "คลิกเพื่อดูรอบที่ซื้อแบบนี้": "Click to review rounds with this buy type",
+  "คลิกเพื่อกรองรายการรอบ": "Click to filter the rounds below",
+  "คลิกเพื่อดูรอบนี้": "Click to review this round",
+  "มูลค่าอุปกรณ์เท่ากัน": "Equal equipment value",
+  "{team} มากกว่า {v}": "{team} ahead by {v}",
+  "เปิดรอบ {n}": "Open round {n}",
+  "กราฟมูลค่าอุปกรณ์ทั้งทีมรายรอบ คลิกจุดเพื่อเปิด Demo Viewer": "Team equipment value by round. Click a point to open the Demo Viewer.",
+  "มูลค่าอุปกรณ์ ($)": "Equipment value ($)",
+  "ผู้ชนะ": "Winner",
   // ---- ใช้ร่วมกันสองหน้า (heatmap / เศรษฐกิจ)
   "โหลดรายการแมตช์ไม่ได้: {msg}": "Couldn't load matches: {msg}",
   "กำลังโหลด…": "Loading…",

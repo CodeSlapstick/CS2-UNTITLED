@@ -43,6 +43,12 @@ def build_opening_rounds(matches, rounds, positions, grenades, steam_id, map_nam
         start, rate = rnd.get("start_tick"), match.get("tickrate")
         clock_available = start is not None and rate is not None and rate > 0
         death = rnd.get("death_tick")
+        death_px = None
+        if clock_available and frame and death is not None and start <= death <= start + WINDOW_SECONDS * rate:
+            death_x, death_y = rnd.get("death_x"), rnd.get("death_y")
+            if (death_x is not None and death_y is not None
+                    and math.isfinite(death_x) and math.isfinite(death_y)):
+                death_px = list(world_to_pixel(death_x, death_y, frame))
         samples = []
         break_before = False
         if clock_available and frame:
@@ -90,6 +96,7 @@ def build_opening_rounds(matches, rounds, positions, grenades, steam_id, map_nam
             "side": rnd["side"], "clock_available": clock_available,
             "segments": segments, "max_gap": max_gap,
             "death_t": (death - start) / rate if clock_available and death is not None else None,
+            "death_px": death_px,
             "utility": events if clock_available else None,
         })
     return {"radar": {"image": "/assets" + frame.image, "size": frame.size, "map": frame.map_name}

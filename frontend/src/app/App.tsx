@@ -58,7 +58,7 @@ export function UserMenu() {
     setOpen(false);
     await auth.logout().catch(() => undefined); // ลบคุกกี้ไม่สำเร็จก็ยังล้างฝั่งหน้าเว็บ
     qc.clear();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -147,9 +147,9 @@ function TopBar() {
   if (pathname === "/" || pathname === "/login") return null;
   return (
     <header className="topbar">
-      <Link className="home-brand" to="/" aria-label="CS2 SCOUTING home">
+      <Link className="home-brand" to="/" aria-label="CS2 UNTITLED home">
         <Mark />
-        <span>CS2 SCOUTING</span>
+        <span>CS2 UNTITLED</span>
       </Link>
       <nav ref={navRef} aria-label={t("เมนูหลัก")}>
         {NAV.filter((n) => !(guest && n.steamOnly)).map((n) => (

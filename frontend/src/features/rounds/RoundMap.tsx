@@ -4,7 +4,7 @@ import { clampZoom, fmtT, NADE_COLOR, nadeLabel, playerFill, weaponLabel } from 
 import { useT } from "@/shared/i18n";
 import { activeDamageTracers, resolveDamageTracers, type LivePlayer } from "./playback";
 import { effectAt, nadeVisibleAt, projectileAt, projectileTrailAt } from "./grenadePlayback";
-import { EquipmentIcon, UtilityIcon, WeaponIcon } from "@/shared/ui/gameIcons";
+import { EquipmentIcon, UtilityIcon, WeaponIcon, isReplayWeapon } from "@/shared/ui/gameIcons";
 
 /** Radar rendering, markers, labels and pointer interaction for the round viewer. */
 const crossPath = (r: number) => `M${-r},${-r} L${r},${r} M${r},${-r} L${-r},${r}`;
@@ -65,7 +65,7 @@ export function placeLivePlayerLabels(
   ordered.forEach((player) => {
     const text = truncatePlayerName(player.name, maxChars);
     const textWidth = Array.from(text).length * fontSize * 0.68 + 6;
-    const weaponWidth = player.activeWeapon ? fontSize * 1.55 : 0;
+    const weaponWidth = isReplayWeapon(player.activeWeapon) ? fontSize * 1.55 : 0;
     labels.set(player.steamid, {
       ...placer.place(player.px[0], player.px[1], markerRadius + fontSize * .15, text, fontSize, weaponWidth),
       text,
@@ -552,7 +552,7 @@ export function MapView({ radar, deaths, bomb, defuseBombPx, bombPlantedT, grena
               {label.text}
               <title>{p.name}</title>
             </text>
-            {p.activeWeapon && <WeaponIcon name={p.activeWeapon}
+            {isReplayWeapon(p.activeWeapon) && <WeaponIcon name={p.activeWeapon}
               x={p.px[0] - liveNameSize * .75}
               y={p.px[1] - z.dot * .9 - liveNameSize * .48 - 2 * U}
               width={liveNameSize * 1.5} height={liveNameSize * .48}

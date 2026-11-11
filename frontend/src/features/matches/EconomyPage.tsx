@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { api, matchesQuery, type MatchEconomy, type TeamBuy } from "@/shared/api";
 import { useT } from "@/shared/i18n";
 import { Breadcrumb, endReasonLabel, MapThumb, MatchTabs, matchTitle, NotFound, num } from "@/shared/ui/utils";
@@ -25,6 +25,7 @@ const BUY_INK: Record<TeamBuy, string> = {
 };
 const BUY_RULE = "ทั้งทีมรวมกัน ≤ $5,000 = Eco · ≤ $10,000 = Semi-eco · ≤ $20,000 = Semi-buy · มากกว่านั้น = Full buy · รอบ 1 และ 13 = ปืนสั้นเสมอ";
 const TEAM_COLOR = ["#b98300", "#6a55e0"];
+const BUY_TYPES: TeamBuy[] = ["pistol", "eco", "semi_eco", "semi_buy", "full"];
 type Side = "all" | "ct" | "t";
 
 const money = (v: number | null | undefined) => (v == null ? "—" : `$${num(v)}`);
@@ -32,7 +33,6 @@ const money = (v: number | null | undefined) => (v == null ? "—" : `$${num(v)}
 export function EconomyPage() {
   const { t } = useT();
   const [side, setSide] = useState<Side>("all");
-  const buyTypes: TeamBuy[] = ["pistol", "eco", "semi_eco", "semi_buy", "full"];
   const { demo } = useParams();
   const matches = useQuery(matchesQuery);
   const entry = demo ? (matches.data ?? []).find((m) => m.demo_file === demo) : undefined;
@@ -77,18 +77,18 @@ export function EconomyPage() {
                 <span key={team}><i style={{ background: TEAM_COLOR[i] }} />{i === 0 ? t("{team} (เริ่มฝั่ง CT)", { team }) : t("{team} (เริ่มฝั่ง T)", { team })}</span>
               ))}
             </div>
-            <OutcomeByBuy data={d} side={side} onSideChange={setSide} />
+            <OutcomeByBuy data={d} side={side} onSideChange={setSide} demo={entry.demo_file} />
             <section className="card">
-              <EquipmentValueChart data={d} buyTypes={buyTypes} demo={entry.demo_file} />
+              <EquipmentValueChart data={d} buyTypes={BUY_TYPES} demo={entry.demo_file} />
             </section>
             <section className="card">
               <div className="card-head">
                 <h2>{t("ใครมีของมากกว่า")}</h2>
                 <span className="muted small">{t("ส่วนต่างมูลค่าอุปกรณ์ · แท่งขึ้น = {a} มากกว่า · แท่งลง = {b} มากกว่า", { a: d.teams[0], b: d.teams[1] })}</span>
               </div>
-              <AdvantageBars data={d} />
+              <AdvantageBars data={d} demo={entry.demo_file} />
             </section>
-            <RoundBreakdown data={d} />
+            <RoundBreakdown data={d} demo={entry.demo_file} />
           </div>
         </>
       )}
@@ -97,8 +97,11 @@ export function EconomyPage() {
 }
 
 
-function OutcomeByBuy({ data, side, onSideChange }: { data: MatchEconomy; side: Side; onSideChange: (side: Side) => void }) {
+export function OutcomeByBuy({ data, side, onSideChange, demo }: { data: MatchEconomy; side: Side; onSideChange: (side: Side) => void; demo: string }) {
   const { t } = useT();
+  const id = useId();
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
   return (
     <section className="card" data-testid="econ-outcomes">
       <div className="card-head">
@@ -114,17 +117,25 @@ function OutcomeByBuy({ data, side, onSideChange }: { data: MatchEconomy; side: 
       </div>
       <div className="econ-outcomes">
         {data.teams.map((team, i) => {
-          const mine = data.rounds.map((r) => r.teams[team]).filter((x) => x && (side === "all" || x.side === side));
+          const mine = data.rounds.filter((round) => round.teams[team] && (side === "all" || round.teams[team].side === side));
           return (
             <div key={team} className="eo-team">
               <h3><i style={{ background: TEAM_COLOR[i] }} />{team}</h3>
               <ul className="eo-rows">
                 {data.buy_types.map((b) => {
-                  const rs = mine.filter((x) => x.buy_type === b);
-                  const won = rs.filter((x) => x.won).length;
+                  const rs = mine.filter((round) => round.teams[team].buy_type === b);
+                  const won = rs.filter((round) => round.teams[team].won).length;
                   const lost = rs.length - won;
+                  const key = `${i}-${b}`;
                   return (
                     <li key={b} className={rs.length ? "" : "empty"}>
+                      <button type="button" className="eo-row-button" aria-expanded={expanded === key}
+                        aria-label={`${team} · ${t(BUY_LABEL[b])} · ${t("{n} รอบ", { n: rs.length })} · ${t("ชนะ {won} · แพ้ {lost}", { won, lost })}`}
+                        aria-controls={`${id}-${key}-rounds`} aria-describedby={hovered === key ? `${id}-${key}-tip` : undefined}
+                        onMouseEnter={() => setHovered(key)} onMouseLeave={() => setHovered(null)}
+                        onFocus={() => setHovered(key)} onBlur={() => setHovered(null)}
+                        onKeyDown={(event) => { if (event.key === "Escape") { setHovered(null); setExpanded(null); } }}
+                        onClick={() => setExpanded((current) => current === key ? null : key)}>
                       <span className="eo-label"><i style={{ background: BUY_FILL[b] }} />{t(BUY_LABEL[b])}</span>
                       <b className="eo-pct">{rs.length ? `${Math.round((won / rs.length) * 100)}%` : "—"}</b>
                       <span className="eo-bar" aria-hidden="true">
@@ -138,6 +149,19 @@ function OutcomeByBuy({ data, side, onSideChange }: { data: MatchEconomy; side: 
                       <span className="eo-n small muted">
                         {rs.length ? t("ชนะ {won} · แพ้ {lost}", { won, lost }) : t("ไม่มีรอบแบบนี้")}
                       </span>
+                      </button>
+                      {hovered === key && <EconomyTooltip id={`${id}-${key}-tip`}>
+                        <strong>{team} · {t(BUY_LABEL[b])}</strong>
+                        <span>{t("{n} รอบ", { n: rs.length })} · {t("ชนะ {won} · แพ้ {lost}", { won, lost })}</span>
+                        <span>{t("คลิกเพื่อดูรอบที่ซื้อแบบนี้")}</span>
+                      </EconomyTooltip>}
+                      {expanded === key && <div id={`${id}-${key}-rounds`} className="econ-buy-rounds">
+                        <strong>{team} · {t(BUY_LABEL[b])} · {t("{n} รอบ", { n: rs.length })}</strong>
+                        {rs.length ? <div className="econ-round-links">{rs.map((round) => <Link key={round.round_num}
+                          to={`/matches/${encodeURIComponent(demo)}/rounds/${round.round_num}`}>
+                          R{round.round_num} · {t(round.teams[team].won ? "ชนะ" : "แพ้")}
+                        </Link>)}</div> : <span className="muted">{t("ไม่มีรอบแบบนี้")}</span>}
+                      </div>}
                     </li>
                   );
                 })}
@@ -149,6 +173,32 @@ function OutcomeByBuy({ data, side, onSideChange }: { data: MatchEconomy; side: 
       <p className="muted small econ-rule">{t(BUY_RULE)}</p>
     </section>
   );
+}
+
+function EconomyTooltip({ id, children, style }: { id: string; children: ReactNode; style?: CSSProperties }) {
+  return <div id={id} role="tooltip" className="econ-tooltip" style={style}>{children}</div>;
+}
+
+function RoundEconomyDetails({ data, round }: { data: MatchEconomy; round: MatchEconomy["rounds"][number] }) {
+  const { t } = useT();
+  const [a, b] = data.teams;
+  const va = round.teams[a]?.equip;
+  const vb = round.teams[b]?.equip;
+  const difference = va != null && vb != null ? va - vb : null;
+  return <>
+    <strong>{t("รอบ")} {round.round_num}</strong>
+    {data.teams.map((team, index) => {
+      const entry = round.teams[team];
+      return <span className="econ-tooltip-team" key={team}><i style={{ background: TEAM_COLOR[index] }} />
+        <b>{team}</b><span>{money(entry?.equip)}</span>
+        <small>{entry?.buy_type ? t(BUY_LABEL[entry.buy_type]) : "—"}{entry?.side ? ` · ${entry.side.toUpperCase()}` : ""}</small>
+      </span>;
+    })}
+    {difference != null && <span>{difference === 0 ? t("มูลค่าอุปกรณ์เท่ากัน")
+      : t("{team} มากกว่า {v}", { team: difference > 0 ? a : b, v: money(Math.abs(difference)) })}</span>}
+    <span>{t("ผู้ชนะ")}: {round.winner_team ?? "—"} · {endReasonLabel(round.end_reason)}</span>
+    <small>{t("คลิกเพื่อดูรอบนี้")}</small>
+  </>;
 }
 
 function useWidth<E extends HTMLElement>() {
@@ -205,6 +255,7 @@ function EquipmentValueChart({ data, buyTypes, demo }: { data: MatchEconomy; buy
         yAxis: { type: "value", name: t("มูลค่าอุปกรณ์ ($)"), nameGap: 44, nameLocation: "middle", axisLabel: { color: muted, formatter: (value: number) => `$${value / 1000}k` }, splitLine: { lineStyle: { color: line, opacity: .65 } } },
         tooltip: {
           trigger: "axis",
+          confine: true,
           axisPointer: { type: "line" },
           backgroundColor: card,
           borderColor: line,
@@ -237,7 +288,10 @@ function EquipmentValueChart({ data, buyTypes, demo }: { data: MatchEconomy; buy
         const round = event.dataIndex == null ? null : data.rounds[event.dataIndex];
         if (round) navigate(`/matches/${encodeURIComponent(demo)}/rounds/${round.round_num}`);
       });
-      observer = new ResizeObserver(() => chart?.resize());
+      observer = new ResizeObserver(() => {
+        chart?.dispatchAction({ type: "hideTip" });
+        chart?.resize();
+      });
       observer.observe(root);
     });
     return () => { disposed = true; observer?.disconnect(); chart?.dispose(); };
@@ -302,8 +356,11 @@ export function EquipLines({ data }: { data: MatchEconomy }) {
   );
 }
 
-function AdvantageBars({ data }: { data: MatchEconomy }) {
+export function AdvantageBars({ data, demo }: { data: MatchEconomy; demo: string }) {
   const { t } = useT();
+  const navigate = useNavigate();
+  const id = useId();
+  const [active, setActive] = useState<number | null>(null);
   const [ref, w] = useWidth<HTMLDivElement>();
   const H = 240;
   const [a, b] = data.teams;
@@ -322,9 +379,9 @@ function AdvantageBars({ data }: { data: MatchEconomy }) {
   const half = halfIndex(data);
   const steps = [-lim, -lim / 2, 0, lim / 2, lim];
   return (
-    <div ref={ref} className="econ-chart">
+    <div ref={ref} className="econ-chart econ-interactive-chart" onMouseLeave={() => setActive(null)}>
       {w > 0 && (
-        <svg width={w} height={H} role="img" aria-label={t("กราฟส่วนต่างมูลค่าอุปกรณ์รายรอบ")}>
+        <svg width={w} height={H} role="group" aria-label={t("กราฟส่วนต่างมูลค่าอุปกรณ์รายรอบ")}>
           {steps.map((v) => (
             <g key={v}>
               <line x1={PAD.l} x2={w - PAD.r} y1={y(v)} y2={y(v)} className={v === 0 ? "zero" : "gl"} />
@@ -335,15 +392,23 @@ function AdvantageBars({ data }: { data: MatchEconomy }) {
           ))}
           {half > 0 && <line x1={PAD.l + slot * half} x2={PAD.l + slot * half} y1={PAD.t} y2={H - PAD.b} className="half" />}
           {diffs.map((v, i) => {
-            if (v == null) return null;
             const bw = Math.max(3, slot * 0.62);
-            const top = Math.min(y(v), y(0));
-            const lead = v >= 0 ? a : b;
+            const top = Math.min(y(v ?? 0), y(0));
+            const open = () => navigate(`/matches/${encodeURIComponent(demo)}/rounds/${data.rounds[i].round_num}`);
             return (
-              <rect key={i} x={cx(i) - bw / 2} y={top} width={bw} height={Math.max(1, Math.abs(y(v) - y(0)))} rx={2}
-                fill={TEAM_COLOR[v >= 0 ? 0 : 1]}>
-                <title>{t("รอบ {n} · {team} มากกว่า {v}", { n: data.rounds[i].round_num, team: lead, v: money(Math.abs(v)) })}</title>
-              </rect>
+              <g key={data.rounds[i].round_num} role="link" tabIndex={0} className="econ-round-hit"
+                aria-label={t("เปิดรอบ {n}", { n: data.rounds[i].round_num })}
+                aria-describedby={active === i ? id : undefined}
+                onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onBlur={() => setActive(null)}
+                onClick={open} onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+                  if (event.key === "Escape") setActive(null);
+                }}>
+                {active === i && <line x1={cx(i)} x2={cx(i)} y1={PAD.t} y2={H - PAD.b} className="econ-crosshair" />}
+                {v != null && <rect x={cx(i) - bw / 2} y={top} width={bw} height={Math.max(2, Math.abs(y(v) - y(0)))} rx={2}
+                  fill={v === 0 ? "var(--muted)" : TEAM_COLOR[v > 0 ? 0 : 1]} opacity={active != null && active !== i ? .65 : 1} />}
+                <rect className="econ-hit-target" x={PAD.l + slot * i} y={PAD.t} width={Math.max(1, slot)} height={H - PAD.t - PAD.b} fill="transparent" />
+              </g>
             );
           })}
           {data.rounds.map((r, i) => (i % every === 0 || i === n - 1) && (
@@ -352,32 +417,28 @@ function AdvantageBars({ data }: { data: MatchEconomy }) {
           <text x={PAD.l} y={H - 4} className="ax">{t("รอบ")}</text>
         </svg>
       )}
+      {active != null && data.rounds[active] && <EconomyTooltip id={id}
+        style={{ top: 8, bottom: "auto", left: Math.max(0, Math.min(w - Math.min(300, w), cx(active) - 150)) }}>
+        <RoundEconomyDetails data={data} round={data.rounds[active]} />
+      </EconomyTooltip>}
     </div>
   );
 }
 
-function RoundBreakdown({ data }: { data: MatchEconomy }) {
+export function RoundBreakdown({ data, demo }: { data: MatchEconomy; demo: string }) {
   const { t } = useT();
+  const id = useId();
+  const [hoveredRound, setHoveredRound] = useState<number | null>(null);
+  const [hoveredBuy, setHoveredBuy] = useState<string | null>(null);
+  const [filter, setFilter] = useState<{ team: string; buy: TeamBuy } | null>(null);
   const [a, b] = data.teams;
   const max = Math.max(1, ...data.rounds.flatMap((r) => [r.teams[a]?.equip ?? 0, r.teams[b]?.equip ?? 0]));
   const share = (team: string) => {
     const rs = data.rounds.map((r) => r.teams[team]?.buy_type).filter(Boolean);
-    return data.buy_types.map((bt) => ({ bt, pct: rs.length ? Math.round((rs.filter((x) => x === bt).length / rs.length) * 100) : 0 }));
+    return data.buy_types.map((bt) => ({ bt, count: rs.filter((x) => x === bt).length,
+      pct: rs.length ? Math.round((rs.filter((x) => x === bt).length / rs.length) * 100) : 0 }));
   };
-  const Bar = ({ team, r, dir }: { team: string; r: MatchEconomy["rounds"][number]; dir: "l" | "r" }) => {
-    const x = r.teams[team];
-    if (!x || x.equip == null || !x.buy_type) return <span className="rb-bar-wrap" />;
-    return (
-      <span className={`rb-bar-wrap ${dir}`}>
-        <span className="rb-bar"
-          style={{ width: `${Math.max(8, (x.equip / max) * 100)}%`, background: BUY_FILL[x.buy_type], color: BUY_INK[x.buy_type] }}
-          title={t(x.won ? "{team} · {buy} · {money} · ฝั่ง {side} · ชนะ" : "{team} · {buy} · {money} · ฝั่ง {side}",
-            { team, buy: t(BUY_LABEL[x.buy_type]), money: money(x.equip), side: x.side.toUpperCase() })}>
-          {money(x.equip)}
-        </span>
-      </span>
-    );
-  };
+  const rounds = filter ? data.rounds.filter((round) => round.teams[filter.team]?.buy_type === filter.buy) : data.rounds;
   return (
     <section className="card" data-testid="econ-breakdown">
       <div className="card-head">
@@ -389,29 +450,67 @@ function RoundBreakdown({ data }: { data: MatchEconomy }) {
           <div key={team} className="rb-share-team">
             <h3><i style={{ background: TEAM_COLOR[i] }} />{team}</h3>
             <ul>
-              {share(team).map(({ bt, pct }) => (
-                <li key={bt}><i style={{ background: BUY_FILL[bt] }} /><b>{pct}%</b><span>{t(BUY_LABEL[bt])}</span></li>
-              ))}
+              {share(team).map(({ bt, pct, count }) => {
+                const key = `${i}-${bt}`;
+                return <li key={bt}><button type="button" className="rb-share-button"
+                  aria-label={`${team} · ${t(BUY_LABEL[bt])} · ${pct}%`}
+                  aria-pressed={filter?.team === team && filter.buy === bt}
+                  aria-describedby={hoveredBuy === key ? `${id}-buy` : undefined}
+                  onMouseEnter={() => setHoveredBuy(key)} onMouseLeave={() => setHoveredBuy(null)}
+                  onFocus={() => setHoveredBuy(key)} onBlur={() => setHoveredBuy(null)}
+                  onKeyDown={(event) => { if (event.key === "Escape") setHoveredBuy(null); }}
+                  onClick={() => { setHoveredBuy(null); setFilter((current) => current?.team === team && current.buy === bt ? null : { team, buy: bt }); }}>
+                  <i style={{ background: BUY_FILL[bt] }} /><b>{pct}%</b><span>{t(BUY_LABEL[bt])}</span>
+                </button>
+                  {hoveredBuy === key && <EconomyTooltip id={`${id}-buy`}><strong>{team} · {t(BUY_LABEL[bt])}</strong>
+                    <span>{t("{n} รอบ", { n: count })} · {pct}%</span><small>{t("คลิกเพื่อกรองรายการรอบ")}</small></EconomyTooltip>}
+                </li>;
+              })}
             </ul>
           </div>
         ))}
       </div>
+      {filter && <div className="econ-active-filter" role="status">
+        <span>{filter.team} · {t(BUY_LABEL[filter.buy])} · {t("{n} รอบ", { n: rounds.length })}</span>
+        <button type="button" className="btn-ghost" onClick={() => setFilter(null)}>{t("แสดงทุกรอบ")}</button>
+      </div>}
       <ol className="rb-rows">
-        {data.rounds.map((r) => (
+        {rounds.map((r) => (
           <li key={r.round_num} className={r.round_num === 13 ? "after-half" : ""}>
-            <Bar team={a} r={r} dir="l" />
-            <span className="rb-mid" title={t("{team} ชนะ · {reason}", { team: r.winner_team ?? "?", reason: endReasonLabel(r.end_reason) })}>
+            <Link className="rb-round-link" to={`/matches/${encodeURIComponent(demo)}/rounds/${r.round_num}`}
+              aria-label={t("เปิดรอบ {n}", { n: r.round_num })} aria-describedby={hoveredRound === r.round_num ? `${id}-round` : undefined}
+              onMouseEnter={() => setHoveredRound(r.round_num)} onMouseLeave={() => setHoveredRound(null)}
+              onFocus={() => setHoveredRound(r.round_num)} onBlur={() => setHoveredRound(null)}
+              onKeyDown={(event) => { if (event.key === "Escape") setHoveredRound(null); }}>
+            <RoundEquipmentBar team={a} round={r} dir="l" max={max} />
+            <span className="rb-mid">
               <i className={r.winner_team === a ? "on" : ""} style={{ background: r.winner_team === a ? TEAM_COLOR[0] : undefined }} />
               <b>{r.round_num}</b>
               <i className={r.winner_team === b ? "on" : ""} style={{ background: r.winner_team === b ? TEAM_COLOR[1] : undefined }} />
             </span>
-            <Bar team={b} r={r} dir="r" />
+            <RoundEquipmentBar team={b} round={r} dir="r" max={max} />
+            </Link>
+            {hoveredRound === r.round_num && <EconomyTooltip id={`${id}-round`} style={{ left: "50%", transform: "translateX(-50%)" }}>
+              <RoundEconomyDetails data={data} round={r} />
+            </EconomyTooltip>}
           </li>
         ))}
       </ol>
+      {!rounds.length && <p className="muted">{t("ไม่มีรอบแบบนี้")}</p>}
       <ul className="rb-legend small">
         {data.buy_types.map((bt) => <li key={bt}><i style={{ background: BUY_FILL[bt] }} />{t(BUY_LABEL[bt])}</li>)}
       </ul>
     </section>
   );
+}
+
+function RoundEquipmentBar({ team, round, dir, max }: {
+  team: string; round: MatchEconomy["rounds"][number]; dir: "l" | "r"; max: number;
+}) {
+  const entry = round.teams[team];
+  if (!entry || entry.equip == null || !entry.buy_type) return <span className="rb-bar-wrap" />;
+  return <span className={`rb-bar-wrap ${dir}`}><span className="rb-bar"
+    style={{ width: `${Math.max(8, (entry.equip / max) * 100)}%`, background: BUY_FILL[entry.buy_type], color: BUY_INK[entry.buy_type] }}>
+    {money(entry.equip)}
+  </span></span>;
 }

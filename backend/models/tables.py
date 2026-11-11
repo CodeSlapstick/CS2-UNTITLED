@@ -14,7 +14,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, REAL
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, REAL
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -277,6 +277,7 @@ class PlayerPosition(Base):
     has_defuser: Mapped[bool | None] = mapped_column(Boolean)
     money: Mapped[int | None] = mapped_column(Integer)
     has_bomb: Mapped[bool | None] = mapped_column(Boolean)
+    utility_inventory: Mapped[list[str] | None] = mapped_column(ARRAY(Text))
 
     __table_args__ = (
         CheckConstraint("side IN ('ct', 't')", name="player_positions_side_check"),

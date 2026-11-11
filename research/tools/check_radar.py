@@ -1,29 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-check_radar.py — validate radar calibration values in assets/radars.json
-
-    python research/tools/check_radar.py                        check every calibrated map
-    python research/tools/check_radar.py de_dust2               check one map
-    python research/tools/check_radar.py de_dust2 --try -2476 3239 4.4    try values without modifying files
-    python research/tools/check_radar.py de_dust2 --png         save an image with death positions overlaid
-
-Problem addressed by this script
-    Incorrect pos_x, pos_y, or scale values do not produce an obvious error because the radar still renders.
-    A heatmap may look plausible while every point is misplaced, leading to incorrect conclusions.
-
-Validation method
-    CS2 radar PNGs use opaque pixels for walkable areas and transparency outside the map.
-    Project real death positions onto the image using the same formula as the application:
-        px = (game_x - pos_x) / scale
-        py = (pos_y - game_y) / scale
-    Then measure the percentage that lands on opaque pixels; deaths should occur in walkable areas.
-
-    Correct calibration normally scores 99% or more; incorrect values drop noticeably.
-
-    This works because the validation signal is already present in the data rather than being a subjective score.
-    The same principle is used throughout the project.
-"""
 import argparse
 import asyncio
 import json

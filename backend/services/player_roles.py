@@ -1,4 +1,3 @@
-"""Cached inference for the research player-role artifact. Never trains in a request."""
 from __future__ import annotations
 
 import json
@@ -43,7 +42,6 @@ def load_role_model(path: str | None = None, *, map_name: str | None = None) -> 
 
 
 def _valid_models(models: Any) -> bool:
-    """Reject malformed artifacts at load time instead of failing during a request."""
     if not isinstance(models, dict):
         return False
     for side in ("t", "ct"):
@@ -110,7 +108,6 @@ def assign_profile(profile: dict[str, Any], side: str, model: dict[str, Any]) ->
 
 
 def build_match_profiles(round_rows: Iterable[Any], kill_rows: Iterable[Any], tickrate: float) -> list[dict[str, Any]]:
-    """Build the same kill-event proxy features used by research/models/player_role.py."""
     stats: dict[tuple[int, str], dict[str, Any]] = {}
     side_at: dict[tuple[int, int], str] = {}
     for raw in round_rows:

@@ -20,64 +20,121 @@ from backend.repositories.coach import load_coach_facts  # noqa: E402
 from backend.services.coach import CONTEXT_FEATURES, OPENING_FEATURES, VERSION, build_coach_samples  # noqa: E402
 
 SEED = 42
+PATTERN_COUNT = 4
+MIN_TRAINING_ROUNDS = 120
+MIN_TRAINING_MATCHES = 8
+HOLDOUT_SHARE = 0.25
+FOCUSED_AREA_SHARE = 0.45
+NAMING_AREA_FEATURES = {"A": "a_15", "Mid": "mid_15", "B": "b_15", "Other": "other_15"}
 
 
-def fit_policy(samples, clusters=4):
-    x = np.array([r["opening"] for r in samples], dtype=float)
-    scaler = StandardScaler().fit(x)
-    km = KMeans(n_clusters=clusters, n_init=20, random_state=SEED).fit(scaler.transform(x))
-    labels = km.labels_
-    winning = np.array([r["won"] is True for r in samples])
-    contexts = np.array([r["context"] for r in samples], dtype=float)
-    policy = RandomForestClassifier(n_estimators=64, max_depth=5, min_samples_leaf=15,
-                                    random_state=SEED, n_jobs=1).fit(contexts[winning], labels[winning])
-    return scaler, km, policy, labels
+def fit_policy(samples: list[dict], clusters: int = PATTERN_COUNT):
+    openings = np.array([sample["opening"] for sample in samples], dtype=float)
+    scaler = StandardScaler().fit(openings)
+    opening_model = KMeans(n_clusters=clusters, n_init=20, random_state=SEED).fit(scaler.transform(openings))
+    pattern_labels = opening_model.labels_
+
+    winning_rounds = np.array([sample["won"] is True for sample in samples])
+    contexts = np.array([sample["context"] for sample in samples], dtype=float)
+    policy = RandomForestClassifier(
+        n_estimators=64, max_depth=5, min_samples_leaf=15, random_state=SEED, n_jobs=1,
+    ).fit(contexts[winning_rounds], pattern_labels[winning_rounds])
+    return scaler, opening_model, policy, pattern_labels
 
 
-def train_side(samples):
-    if len(samples) < 120 or len({r["match_id"] for r in samples}) < 8:
-        return None
-    groups = np.array([r["match_id"] for r in samples])
-    train_idx, test_idx = next(GroupShuffleSplit(n_splits=1, test_size=.25, random_state=SEED).split(samples, groups=groups))
-    train = [samples[i] for i in train_idx]
-    test = [samples[i] for i in test_idx if samples[i]["won"]]
-    scaler, km, policy, _ = fit_policy(train)
-    truth = km.predict(scaler.transform([r["opening"] for r in test]))
-    context = [r["context"] for r in test]
-    pred = policy.predict(context)
-    train_winning_labels = km.predict(scaler.transform([r["opening"] for r in train if r["won"]]))
-    baseline_class = int(np.bincount(train_winning_labels).argmax())
-    accuracy = float(accuracy_score(truth, pred))
-    baseline = float(np.mean(truth == baseline_class))
-    validation = {"target": "pattern_used_in_winning_reference_round", "method": "match_disjoint_holdout",
-                  "train_matches": sorted(set(int(groups[i]) for i in train_idx)),
-                  "test_matches": sorted(set(int(groups[i]) for i in test_idx)),
-                  "test_winning_rounds": len(test), "accuracy": accuracy, "baseline": baseline,
-                  "beats_baseline": accuracy > baseline}
-    scaler, km, policy, labels = fit_policy(samples)
+def evaluate_policy(samples: list[dict]) -> dict:
+    match_ids = np.array([sample["match_id"] for sample in samples])
+    train_indices, test_indices = next(
+        GroupShuffleSplit(n_splits=1, test_size=HOLDOUT_SHARE, random_state=SEED).split(samples, groups=match_ids)
+    )
+    training_samples = [samples[index] for index in train_indices]
+    test_winners = [samples[index] for index in test_indices if samples[index]["won"]]
+    scaler, opening_model, policy, _ = fit_policy(training_samples)
+
+    observed_labels = opening_model.predict(scaler.transform([sample["opening"] for sample in test_winners]))
+    predicted_labels = policy.predict([sample["context"] for sample in test_winners])
+    train_winning_labels = opening_model.predict(
+        scaler.transform([sample["opening"] for sample in training_samples if sample["won"]])
+    )
+    majority_label = int(np.bincount(train_winning_labels).argmax())
+    accuracy = float(accuracy_score(observed_labels, predicted_labels))
+    baseline_accuracy = float(np.mean(observed_labels == majority_label))
+
+    return {
+        "target": "pattern_used_in_winning_reference_round",
+        "method": "match_disjoint_holdout",
+        "train_matches": sorted(set(int(match_ids[index]) for index in train_indices)),
+        "test_matches": sorted(set(int(match_ids[index]) for index in test_indices)),
+        "test_winning_rounds": len(test_winners),
+        "accuracy": accuracy,
+        "baseline": baseline_accuracy,
+        "beats_baseline": accuracy > baseline_accuracy,
+    }
+
+
+def pattern_name(profile: np.ndarray, side: str) -> str:
+    areas = {name: profile[OPENING_FEATURES.index(feature)] for name, feature in NAMING_AREA_FEATURES.items()}
+    leading_area = max(areas, key=areas.get)
+    if leading_area == "Other" or areas[leading_area] < FOCUSED_AREA_SHARE:
+        return "Default spread" if side == "t" else "Balanced hold"
+    return f"{leading_area} pressure" if side == "t" else f"{leading_area}-weighted defense"
+
+
+def describe_patterns(samples: list[dict], labels: np.ndarray) -> dict:
     patterns = {}
-    for cls in range(4):
-        members = [r for r, label in zip(samples, labels, strict=True) if label == cls and r["won"]]
-        profile = np.mean([r["opening"] for r, label in zip(samples, labels, strict=True) if label == cls], axis=0)
-        areas = dict(zip(("A", "Mid", "B", "Other"), profile[4:8], strict=True))
-        lead = max(areas, key=areas.get)
-        if lead == "Other" or areas[lead] < .45:
-            name = "Default spread" if samples[0]["side"] == "t" else "Balanced hold"
-        else:
-            name = f"{lead} pressure" if samples[0]["side"] == "t" else f"{lead}-weighted defense"
-        patterns[str(cls)] = {"name": f"{name} · P{cls + 1}", "rounds": len(members),
-                              "matches": len({r["match_id"] for r in members}),
-                              "profile": {k: round(float(v), 4) for k, v in zip(OPENING_FEATURES, profile, strict=True)},
-                              "evidence": [{k: r[k] for k in ("match_id", "demo_file", "round_num", "side", "context")} for r in members]}
+    for pattern_id in range(PATTERN_COUNT):
+        winners = [
+            sample for sample, label in zip(samples, labels, strict=True)
+            if label == pattern_id and sample["won"]
+        ]
+        profile = np.mean(
+            [sample["opening"] for sample, label in zip(samples, labels, strict=True) if label == pattern_id],
+            axis=0,
+        )
+        name = pattern_name(profile, samples[0]["side"])
+        patterns[str(pattern_id)] = {
+            "name": f"{name} · P{pattern_id + 1}",
+            "rounds": len(winners),
+            "matches": len({sample["match_id"] for sample in winners}),
+            "profile": {key: round(float(value), 4) for key, value in zip(OPENING_FEATURES, profile, strict=True)},
+            "evidence": [
+                {key: sample[key] for key in ("match_id", "demo_file", "round_num", "side", "context")}
+                for sample in winners
+            ],
+        }
+    return patterns
+
+
+def serialize_forest(policy: RandomForestClassifier) -> list[dict]:
     trees = []
     for estimator in policy.estimators_:
         tree = estimator.tree_
-        trees.append({"left": tree.children_left.tolist(), "right": tree.children_right.tolist(),
-                      "feature": tree.feature.tolist(), "threshold": tree.threshold.tolist(),
-                      "values": tree.value[:, 0, :].tolist()})
-    return {"mean": scaler.mean_.tolist(), "scale": scaler.scale_.tolist(), "centers": km.cluster_centers_.tolist(),
-            "classes": [int(c) for c in policy.classes_], "trees": trees, "patterns": patterns,
-            "validation": validation, "training_rounds": len(samples)}
+        trees.append({
+            "left": tree.children_left.tolist(),
+            "right": tree.children_right.tolist(),
+            "feature": tree.feature.tolist(),
+            "threshold": tree.threshold.tolist(),
+            "values": tree.value[:, 0, :].tolist(),
+        })
+    return trees
+
+
+def train_side(samples: list[dict]) -> dict | None:
+    if len(samples) < MIN_TRAINING_ROUNDS or len({sample["match_id"] for sample in samples}) < MIN_TRAINING_MATCHES:
+        return None
+
+    validation = evaluate_policy(samples)
+    scaler, opening_model, policy, labels = fit_policy(samples)
+    return {
+        "mean": scaler.mean_.tolist(),
+        "scale": scaler.scale_.tolist(),
+        "centers": opening_model.cluster_centers_.tolist(),
+        "classes": [int(label) for label in policy.classes_],
+        "trees": serialize_forest(policy),
+        "patterns": describe_patterns(samples, labels),
+        "validation": validation,
+        "training_rounds": len(samples),
+    }
 
 
 async def main(args):

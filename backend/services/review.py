@@ -1,17 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-backend/services/review.py — ประกอบข้อมูลหน้า Round Review จากแถวในฐานข้อมูล + output/grid_ml1.json
-    ส่วนแรกของไฟล์คือสูตรแปลงพิกัดเกม -> ช่องกริด / พิกเซลเรดาร์ (ห้ามเขียนสูตรนี้ที่อื่น)
-
-    ฟังก์ชันทุกตัวรับ dict/list ธรรมดา ไม่แตะฐานข้อมูลเอง — app.py เป็นคน query แล้วส่งเข้ามา
-    จึงทดสอบด้วย pytest ได้โดยไม่ต้องมี PostgreSQL
-
-grid_ml1.json
-    อ่านครั้งเดียวแล้วเก็บในหน่วยความจำ (อ่านใหม่เฉพาะเมื่อไฟล์ถูกเขียนทับ) — ไม่รัน grid_ml1.py ตอน request
-    ตัวเลขทุกตัวในนั้นมาจาก "ทั้งดาต้าเซ็ต N แมตช์" (รวมแมตช์ที่กำลังดูอยู่ด้วย) ไม่ใช่จากรอบนี้
-    โมเดลใหม่มีเฉพาะ MeanShift hotspots; ยังอ่าน cells/clusters จาก artifact เก่าได้
-    ct_win เป็นสถิติการดวลในชุดอ้างอิง ไม่ใช่โอกาสชนะรอบ
-"""
 import json
 import math
 import os
@@ -25,29 +12,20 @@ import numpy as np
 from backend.config.settings import ROOT
 from backend.services.features import other_side
 
-# ==================================================================================================
-#
-#     from backend.review import radar_frame, cells_of, cell_of, world_to_pixel
-#     frame = radar_frame("de_mirage")
-#
-#
-# ==================================================================================================
 RADARS_JSON = ROOT / "assets" / "radars.json"
 
 
 @dataclass(frozen=True)
 class RadarFrame:
-    """ค่าปรับเทียบภาพเรดาร์ของแมพหนึ่ง (จาก radars.json) + ขอบเขตที่ภาพกินในพิกัดเกม"""
     map_name: str
-    image: str      # path ภายใต้ assets/ เช่น "/maps/de_mirage.png"
-    size: int       # ภาพเป็นจัตุรัส size x size พิกเซล
-    pos_x: float    # พิกัดเกมของมุมบนซ้ายของภาพ
+    image: str
+    size: int
+    pos_x: float
     pos_y: float
-    scale: float    # หนึ่งพิกเซล = กี่หน่วยเกม
+    scale: float
 
     @property
     def span(self) -> float:
-        """ความกว้างของภาพเป็นหน่วยเกม (1024 พิกเซล x 5.0 = 5120 บน Mirage)"""
         return self.size * self.scale
 
     @property
@@ -60,7 +38,7 @@ class RadarFrame:
 
     @property
     def y_top(self) -> float:
-        return self.pos_y            # แกน y ในเกมนับขึ้น ขอบบนของภาพจึงเป็นค่ามาก
+        return self.pos_y
 
     @property
     def y_bottom(self) -> float:
@@ -68,7 +46,6 @@ class RadarFrame:
 
     @property
     def extent(self) -> tuple[float, float, float, float]:
-        """(x_left, x_right, y_bottom, y_top) — แบบที่ matplotlib imshow(extent=...) ต้องการ"""
         return (self.x_left, self.x_right, self.y_bottom, self.y_top)
 
     def cell_size(self, grid_n: int) -> float:
@@ -81,12 +58,6 @@ def load_radars() -> dict:
 
 @lru_cache(maxsize=32)
 def site_of(x: float | None, y: float | None, map_name: str) -> str | None:
-    """บอมบ์ลงไซต์ไหน ตัดสินจากพิกัดจุดวาง — 'A' / 'B' / None ถ้าไม่รู้
-
-    ทำไมไม่ใช้ค่าที่ parser ส่งมา: awpy ส่ง bomb_site เป็น 'bombsite_b' ทุกแถว ซึ่งผิด
-    (ในชุดอ้างอิง Mirage มี 61% ที่ลง A จริง ๆ) จึงตัดสินจากพิกัดเทียบศูนย์กลางไซต์ใน radars.json
-    ซึ่งวัดมาจากจุดตายที่เดโมระบุชื่อไซต์มาเอง — สูตรอยู่ที่นี่ที่เดียวทั้ง parser และ backfill
-    """
     if x is None or y is None:
         return None
     sites = (load_radars().get(map_name) or {}).get("sites")
@@ -102,7 +73,6 @@ def site_of(x: float | None, y: float | None, map_name: str) -> str | None:
 
 
 def radar_frame(map_name: str) -> RadarFrame | None:
-    """ค่าปรับเทียบของแมพ — None ถ้าแมพนี้ยังไม่มีใน radars.json"""
     r = load_radars().get(map_name)
     if not isinstance(r, dict):
         return None
@@ -110,12 +80,6 @@ def radar_frame(map_name: str) -> RadarFrame | None:
 
 
 def cells_of(xs, ys, frame: RadarFrame, grid_n: int) -> tuple[np.ndarray, np.ndarray]:
-    """พิกัดเกม -> ช่องกริด (cx, cy) แบบ vectorized สำหรับนับและแสดงจุดตาย
-
-    (พิกัด - ขอบ) // ขนาดช่อง = อยู่ช่องที่เท่าไร
-    np.clip บีบให้อยู่ในช่วง 0 ถึง grid_n-1 กันจุดที่ตกริมขอบพอดีหลุดออกนอกตาราง
-    cy นับจากขอบล่าง (y_bottom) ขึ้นไป — แถว 0 คือแถวล่างสุดของแมพ
-    """
     cell = frame.cell_size(grid_n)
     cx = np.clip((np.asarray(xs, dtype=float) - frame.x_left) // cell, 0, grid_n - 1).astype(int)
     cy = np.clip((np.asarray(ys, dtype=float) - frame.y_bottom) // cell, 0, grid_n - 1).astype(int)
@@ -123,13 +87,11 @@ def cells_of(xs, ys, frame: RadarFrame, grid_n: int) -> tuple[np.ndarray, np.nda
 
 
 def cell_of(x: float, y: float, frame: RadarFrame, grid_n: int) -> tuple[int, int]:
-    """จุดเดียว — เรียกตัว vectorized ข้างบน เพื่อให้ผลตรงกันทุกทศนิยม ไม่มีสูตรสองชุด"""
     cx, cy = cells_of([x], [y], frame, grid_n)
     return int(cx[0]), int(cy[0])
 
 
 def cell_rect_world(cx: int, cy: int, frame: RadarFrame, grid_n: int) -> tuple[float, float, float, float]:
-    """ขอบของช่องในพิกัดเกม (x0, y0, x1, y1) — y0 คือขอบล่าง"""
     cell = frame.cell_size(grid_n)
     x0 = frame.x_left + cx * cell
     y0 = frame.y_bottom + cy * cell
@@ -137,31 +99,20 @@ def cell_rect_world(cx: int, cy: int, frame: RadarFrame, grid_n: int) -> tuple[f
 
 
 def world_to_pixel(x: float, y: float, frame: RadarFrame) -> tuple[float, float]:
-    """พิกัดเกม -> พิกเซลบนภาพเรดาร์ (มุมบนซ้ายของภาพ = 0, 0 และ y พิกเซลนับลง)
-
-    ใช้แกน y จากบนลงล่าง เพื่อให้ตรงกับภาพเรดาร์บนหน้าเว็บ
-    """
     return (x - frame.pos_x) / frame.scale, (frame.pos_y - y) / frame.scale
 
 
 def cell_rect_pixel(cx: int, cy: int, frame: RadarFrame, grid_n: int) -> tuple[float, float, float]:
-    """มุมบนซ้ายของช่องเป็นพิกเซล + ความกว้างช่องเป็นพิกเซล (x, y, w) — ช่องเป็นจัตุรัส"""
     x0, _, _, y1 = cell_rect_world(cx, cy, frame, grid_n)
     px, py = world_to_pixel(x0, y1, frame)
     return px, py, frame.cell_size(grid_n) / frame.scale
 
 
 def in_frame(x: float, y: float, frame: RadarFrame) -> bool:
-    """จุดนี้อยู่บนภาพเรดาร์ไหม (ถ้าไม่อยู่ วาดแล้วจะหลุดขอบรูป)"""
     return frame.x_left <= x < frame.x_right and frame.y_bottom < y <= frame.y_top
 
 
 def nearest_within(x: float, y: float, centers: list[tuple[float, float]], radius: float) -> int | None:
-    """index ของจุดศูนย์กลางที่ใกล้ที่สุด ถ้าห่างไม่เกิน radius — ไม่งั้น None
-
-    กฎเดียวกับที่ sklearn MeanShift(cluster_all=False) ใช้แปะป้ายจุดตอน grid_ml1 หา hotspot:
-    ยอดที่ใกล้ที่สุด และระยะ <= bandwidth  (เกินจากนั้น = ไม่อยู่ใน hotspot ไหน)
-    """
     if not centers:
         return None
     c = np.asarray(centers, dtype=float)
@@ -170,21 +121,16 @@ def nearest_within(x: float, y: float, centers: list[tuple[float, float]], radiu
     return i if d[i] <= radius else None
 
 
-# ==================================================================================================
-# ==================================================================================================
 GRID_JSON = Path(os.environ.get("GRID_ML1_JSON", ROOT / "output" / "grid_ml1.json"))
 MODEL_ROOT = Path(os.environ.get("MODEL_ROOT", ROOT / "output" / "models"))
 
 TEAM_PALETTES = (
-    ("#22d3ee", "#34d399", "#a3e635", "#60a5fa", "#2dd4bf", "#86efac"),   # ทีมแรก (เรียงตามชื่อ): โทนฟ้า-เขียว
-    ("#f472b6", "#c084fc", "#fb7185", "#facc15", "#fb923c", "#e879f9"),   # ทีมที่สอง: โทนชมพู-ม่วง-เหลือง
+    ("#22d3ee", "#34d399", "#a3e635", "#60a5fa", "#2dd4bf", "#86efac"),
+    ("#f472b6", "#c084fc", "#fb7185", "#facc15", "#fb923c", "#e879f9"),
 )
 UNKNOWN_COLOUR = "#94a3b8"
 
 
-# ---------------------------------------------------------------------------
-# grid_ml1.json
-# ---------------------------------------------------------------------------
 @dataclass
 class GridModel:
     map_name: str
@@ -200,7 +146,6 @@ class GridModel:
 
     @property
     def source(self) -> dict:
-        """ข้อความอ้างที่มาที่ UI ต้องแสดงคู่กับตัวเลขเสมอ (กฎข้อ 1)"""
         return {"matches": self.matches, "duels": self.duels, "map": self.map_name,
                 "label": f"ทั้งดาต้าเซ็ต {self.matches} แมตช์ ({self.duels:,} การดวลบน {self.map_name})"}
 
@@ -214,7 +159,6 @@ def parse_grid_model(d: dict) -> GridModel:
         map_name=d["map"], grid_n=int(d.get("grid_n", 0)), min_kills=int(d.get("min_kills", 0)),
         matches=int(m["matches"]), duels=int(m["duels"]), ct_win_overall=float(m["ct_win_overall"]),
         bandwidth=float(m["bandwidth"]),
-        # Optional legacy fields; new training artifacts contain only hotspots.
         clusters={int(c["id"]): c for c in d.get("clusters", [])},
         cells={(int(c["cx"]), int(c["cy"])): c for c in d.get("cells", [])},
         hotspots=list(d["hotspots"]),
@@ -222,7 +166,6 @@ def parse_grid_model(d: dict) -> GridModel:
 
 
 def load_grid_model(path: Path | None = None, *, map_name: str | None = None) -> GridModel | None:
-    """โหลดโมเดลของแมพที่ขอ โดยรองรับ artifact แบบแยกแมพและไฟล์ legacy เดิม."""
     if path is None:
         configured = os.environ.get("GRID_ML1_JSON")
         candidates = ([Path(configured)] if configured else []) + (
@@ -244,21 +187,10 @@ def load_grid_model(path: Path | None = None, *, map_name: str | None = None) ->
 
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-ANALYSIS_GRID_N = 32      # ความละเอียดสำหรับนับจุดตายบนหน้า Analysis; ไม่ได้ใช้ KMeans
+ANALYSIS_GRID_N = 32
 
 
 def deaths_overlay(xs, ys, frame: RadarFrame, places=None, grid_n: int = ANALYSIS_GRID_N) -> dict:
-    """จุดตาย -> ช่องกริดพร้อมจำนวนและสัดส่วน เป็นพิกเซลบนภาพเรดาร์
-
-    ใช้ RadarFrame เดียวกับหน้ารอบ แต่นับข้อมูลแมตช์โดยตรงโดยไม่ต้องใช้โมเดล ML
-    share = สัดส่วนของจุดตายทั้งหมดในชุดนั้น ไม่ใช่จำนวนดิบ เพราะสองชุดมีจำนวนแมตช์ไม่เท่ากัน
-    เทียบจำนวนดิบกันตรง ๆ จะแปลว่า "ชุดที่มีแมตช์เยอะกว่าตายเยอะกว่า" ซึ่งไม่ได้บอกอะไรเลย
-
-    places = ชื่อ callout ของแต่ละจุดตาย (kills.victim_place) — ช่องหนึ่งช่องคืนชื่อที่พบบ่อยสุด
-    ไว้ให้คนอ่านรู้ว่าช่องนั้นอยู่ตรงไหนของแมพ เลขช่องอย่างเดียวไม่มีใครอ่านออก
-    """
     total = len(xs)
     if total == 0:
         return {"grid_n": grid_n, "deaths": 0, "cells": []}
@@ -280,8 +212,6 @@ def deaths_overlay(xs, ys, frame: RadarFrame, places=None, grid_n: int = ANALYSI
     return {"grid_n": grid_n, "deaths": total, "cells": cells}
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 def _hotspot_at(x: float, y: float, model: GridModel) -> dict | None:
     index = nearest_within(x, y, [(h["x"], h["y"]) for h in model.hotspots], model.bandwidth)
     if index is None:
@@ -292,12 +222,6 @@ def _hotspot_at(x: float, y: float, model: GridModel) -> dict | None:
 
 def death_context(x: float | None, y: float | None, victim_side: str | None, is_duel: bool,
                   model: GridModel | None, frame: RadarFrame | None) -> dict:
-    """หา hotspot จากโมเดลใหม่ และยังรองรับบริบทช่อง/กลุ่มจาก artifact เก่า
-
-    reason: None = มีข้อมูลครบ | "no_model" = ยังไม่มี grid_ml1 ของแมพนี้
-            "insufficient" = ไม่มี hotspot ใกล้จุดนี้ หรือไม่มีช่องใน artifact เก่า
-            "no_position" = ไม่มีพิกัด
-    """
     out = {"cell": None, "hotspot": None, "reason": None, "disadvantaged": None, "enemy_win": None}
     if x is None or y is None:
         out["reason"] = "no_position"
@@ -307,7 +231,6 @@ def death_context(x: float | None, y: float | None, victim_side: str | None, is_
         return out
 
     if not model.cells:
-        # No cell types or inferred disadvantage in the hotspot-only model.
         out["hotspot"] = _hotspot_at(x, y, model)
         if out["hotspot"] is None:
             out["reason"] = "insufficient"
@@ -335,8 +258,6 @@ def death_context(x: float | None, y: float | None, victim_side: str | None, is_
     return out
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 def _t(tick, start_tick, tickrate) -> float | None:
     if tick is None or start_tick is None or not tickrate:
         return None
@@ -344,18 +265,6 @@ def _t(tick, start_tick, tickrate) -> float | None:
 
 
 def player_groups(roster: list[dict]) -> list[list[int]]:
-    """แบ่งผู้เล่นเป็นกลุ่มละทีม แต่ละกลุ่มเรียงตาม steam_id — กฎเดียวที่สีและหมายเลขใช้ร่วมกัน
-
-    ปกติแบ่งตามชื่อทีม (team_clan) เรียงตามตัวอักษร
-
-    เดโมจาก Matchmaking / Faceit ไม่มีชื่อทีม ถ้าแบ่งตามชื่อจะได้กลุ่มเดียว 10 คน
-    แล้วหมายเลขผู้เล่นจะกลายเป็น 1-10 แทนที่จะเป็น 1-5 สองชุด
-    กรณีนั้นจึงถอยไปแบ่งตามฝั่งที่ "เริ่มเกม" (start_side) ซึ่งไม่เปลี่ยนตลอดแมตช์
-    จึงให้ผลคงที่เท่ากับชื่อทีม ต่างจาก side ของรอบที่สลับกันครึ่งหลัง
-
-    เรียงสมาชิกตาม steam_id ไม่ใช่ชื่อ เพราะชื่อในเกมเปลี่ยนกลางแมตช์ได้ แต่ steam_id ไม่เปลี่ยน
-    เปิดดูแมตช์เดิมกี่ครั้งก็ได้ลำดับเดิม
-    """
     by_team = all((r.get("team") or "").strip() for r in roster)
     key = "team" if by_team else "start_side"
     keys = sorted({(r.get(key) or "").strip() for r in roster}) if by_team else ["ct", "t"]
@@ -364,7 +273,6 @@ def player_groups(roster: list[dict]) -> list[list[int]]:
 
 
 def player_colours(roster: list[dict]) -> dict[int, str]:
-    """สีต่อคน คงที่ทั้งแมตช์ (ไม่ผูกกับ CT/T เพราะทีมสลับฝั่งทุกครึ่ง)"""
     out = {}
     for gi, members in enumerate(player_groups(roster)):
         palette = TEAM_PALETTES[gi] if gi < len(TEAM_PALETTES) else (UNKNOWN_COLOUR,)
@@ -374,14 +282,6 @@ def player_colours(roster: list[dict]) -> dict[int, str]:
 
 
 def player_slots(roster: list[dict]) -> dict[int, int]:
-    """หมายเลข 1-5 ต่อคน คงที่ทั้งแมตช์ — เลขที่แสดงบนตัวผู้เล่นในโหมดเล่นย้อน
-
-    ใช้ player_groups() ตัวเดียวกับสี หมายเลขจึงไม่ขยับตอนสลับฝั่งครึ่งหลัง
-    (สลับฝั่งเปลี่ยนแค่ side ที่ใช้เลือกสีฟ้า/ส้ม ไม่แตะหมายเลข)
-
-    ทั้งสองทีมนับ 1 ใหม่ — ในหนึ่งรอบจึงมีเลข 1 สองคน แยกกันด้วยสีของฝั่ง
-    คนที่ไม่อยู่ในกลุ่มไหนเลย (ข้อมูลทีมและฝั่งขาดทั้งคู่) จะไม่มีหมายเลข หน้าเว็บแสดง ?
-    """
     return {sid: i + 1 for members in player_groups(roster) for i, sid in enumerate(members)}
 
 
@@ -398,10 +298,6 @@ NADE_DISPLAY_RADIUS = {"smoke": 144, "molotov": 120}
 
 
 def _person_factory(roster: list[dict], in_round: list[dict]):
-    """คืน (person, info, side_now, colours, slots) — person(sid, name, side) ประกอบข้อมูลคนหนึ่งคนให้หน้าเว็บ
-
-    สีและหมายเลขมาจาก roster ทั้งแมตช์ ไม่ใช่เฉพาะรอบนี้ คนคนเดิมจึงได้สีและเลขเดิมทุกรอบ
-    """
     colours = player_colours(roster)
     slots = player_slots(roster)
     info = {int(r["steam_id"]): r for r in roster}
@@ -420,7 +316,6 @@ def _person_factory(roster: list[dict], in_round: list[dict]):
 
 def _death_rows(kills: list[dict], person, *, start, tickrate: int,
                 frame: RadarFrame | None, model: GridModel | None) -> list[dict]:
-    """การตายทุกครั้งในรอบ พร้อมพิกเซลบนเรดาร์และบริบทจาก grid_ml1"""
     deaths = []
     for i, k in enumerate(kills, 1):
         victim = person(k["victim_id"], k.get("victim_name"), k.get("victim_side"))
@@ -448,7 +343,6 @@ def _death_rows(kills: list[dict], person, *, start, tickrate: int,
 
 
 def build_grenade_rows(grenades: list[dict], person, *, start, tickrate: int, frame: RadarFrame | None) -> list[dict]:
-    """ระเบิด: endpoints, effect time และ trajectory จริง (ถ้ามี) เป็นพิกเซลเรดาร์"""
     nades = []
     for g in grenades:
         land_t, end_t = _t(g.get("land_tick"), start, tickrate), _t(g.get("end_tick"), start, tickrate)
@@ -486,7 +380,6 @@ def build_grenade_rows(grenades: list[dict], person, *, start, tickrate: int, fr
 
 def _team_rows(side_now: dict[int, str], info: dict[int, dict], colours: dict[int, str],
                slots: dict[int, int], deaths: list[dict]) -> list[dict]:
-    """จัดกล่องทีมตาม team_clan ไม่ใช่ side; หัวกล่องบอก side ของรอบนี้ CT อยู่ซ้าย/บน"""
     teams: dict[str, dict] = {}
     for sid in sorted(side_now):
         p = info.get(sid, {"name": str(sid), "team": None})
@@ -508,7 +401,6 @@ def _team_rows(side_now: dict[int, str], info: dict[int, dict], colours: dict[in
 
 
 def _bomb_marker(rnd: dict, frame: RadarFrame | None) -> dict | None:
-    """ไอคอนบอมบ์บนแผนที่ — None ถ้ารอบนั้นไม่มีการวาง"""
     if rnd.get("bomb_plant_x") is None or rnd.get("bomb_plant_y") is None:
         return None
     px = world_to_pixel(rnd["bomb_plant_x"], rnd["bomb_plant_y"], frame) if frame else None
@@ -516,7 +408,6 @@ def _bomb_marker(rnd: dict, frame: RadarFrame | None) -> dict | None:
 
 
 def _round_summary(deaths: list[dict], winner: str | None) -> dict:
-    """สรุปรอบ: ใครตายคนแรก ฝั่งนั้นแพ้ไหม และการตายแบบเสียเปรียบของแต่ละฝั่ง"""
     first = deaths[0] if deaths else None
     disadv = {"ct": 0, "t": 0}
     for d in deaths:
@@ -538,15 +429,6 @@ def _round_summary(deaths: list[dict], winner: str | None) -> dict:
 def build_round_detail(*, match: dict, rnd: dict, roster: list[dict], in_round: list[dict], kills: list[dict],
                        frame: RadarFrame | None, model: GridModel | None, grenades: list[dict] = (),
                        latest_damage_tick: int | None = None, damages: list[dict] = ()) -> dict:
-    """payload ของหนึ่งรอบ
-
-    match    {id, demo_file, map_name, tickrate, team_a, team_b}
-    rnd      {round_num, start_tick, winner_side, end_reason, bomb_plant_tick, bomb_plant_x, bomb_plant_y, bomb_site}
-    roster   ทุกคนในแมตช์ [{steam_id, name, team, start_side}] — ใช้ให้สีและหมายเลขคงที่ทั้งแมตช์
-    in_round คนที่เล่นรอบนี้ [{steam_id, side, survived}]
-    kills    การตายในรอบนี้ เรียงตาม tick แล้ว (คอลัมน์ตามตาราง kills + attacker_name/victim_name/assister_name)
-    grenades ระเบิดในรอบนี้ (คอลัมน์ตามตาราง grenades + thrower_name) — ใครขว้างอะไร จากไหน ตกที่ไหน
-    """
     tickrate = int(match["tickrate"] or 128)
     start = rnd["start_tick"]
     winner = rnd.get("winner_side")
@@ -590,10 +472,7 @@ def build_round_detail(*, match: dict, rnd: dict, roster: list[dict], in_round: 
     }
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 def build_round_positions(positions: list[dict], *, start_tick, tickrate: int, frame: RadarFrame | None) -> dict:
-    """สร้าง payload ที่เก็บ tick จริงและอนุมานความถี่จากข้อมูล จึงรองรับ fixture 1 Hz เดิม"""
     by_tick: dict[int, dict[str, dict]] = {}
     for r in positions:
         tick = int(r["tick"])
@@ -612,8 +491,6 @@ def build_round_positions(positions: list[dict], *, start_tick, tickrate: int, f
             player["yaw"] = float(r["yaw"])
         if r.get("flash_remaining") is not None and float(r["flash_remaining"]) > 0:
             player["flash_remaining"] = float(r["flash_remaining"])
-        # Optional equipment is omitted for legacy parses instead of repeating four null fields
-        # in every snapshot. New parses retain every real value (including false/0).
         if r.get("active_weapon") is not None:
             player["active_weapon"] = r["active_weapon"]
         if r.get("armor") is not None:
@@ -626,6 +503,8 @@ def build_round_positions(positions: list[dict], *, start_tick, tickrate: int, f
             player["money"] = int(r["money"])
         if r.get("has_bomb") is not None:
             player["has_bomb"] = bool(r["has_bomb"])
+        if r.get("utility_inventory") is not None:
+            player["utility_inventory"] = list(r["utility_inventory"])
         by_tick.setdefault(tick, {}).setdefault(player["steamid"], player)
     ticks = sorted(by_tick)
     frames = [
@@ -648,13 +527,10 @@ def build_round_positions(positions: list[dict], *, start_tick, tickrate: int, f
 
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 HEATMAP_EVENTS = ("kills", "deaths", "positions", "smoke", "flash", "he", "molotov")
 
 
 def heatmap_points(xs, ys, frame: RadarFrame) -> list[list[float]]:
-    """พิกัดเกม -> [[px, py], ...] บนภาพเรดาร์ ทิ้งจุดที่ไม่มีพิกัดหรืออยู่นอกภาพ"""
     out: list[list[float]] = []
     for x, y in zip(xs, ys, strict=True):
         if x is None or y is None or not in_frame(x, y, frame):
@@ -664,17 +540,10 @@ def heatmap_points(xs, ys, frame: RadarFrame) -> list[list[float]]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
 TEAM_BUY_TYPES = ("pistol", "eco", "semi_eco", "semi_buy", "full")
 
 
 def build_economy(econ: list[dict], sides: list[dict], roster: list[dict]) -> dict:
-    """econ = แถวจาก round_economy · sides = [{round_num, steam_id, side}] · roster = _review_roster()
-
-    คืน {teams: [ทีมที่เริ่ม CT, อีกทีม], rounds: [{round_num, winner_side, end_reason, winner_team,
-         teams: {ชื่อทีม: {side, equip, buy_type, won}}}]}
-    """
     team_of = {int(p["steam_id"]): (p.get("team") or "ไม่ทราบทีม") for p in roster}
     votes: dict[tuple[int, str], Counter] = {}
     for s in sides:

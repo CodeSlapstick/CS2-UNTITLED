@@ -6,6 +6,7 @@ research/Map_Ml/
 
 # ผลลัพธ์ที่โปรแกรมสร้าง สร้างใหม่ได้เสมอ
 output/
+output.zip
 *.png
 artifacts/
 tmp/

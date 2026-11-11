@@ -152,3 +152,49 @@ it("keeps map zoom controls working alongside replay", () => {
   fireEvent.click(screen.getByRole("button", { name: "เต็มแมพ" }));
   expect(width()).toBe(1024);
 });
+
+it("moves held utility beside armor, restores knife switching, and keeps health readable as a meter", async () => {
+  setup();
+  const positions = (weapon: string): RoundPositions => ({ step: 1, t_end: 10, note: "Recorded positions",
+    frames: [{ t: 0, players: [{ steamid: "1", px: [500, 500], hp: 29, side: "t", place: null,
+      active_weapon: weapon, armor: 100 }] }] });
+  await act(async () => { client.setQueryData(["review-positions", "match.dem", 1], positions("Smoke Grenade")); });
+  const row = screen.getByTestId("roster-row");
+  await vi.waitFor(() => expect(screen.getByRole("meter", { name: "Player One HP" }).getAttribute("aria-valuenow")).toBe("29"));
+  expect(row.querySelector(".roster-weapon-slot svg")).toBeNull();
+  expect(row.querySelectorAll(".pgear svg").length).toBe(2);
+  expect(document.querySelector(".live-weapon-icon")).toBeNull();
+  await act(async () => { client.setQueryData(["review-positions", "match.dem", 1], positions("knife")); });
+  await vi.waitFor(() => expect(row.querySelector(".roster-weapon-slot svg")).not.toBeNull());
+  await vi.waitFor(() => expect(row.querySelectorAll(".pgear svg").length).toBe(1));
+  expect(document.querySelector(".live-weapon-icon")).not.toBeNull();
+  await act(async () => { client.setQueryData(["review-positions", "match.dem", 1], positions("AK-47")); });
+  await vi.waitFor(() => expect(row.querySelector(".roster-weapon-slot svg")).not.toBeNull());
+  expect(document.querySelector(".live-weapon-icon")).not.toBeNull();
+});
+
+it("shows the complete recorded inventory after the defuse kit, including duplicate flashes", async () => {
+  setup();
+  const positions = (inventory: string[]): RoundPositions => ({ step: 1, t_end: 10, note: "Recorded positions",
+    frames: [{ t: 0, players: [{ steamid: "1", px: [500, 500], hp: 100, side: "ct", place: null,
+      active_weapon: "Karambit", armor: 100, has_defuser: true, utility_inventory: inventory }] }] });
+  await act(async () => { client.setQueryData(["review-positions", "match.dem", 1], positions(["Smoke Grenade", "Flashbang", "Flashbang", "HE Grenade"])); });
+  await vi.waitFor(() => expect(document.querySelectorAll(".roster-utility").length).toBe(4));
+  const gear = document.querySelector(".pgear")!;
+  expect(gear.children[2].className).toBe("roster-utility");
+  expect(gear.querySelectorAll('span[title="Flashbang"]').length).toBe(2);
+  await act(async () => { client.setQueryData(["review-positions", "match.dem", 1], positions([])); });
+  await vi.waitFor(() => expect(document.querySelectorAll(".roster-utility").length).toBe(0));
+});
+
+it("shows match K/D/A by Steam ID even for a dead player, without inventing missing totals", async () => {
+  setup();
+  const row = screen.getByTestId("roster-row");
+  expect(row.querySelector(".roster-kda")?.textContent).toContain("— / — / —");
+  await act(async () => { client.setQueryData(["match", 1], { scoreboard: [
+    { steam_id: "other", name: "Player One", kills: 99, deaths: 99, assists: 99 },
+    { steam_id: "1", name: "Player One", kills: 12, deaths: 8, assists: 4 },
+  ] }); });
+  await vi.waitFor(() => expect(row.querySelector(".roster-kda")?.textContent).toContain("12 / 8 / 4"));
+  expect(row.getAttribute("data-dead")).toBe("1");
+});

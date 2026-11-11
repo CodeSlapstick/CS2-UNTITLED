@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { api, isBusy, matchesQuery, type Match, type RoundListItem } from "@/shared/api";
-import { Breadcrumb, endReasonLabel, MapThumb, MatchTabs, matchTitle, NotFound, num, sideLabel } from "@/shared/ui/utils";
+import { endReasonLabel, MapThumb, MatchTabs, matchTitle, NotFound, num, sideLabel } from "@/shared/ui/utils";
 import { tr, useT } from "@/shared/i18n";
 
 // ================================================================================================
@@ -22,7 +22,7 @@ export function MatchPage() {
 
   return (
     <div className="match-page" data-testid="match-page">
-      <Breadcrumb items={[{ label: t("แมตช์"), to: "/matches" }, { label: matchTitle(entry) }]} />
+      <Link className="back-link" to="/matches">‹ {t("แมตช์")}</Link>
       <MatchHead entry={entry} />
       {entry.status === "done" && <MatchTabs demo={entry.demo_file} />}
       {entry.status === "done" ? (
@@ -31,7 +31,6 @@ export function MatchPage() {
           <section className="card">
             <div className="card-head">
               <h2>{t("สกอร์บอร์ด")}</h2>
-              <span className="muted small">{t("เรียงตาม Rating · กดชื่อเพื่อดูสถิติรายคน")}</span>
             </div>
             <MatchScoreboard matchId={entry.id} />
           </section>
@@ -55,7 +54,6 @@ function MatchHead({ entry }: { entry: Match }) {
         <p className="muted small">
           {entry.map_name ?? t("ยังไม่รู้แมพ")}
           {done && <> · {t("{n} รอบ", { n: num(entry.rounds) })} · {t("{n} คิล", { n: num(entry.kills) })}</>}
-          <span className="mono" title={t("ชื่อไฟล์เดโม")}> · {entry.demo_file}</span>
         </p>
         </div>
       </div>
@@ -96,7 +94,6 @@ function RoundTiles({ demo }: { demo: string }) {
     <section className="card" data-testid="round-table">
       <div className="card-head">
         <h2>{t("ผลรายรอบ")}</h2>
-        <span className="muted small">{t("กดรอบไหนก็เปิดดูบนแผนที่")}</span>
       </div>
       <div className="halves">
         {[...groups].map(([label, rows]) => (
@@ -154,10 +151,17 @@ export function MatchScoreboard({ matchId }: { matchId: number }) {
 
   const features = q.data.features ?? {};
   const hasFeatures = Object.keys(features).length > 0;
-  const rows = [...q.data.scoreboard].sort((a, b) => b.rating - a.rating);
+  const groups = (["ct", "t", null] as const).map((side) => ({
+    side,
+    rows: q.data.scoreboard.filter((p) => p.start_side === side).sort((a, b) => a.name.localeCompare(b.name) || a.steam_id.localeCompare(b.steam_id)),
+  })).filter((group) => group.rows.length > 0);
 
   return (
-    <div className="tbl-wrap" data-testid="scoreboard">
+    <div className="match-team-scoreboards" data-testid="scoreboard">
+      {groups.map(({ side, rows }) => (
+      <section className={`match-team-scoreboard side-${side ?? "unknown"}`} key={side ?? "unknown"}>
+      <h3>{side ? `${t("ฝั่งเริ่ม")} ${sideLabel(side)}` : "—"} <span>{rows.length}</span></h3>
+      <div className="tbl-wrap">
       <table className="tbl compact">
         <thead>
           <tr>
@@ -197,6 +201,9 @@ export function MatchScoreboard({ matchId }: { matchId: number }) {
           })}
         </tbody>
       </table>
+      </div>
+      </section>
+      ))}
       {!hasFeatures && <p className="muted small">{t("แมตช์นี้ยังไม่มีฟีเจอร์ opening / trade / clutch — โหลดเดโมซ้ำเพื่อคำนวณ")}</p>}
     </div>
   );

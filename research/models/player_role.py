@@ -66,7 +66,6 @@ ROLE_SIGNATURES: dict[str, dict[str, dict[str, float]]] = {
 
 
 def load_kills_csv(path: Path, map_name: str | None = None) -> pd.DataFrame:
-    """อ่าน all_kills ที่สร้างจาก demos/reference และตรวจ schema ก่อนเทรน"""
     if not path.is_file():
         raise ValueError(f"ไม่พบไฟล์ {path}")
     kills = pd.read_csv(path, low_memory=False)
@@ -102,7 +101,6 @@ def _mode(series: pd.Series) -> Any:
 
 
 def _csv_participants(kills: pd.DataFrame) -> pd.DataFrame:
-    """แปลง attacker/victim/assister เป็นตารางคนรูปเดียวกัน"""
     parts = []
     for who in ("attacker", "victim", "assister"):
         part = kills[[
@@ -147,7 +145,6 @@ _COMBAT_COUNT_COLUMNS = [
 
 
 def _round_roster(participants: pd.DataFrame) -> pd.DataFrame:
-    """Include each known teammate in every round their team played."""
     roster = (participants.groupby(["demo_file", "map_name", "steam_id"], as_index=False)
               .agg(name=("name", _mode), team=("team", _mode)))
     team_rounds = (participants[["demo_file", "map_name", "round_num", "team", "side"]]
@@ -158,7 +155,6 @@ def _round_roster(participants: pd.DataFrame) -> pd.DataFrame:
 
 
 def _live_kills(kills: pd.DataFrame) -> pd.DataFrame:
-    """Prepare the combat events used by counts and location profiles."""
     live = kills[kills["is_live_round_kill"].fillna(False).astype(bool)].copy()
     live["round_time_seconds"] = pd.to_numeric(live["round_time_seconds"], errors="coerce")
     live["trade_kill_count"] = pd.to_numeric(live["trade_kill_count"], errors="coerce").fillna(0)
@@ -167,7 +163,6 @@ def _live_kills(kills: pd.DataFrame) -> pd.DataFrame:
 
 
 def _add_combat_counts(base: pd.DataFrame, live: pd.DataFrame) -> pd.DataFrame:
-    """Merge attacker, victim and assist counts onto player-round rows."""
     keys = ["demo_file", "round_num", "steam_id"]
     attack = (live.groupby(["demo_file", "round_num", "attacker_steamid"], as_index=False)
               .agg(
@@ -205,8 +200,6 @@ def _add_combat_counts(base: pd.DataFrame, live: pd.DataFrame) -> pd.DataFrame:
 
 
 def _place_profiles(live: pd.DataFrame) -> pd.DataFrame:
-    """Summarize callout diversity and concentration per player-match-side."""
-    # Callout diversity/concentration is a kill-event proxy for anchor/rotation behaviour.
     attack_places = live[["demo_file", "attacker_steamid", "attacker_side", "attacker_place"]].rename(
         columns={"attacker_steamid": "steam_id", "attacker_side": "side", "attacker_place": "place"})
     victim_places = live[["demo_file", "victim_steamid", "victim_side", "victim_place"]].rename(
@@ -223,7 +216,6 @@ def _place_profiles(live: pd.DataFrame) -> pd.DataFrame:
 
 
 def _summarize_profiles(base: pd.DataFrame, place_profile: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate player-round counts and attach the location summary."""
     profile_keys = ["match_id", "demo_file", "map_name", "steam_id", "name", "team", "side"]
     sums = {column: "sum" for column in _COMBAT_COUNT_COLUMNS}
     sums["round_num"] = "count"
@@ -235,7 +227,6 @@ def _summarize_profiles(base: pd.DataFrame, place_profile: pd.DataFrame) -> pd.D
 
 
 def _add_profile_rates(out: pd.DataFrame) -> pd.DataFrame:
-    """Keep all training feature formulas together, including zero-kill handling."""
     rounds = out["rounds"].clip(lower=1)
     kills_n = out["kills"].clip(lower=1)
     out["kills_per_round"] = out["kills"] / rounds
@@ -259,7 +250,6 @@ def _add_profile_rates(out: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS) -> pd.DataFrame:
-    """Build profiles through roster, event counts, locations and feature rates."""
     participants = _csv_participants(kills)
     if participants.empty:
         return pd.DataFrame()
@@ -275,7 +265,6 @@ def build_profiles_from_kills(kills: pd.DataFrame, min_rounds: int = MIN_ROUNDS)
 def assign_role_names(centers_z: np.ndarray, side: str, features: list[str],
                       signatures_by_side: dict[str, dict[str, dict[str, float]]] | None = None,
                       ) -> tuple[list[str], np.ndarray]:
-    """Find the globally best one-to-one mapping from centroids to role names."""
     roles = ROLE_ORDER[side]
     signatures = (signatures_by_side or ROLE_SIGNATURES)[side]
     score = np.zeros((len(centers_z), len(roles)))
@@ -300,7 +289,6 @@ def assign_role_names(centers_z: np.ndarray, side: str, features: list[str],
 
 def bootstrap_stability(x: np.ndarray, labels: np.ndarray, seed: int, n_bootstraps: int,
                         n_clusters: int = N_CLUSTERS) -> float:
-    """Mean ARI between full-fit labels and bootstrap model predictions."""
     rng = np.random.default_rng(seed)
     scores = []
     for i in range(n_bootstraps):
@@ -317,7 +305,6 @@ def fit_side(profiles: pd.DataFrame, side: str, seed: int = SEED,
              signatures_by_side: dict[str, dict[str, dict[str, float]]] | None = None,
              n_clusters: int = N_CLUSTERS,
              ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Fit and describe one side-specific model."""
     features = features or (CSV_T_FEATURES if side == "t" else CSV_CT_FEATURES)
     rows = profiles[profiles["side"] == side].copy()
     if len(rows) < n_clusters * 3:

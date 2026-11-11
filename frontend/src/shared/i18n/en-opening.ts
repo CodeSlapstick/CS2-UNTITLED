@@ -1,4 +1,10 @@
 export const EN_OPENING: Record<string, string> = {
+  "กำลังโหลดตำแหน่งช่วงเปิดรอบ…": "Loading opening positions…",
+  "นำเข้าแมตช์ที่มีตำแหน่งผู้เล่นก่อน": "Import a match with recorded player positions first.",
+  "ตัวเล่นช่วงเปิดรอบ": "Opening replay player",
+  "ดูช่วงเปิดรอบ": "Opening replay",
+  "จุดที่ตาย": "Death location",
+  "ตำแหน่งสุดท้ายก่อนตาย": "Last recorded position before death",
   "แผนที่": "Map",
   "ขอบเขต": "Scope",
   "หยุดชั่วคราว": "Pause",

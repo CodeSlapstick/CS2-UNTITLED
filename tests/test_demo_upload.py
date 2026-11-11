@@ -62,6 +62,8 @@ class UploadConnection:
 
     async def execute(self, query, *args):
         self.calls.append((query, args))
+        if "pg_advisory_" in query:
+            return "SELECT 1"
         assert self.match is not None
         if "status = 'error'" in query:
             self.match.update(status="error", error_message=args[1])
@@ -159,14 +161,114 @@ def test_race_lost_at_insert_does_not_publish_staged_file(upload_env):
     enqueue.assert_not_called()
 
 
-def test_orphan_file_is_not_silently_overwritten(upload_env):
+def test_orphan_file_is_preserved_in_backup_and_new_upload_is_queued(upload_env):
     conn, enqueue, directory = upload_env
     (directory / "match.dem").write_bytes(b"orphaned original")
 
-    assert upload(conn).status_code == 409
+    assert upload(conn).status_code == 202
+    assert conn.match["status"] == "queued"
+    assert (directory / "match.dem").read_bytes() == DEMO
+    backups = list((directory / ".orphaned").iterdir())
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == b"orphaned original"
+    enqueue.assert_called_once_with(42)
+
+
+def test_invalid_upload_does_not_move_orphan_file(upload_env):
+    conn, enqueue, directory = upload_env
+    (directory / "match.dem").write_bytes(b"orphaned original")
+
+    assert upload(conn, content=b"invalid").status_code == 400
     assert conn.match is None
     assert (directory / "match.dem").read_bytes() == b"orphaned original"
+    assert not (directory / ".orphaned").exists()
     enqueue.assert_not_called()
+
+
+@pytest.mark.parametrize("failure", ["commit", "publish"])
+def test_failed_upload_restores_orphan_file(upload_env, monkeypatch, failure):
+    conn, enqueue, directory = upload_env
+    (directory / "match.dem").write_bytes(b"orphaned original")
+    if failure == "commit":
+        conn.commit_error = RuntimeError("commit failed")
+    else:
+        original_replace = type(directory).replace
+
+        def fail_publish(path, target):
+            if path.suffix == ".upload":
+                raise OSError("disk unavailable")
+            return original_replace(path, target)
+
+        monkeypatch.setattr(type(directory), "replace", fail_publish)
+
+    assert upload(conn).status_code == 500
+    assert conn.match is None
+    assert (directory / "match.dem").read_bytes() == b"orphaned original"
+    assert list((directory / ".orphaned").iterdir()) == []
+    assert not list(directory.glob("*.upload"))
+    enqueue.assert_not_called()
+
+
+def test_rollback_finishes_before_another_same_name_upload_can_publish(tmp_path, monkeypatch):
+    async def run():
+        lock = asyncio.Lock()
+        rolled_back = asyncio.Event()
+        second_waiting = asyncio.Event()
+
+        class OverlapConnection(UploadConnection):
+            @asynccontextmanager
+            async def transaction(self):
+                try:
+                    async with super().transaction():
+                        yield
+                except Exception:
+                    if self.commit_error:
+                        rolled_back.set()
+                        await second_waiting.wait()
+                    raise
+
+            async def execute(self, query, *args):
+                if "pg_advisory_lock(" in query:
+                    if lock.locked():
+                        second_waiting.set()
+                    await lock.acquire()
+                    return "SELECT 1"
+                if "pg_advisory_unlock(" in query:
+                    lock.release()
+                    return "SELECT 1"
+                return await super().execute(query, *args)
+
+        first, second = OverlapConnection(), OverlapConnection()
+        first.commit_error = RuntimeError("commit failed")
+        (tmp_path / "match.dem").write_bytes(b"original orphan")
+        monkeypatch.setattr(routes, "DEMOS_DIR", tmp_path)
+        enqueue = Mock(return_value="job-42")
+        monkeypatch.setattr(routes, "enqueue_parse", enqueue)
+
+        async def request(conn, content):
+            return await routes.api_upload_demo(
+                file=UploadFile(file=BytesIO(content), filename="match.dem"), viewer=STEAM, conn=conn,
+            )
+
+        async def second_request():
+            await rolled_back.wait()
+            return await request(second, DEMO + b" second upload")
+
+        results = await asyncio.wait_for(asyncio.gather(
+            request(first, DEMO), second_request(), return_exceptions=True,
+        ), timeout=10)
+        assert isinstance(results[0], RuntimeError)
+        assert results[1].status_code == 202
+        assert first.match is None
+        assert second.match["status"] == "queued"
+        assert (tmp_path / "match.dem").read_bytes() == DEMO + b" second upload"
+        backups = list((tmp_path / ".orphaned").iterdir())
+        assert len(backups) == 1
+        assert backups[0].read_bytes() == b"original orphan"
+        assert not lock.locked()
+        enqueue.assert_called_once_with(42)
+
+    asyncio.run(run())
 
 
 def test_queue_failure_marks_error_and_keeps_uploaded_demo(upload_env):

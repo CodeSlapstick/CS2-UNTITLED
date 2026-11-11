@@ -3,6 +3,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import { api, matchesQuery, type HeatEvent, type MatchHeatmap } from "@/shared/api";
 import { useT } from "@/shared/i18n";
+import { useViewportFit } from "@/shared/ui/useViewportFit";
 import { Breadcrumb, MapThumb, MatchTabs, matchTitle, NADE_ICON, NotFound, num } from "@/shared/ui/utils";
 
 // ================================================================================================
@@ -64,6 +65,7 @@ export function HeatmapPage() {
 
 function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string; totalRounds: number }) {
   const { t, tn } = useT();
+  const viewportRef = useViewportFit();
   const [params, setParams] = useSearchParams();
   const ev = (EVENTS.find((e) => e.key === params.get("ev"))?.key ?? "kills") as HeatEvent;
   const side = (SIDES.find((s) => s.key === params.get("side"))?.key ?? "all") as Side;
@@ -136,7 +138,7 @@ function HeatmapBody({ demo, title, totalRounds }: { demo: string; title: string
       </div>
       <MatchTabs demo={demo} />
 
-      <div className="heat-grid">
+      <div className="heat-grid" ref={viewportRef}>
         <section className="heat-map-col" aria-label={t("แผนที่ heatmap")}>
           <div className="heat-map">
             {q.error ? (

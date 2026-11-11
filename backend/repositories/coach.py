@@ -1,6 +1,3 @@
-"""Shared SQL adapter for Coach training and match inference; no model fitting."""
-
-
 async def load_coach_facts(conn, map_name: str, *, match_id: int | None = None, reference_only: bool = False):
     reference = "AND m.source = 'reference'" if reference_only else ""
     where = f"m.status = 'done' AND m.map_name = $1 AND ($2::int IS NULL OR m.id = $2) {reference}"

@@ -1,9 +1,3 @@
-"""Coach feature/model owner. Observational tactic candidates, never causal advice.
-
-Opening pattern discovery uses recorded 5/15/25s spatial summaries and 0-30s
-Utility. Recommendation input uses ONLY pre-round equipment/phase. No target
-round result, movement or Utility enters the recommendation input.
-"""
 import json
 import math
 import os
@@ -100,8 +94,6 @@ def build_coach_samples(data: dict, map_name: str = "de_mirage") -> list[dict]:
             ticks = {p["tick"] for p in points}
             tick = min(ticks, key=lambda t: abs(t - (start + time * rate))) if complete and ticks else None
             snap = [p for p in points if p["tick"] == tick and p.get("place")]
-            # No synthetic snapshots: requires >=3 observed living players and
-            # an actual sample within 0.6s of the requested time (legacy 1Hz).
             if tick is None or abs(tick - (start + time * rate)) / rate > .6 or len(snap) < 3:
                 complete = False
                 break
