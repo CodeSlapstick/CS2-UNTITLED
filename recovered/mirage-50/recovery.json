@@ -1,0 +1,9 @@
+{
+  "source_commit": "d239c08b5f24",
+  "source_path": "data/all_kills.csv",
+  "matches": 50,
+  "kill_events": 7270,
+  "map": "de_mirage",
+  "contains_raw_demos": false,
+  "contains_full_replay": false
+}

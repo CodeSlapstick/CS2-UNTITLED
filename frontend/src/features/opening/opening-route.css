@@ -1,0 +1,71 @@
+.opening-page { max-width: 1440px; margin: auto; }
+.page:has(.opening-page) { max-width: 1488px; }
+.opening-filters.card { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; padding: 16px; }
+.opening-filters.filters label { display: grid; gap: 6px; flex: 1 1 180px; font-size: var(--fs-sm); color: var(--muted); }
+.opening-filters select { width: 100%; }
+.opening-side { display: flex; gap: 8px; }
+.opening-side button[aria-pressed="true"] { border-color: currentColor; background: var(--card-2); }
+.opening-side button:first-child[aria-pressed="true"] { color: var(--t-ink); }
+.opening-side button:last-child[aria-pressed="true"] { color: var(--ct-ink); }
+.opening-summary { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 20px 0 8px; }
+.opening-summary span { color: var(--muted); font-size: var(--fs-sm); }
+.opening-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: 16px; margin-top: 16px; align-items: stretch; height: var(--viewport-space, calc(100dvh - 380px)); min-height: 280px; }
+.opening-main.card { min-width: 0; min-height: 0; padding: 0; margin-top: 0; overflow: hidden; display: flex; flex-direction: column; }
+.opening-viewer-head { display: flex; flex: none; align-items: center; gap: 16px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.opening-viewer-head h2 { margin: 0; font-size: var(--fs-sm); }
+.opening-death-key { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: var(--fs-xs); }
+.opening-death-key svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.opening-viewer-head .opening-clock { margin-left: auto; text-align: right; }
+.opening-map-stage { display: grid; flex: 1; min-height: 0; place-items: center; background: #07111f; }
+.opening-radar { display: block; width: 100%; height: 100%; min-height: 0; }
+.opening-playback { display: flex; flex: none; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 12px; border-top: 1px solid var(--line); }
+.opening-playback button { display: inline-flex; gap: 8px; align-items: center; }
+.opening-play-button { display: grid; place-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid var(--ct); border-radius: 4px; background: var(--ct); color: #fff; cursor: pointer; }
+.opening-play-button:hover { filter: brightness(1.12); }
+.opening-speeds { display: flex; gap: 5px; }
+.opening-speed { min-height: 32px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 3px; background: var(--card); color: var(--muted); cursor: pointer; font-variant-numeric: tabular-nums; }
+.opening-speed[aria-pressed="true"] { border-color: var(--ct); background: color-mix(in srgb, var(--ct) 14%, var(--card)); color: var(--ct-ink); }
+.opening-timeline { order: 2; flex: 1 1 100%; min-width: 100px; }
+.opening-timeline input { width: 100%; }
+.opening-clock { font-family: "Chakra Petch", sans-serif; font-variant-numeric: tabular-nums; min-width: 95px; }
+.opening-opacity { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); font-size: var(--fs-xs); }
+.opening-opacity input { width: 110px; }
+.opening-shortcuts { color: var(--muted); font-size: var(--fs-xs); }
+.opening-page input[type="range"] { accent-color: var(--ct); padding: 0; cursor: pointer; }
+.opening-rounds.card { padding: 16px 0 0; overflow: hidden; margin-top: 0; min-height: 0; display: flex; flex-direction: column; }
+.opening-rounds h2 { padding: 0 16px; font-size: var(--fs-md); }
+.opening-round-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 12px; font-size: var(--fs-xs); }
+.opening-round-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.opening-round { display: flex; align-items: center; border-top: 1px solid var(--line-2); }
+.opening-round.is-hidden { opacity: .5; }
+.opening-round-toggle { color: var(--text); display: flex; flex: 1; gap: 10px; min-width: 0; text-align: left; padding: 12px; border: 0; background: transparent; border-radius: 0; }
+.opening-round-toggle:hover { background: var(--card-2); }
+.opening-round-number { color: var(--route-color); border: 1px solid currentColor; border-radius: var(--r); width: 28px; height: 28px; display: grid; place-items: center; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.opening-round-copy { display: grid; min-width: 0; gap: 4px; }
+.opening-round-copy strong { font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.opening-round-copy small { color: var(--muted); font-size: var(--fs-xs); }
+.opening-evidence { flex-shrink: 0; margin-right: 12px; font-size: var(--fs-xs); }
+.opening-map-missing { min-height: 300px; display: grid; place-items: center; color: var(--muted); }
+.opening-marker { fill: var(--route-color); stroke: var(--bg); stroke-width: 2; }
+.opening-marker-label { fill: var(--bg); font-family: "Chakra Petch", sans-serif; font-weight: 700; }
+.opening-death-marker path { fill: none; stroke: var(--route-color); stroke-linecap: round; }
+.opening-death-marker .opening-death-outline { stroke: #07111f; }
+.opening-death-marker text { fill: var(--route-color); stroke: #07111f; stroke-width: 3; paint-order: stroke; font: 700 13px "Chakra Petch", sans-serif; }
+.opening-series-0 { --route-color: var(--route-series-1); }
+.opening-series-1 { --route-color: var(--route-series-2); }
+.opening-series-2 { --route-color: var(--route-series-3); }
+.opening-series-3 { --route-color: var(--route-series-4); }
+.opening-series-4 { --route-color: var(--route-series-5); }
+.opening-series-5 { --route-color: var(--route-series-6); }
+.opening-series-6 { --route-color: var(--route-series-7); }
+.opening-series-7 { --route-color: var(--route-series-8); }
+@media (max-width: 800px) {
+  .opening-layout { grid-template-columns: 1fr; height: auto; }
+  .opening-round-scroll { max-height: 340px; }
+  .opening-map-stage { flex: none; aspect-ratio: 1; }
+  .opening-playback { gap: 8px; }
+  .opening-timeline { order: 2; flex-basis: 100%; }
+  .opening-opacity { order: 3; margin-left: 0; }
+  .opening-shortcuts { display: none; }
+  .opening-speed, .opening-play-button { min-width: 40px; min-height: 40px; }
+}

@@ -1,0 +1,83 @@
+{
+  "upload": {
+    "source": "Media/upload.gif",
+    "poster_frame": 36,
+    "crop": [
+      0,
+      0,
+      1138,
+      640
+    ],
+    "preview": "upload.webm"
+  },
+  "replay": {
+    "source": "Media/2d demo reviewer.gif",
+    "poster_frame": 103,
+    "crop": [
+      239,
+      0,
+      899,
+      640
+    ],
+    "preview": "replay.webm"
+  },
+  "heatmap": {
+    "source": "Media/heatmap.gif",
+    "poster_frame": 93,
+    "crop": [
+      48,
+      0,
+      1090,
+      640
+    ],
+    "preview": "heatmap.webm"
+  },
+  "economy": {
+    "source": "Media/economy.gif",
+    "poster_frame": 50,
+    "crop": [
+      220,
+      0,
+      918,
+      640
+    ],
+    "preview": "economy.webm"
+  },
+  "analysis": {
+    "source": "Media/analysis page .gif",
+    "poster_frame": 62,
+    "crop": [
+      161,
+      0,
+      977,
+      640
+    ],
+    "preview": "analysis.webm"
+  },
+  "opening": {
+    "source": "Media/open route.gif",
+    "poster_frame": 57,
+    "crop": [
+      0,
+      1,
+      1138,
+      639
+    ],
+    "preview": "opening.webm"
+  },
+  "report": {
+    "source": "Media/coach export .gif",
+    "poster_frame": 54,
+    "crop": [
+      0,
+      0,
+      1138,
+      640
+    ],
+    "preview": "report.webm"
+  },
+  "demo": {
+    "source": "Media/demoweb1.mp4",
+    "output": "demoweb1.mp4"
+  }
+}

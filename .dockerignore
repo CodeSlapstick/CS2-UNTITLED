@@ -1,0 +1,34 @@
+# ไฟล์ demo ดิบ — ไฟล์ละหลายร้อย MB ถ้าไม่ตัด build context จะบวมจน build ช้ามาก
+demos/
+*.dem
+# ชุดเดโมฝึกหลายแมพเก็บแยกใต้ research ระหว่างเตรียมข้อมูล ห้ามคัดลอกเข้า image
+research/Map_Ml/
+
+# ผลลัพธ์ที่โปรแกรมสร้าง สร้างใหม่ได้เสมอ
+output/
+output.zip
+*.png
+artifacts/
+tmp/
+
+# ประวัติ git กับของ Python
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ของที่ไม่เกี่ยวกับตอนรัน
+.vscode/
+.idea/
+.codex/
+
+# frontend build ทำใน image ของตัวเอง ไม่ต้องเข้า image ของ backend
+node_modules/
+frontend/
+
+# Local credentials must never enter an image.
+.env
+.env.*
+!.env.example

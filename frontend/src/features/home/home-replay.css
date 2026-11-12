@@ -1,0 +1,31 @@
+.home-stage { width: min(620px, 100%); justify-self: center; align-self: center; }
+.home-stage .stage-head { height: 42px; padding-inline: 12px; }
+.home-stage .stage-body { grid-template-columns: minmax(0, 1fr) 150px; height: 340px; min-height: 0; }
+.home-stage .stage-map { width: 100%; height: 340px; aspect-ratio: auto; min-width: 0; display: grid; place-items: center; min-height: 0; background: #0a0f1a; }
+.home-stage .stage-map svg.radar { width: 100%; height: 100%; max-height: 340px; display: block; border-radius: 0; }
+.home-stage .stage-map-hud { position: absolute; top: 10px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; color: #f2f5f9; font: 600 11px "Chakra Petch", sans-serif; }
+.home-stage .stage-map-hud > span, .home-stage .stage-map-hud button { background: #101722dd; padding: 5px 8px; border: 1px solid #334156; border-radius: 4px; }
+.home-stage .stage-map-hud button { color: #f2f5f9; cursor: pointer; pointer-events: auto; }
+.stage-sidebar { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--h-panel-2); }
+.stage-rosters { padding: 10px; display: grid; gap: 12px; }
+.stage-team h3 { display: flex; justify-content: space-between; margin: 0 0 5px; padding-bottom: 6px; border-bottom: 1px solid currentColor; font-size: 11px; }
+.stage-team.ct h3 { color: var(--ct-ink); }
+.stage-team.t h3 { color: var(--t-ink); }
+.stage-team h3 span { color: var(--h-muted); font-weight: 400; }
+.stage-team button { width: 100%; display: grid; grid-template-columns: 17px 1fr auto; align-items: center; gap: 6px; padding: 4px; border: 0; border-radius: 3px; background: transparent; color: var(--h-text); text-align: left; font: 500 10px "Anuphan", sans-serif; cursor: pointer; }
+.stage-team button:hover, .stage-team button:focus-visible { background: var(--h-line); }
+.stage-team button i { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font: 600 10px "Chakra Petch", sans-serif; background: var(--ct); color: white; }
+.stage-team.t button i { background: var(--t); }
+.stage-team button b { color: var(--h-muted); font-weight: 400; font-size: 9px; }
+.stage-team button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-team button.dead { opacity: .4; }
+.stage-team button.dead i { background: var(--h-muted); }
+.home-stage .stage-controls { height: 46px; grid-template-columns: 30px minmax(0, 1fr) 48px auto; gap: 10px; }
+.stage-speed { width: 48px; padding: 4px 2px; border: 1px solid var(--h-line); border-radius: 4px; background: var(--h-panel-2); color: var(--h-text); font: 600 11px "Chakra Petch", sans-serif; }
+@media (max-width: 760px) {
+  .home-stage .stage-body { grid-template-columns: minmax(0, 1fr); height: auto; min-height: 0; }
+  .home-stage .stage-map { height: min(340px, 75vw); min-height: 0; border-right: 0; }
+  .home-stage .stage-map svg.radar { max-height: 340px; }
+  .stage-rosters { grid-template-columns: 1fr 1fr; gap: 18px; border-top: 1px solid var(--h-line); }
+  .home-stage .stage-controls { gap: 7px; padding-inline: 10px; }
+}

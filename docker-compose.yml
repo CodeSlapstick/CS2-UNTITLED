@@ -1,0 +1,105 @@
+#
+#   docker compose up -d                       # db + redis + api + worker + frontend  ->  http://localhost:3000
+#
+#
+
+x-backend: &backend
+  build: .
+  environment: &backend-env
+    DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-cs2_analytics}
+    REDIS_URL: redis://redis:6379/0
+    QUEUE_BACKEND: rq
+  volumes:
+    - ./demos:/app/demos            # ไฟล์ .dem ที่อัปโหลด — api เขียน worker อ่าน ต้องเห็นโฟลเดอร์เดียวกัน
+    - ./output:/app/output          # ผล parse และ artifact จาก research/ ที่รันในเครื่อง
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cs2-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-cs2_analytics}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cs2_analytics}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: cs2-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  api:
+    <<: *backend
+    container_name: cs2-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      <<: *backend-env
+      SECRET_KEY: ${SECRET_KEY:-}              # กุญแจเซ็น JWT — ไม่ตั้ง = สุ่มใหม่ทุกครั้งที่ api รีสตาร์ต (ทุกคนต้องล็อกอินใหม่)
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}       # 1 = คุกกี้ส่งเฉพาะ HTTPS
+      STEAM_API_KEY: ${STEAM_API_KEY:-}           # ล็อกอินด้วย Steam: ไม่ใส่ก็ยังล็อกอินได้ แค่ไม่ได้ชื่อ/รูป
+      STEAM_ALLOWED_IDS: ${STEAM_ALLOWED_IDS:-}   # ว่าง = ใครมี Steam ก็เข้าได้
+      PUBLIC_URL: ${PUBLIC_URL:-}                 # ว่าง = เดาจาก Host ของคำขอ (ผ่าน nginx ของ compose ถูกต้องอยู่แล้ว)
+      GUEST_DEMO_FILE: ${GUEST_DEMO_FILE:-}       # Guest ดูได้เฉพาะเดโมนี้; ว่าง = รายการแรกที่พร้อม
+    command: sh -c "alembic upgrade head && python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  worker:
+    <<: *backend
+    container_name: cs2-worker
+    restart: unless-stopped
+    command: python -m backend.jobs
+    healthcheck:
+      test: ["CMD", "python", "-c", "from backend.jobs import queue_health; h=queue_health(); raise SystemExit(0 if h.get('ok') and h.get('workers', 0) > 0 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    container_name: cs2-frontend
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pgdata:

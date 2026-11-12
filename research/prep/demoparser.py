@@ -1,0 +1,292 @@
+
+import argparse
+import hashlib
+import sys
+import time
+from pathlib import Path
+
+import polars as pl
+from awpy import Demo
+from awpy.parsers.rounds import create_round_df
+
+ROOT = Path(__file__).resolve().parents[2]
+
+DEMO_DIR = ROOT / "demos" / "reference"
+CACHE_DIR = ROOT / "output" / "kills_cache"
+OUT_CSV = ROOT / "data" / "all_kills.csv"
+CACHE_SCHEMA_VERSION = "kills-v2"
+DEFAULT_TICKRATE = 128
+EARLY_ENGAGEMENT_SECONDS = 25
+TRADE_WINDOW_SECONDS = 5
+
+sys.path.insert(0, str(ROOT))
+from backend.services.features import assign_teams  # noqa: E402
+
+EVENTS = [
+    "player_death",
+    "round_start",
+    "round_freeze_end",
+    "round_end",
+    "round_officially_ended",
+    "bomb_planted",
+]
+
+PLAYER_PROPS = ["last_place_name", "X", "Y", "team_name", "team_clan_name"]
+
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
+
+def cache_path_for_demo(path: Path) -> Path:
+    """Build a cache key that changes with folder, file content metadata, and schema version."""
+    resolved = path.resolve()
+    try:
+        identity = resolved.relative_to(DEMO_DIR.resolve()).as_posix()
+    except ValueError:
+        identity = resolved.as_posix()
+    stat = resolved.stat()
+    raw = f"{CACHE_SCHEMA_VERSION}:{identity}:{stat.st_size}:{stat.st_mtime_ns}"
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return CACHE_DIR / f"{path.stem}-{digest}.parquet"
+
+
+def parse_one(path: Path) -> pl.DataFrame:
+
+    dem = Demo(path)
+    dem.events = dem.parse_events(EVENTS, player_props=PLAYER_PROPS)
+    dem.rounds = create_round_df(dem.events)
+
+
+    ctx = dem.rounds.select(
+        pl.col("round_num"),
+        pl.coalesce(pl.col("freeze_end"), pl.col("start")).alias("round_start_tick"),
+        pl.col("bomb_plant").alias("bomb_plant_tick"),
+    )
+
+    kills = dem.kills.join(ctx, on="round_num", how="left").with_columns(
+        pl.lit(path.name).alias("demo_file"),
+        pl.lit(dem.header.get("map_name", "unknown")).alias("map_name"),
+        pl.lit(dem.tickrate).alias("tickrate"),
+    )
+    return add_round_review_columns(kills)
+
+
+def add_round_review_columns(kills: pl.DataFrame) -> pl.DataFrame:
+    rows = []
+    for who in ("attacker", "victim"):
+        part = kills.select(
+            pl.col(f"{who}_steamid").cast(pl.Int64).alias("steam_id"),
+            pl.col("round_num"),
+            pl.col(f"{who}_side").alias("side"),
+            pl.col(f"{who}_team_clan_name").alias("clan") if f"{who}_team_clan_name" in kills.columns else pl.lit(None).alias("clan"),
+        ).drop_nulls("steam_id")
+        rows.extend(part.to_dicts())
+    team_of = assign_teams(rows)
+
+    def team_col(who: str) -> pl.Expr:
+        return (pl.col(f"{who}_steamid").cast(pl.Int64)
+                .replace_strict(team_of, default=None, return_dtype=pl.Utf8).alias(f"{who}_team_clan"))
+
+    raw_clan = [c for c in kills.columns if c.endswith("_team_clan_name")]
+    return kills.with_columns(
+        team_col("attacker"), team_col("victim"), team_col("assister"),
+    ).drop(raw_clan)
+
+
+ROLE_EVENT_COLUMNS = [
+    "round_time_seconds",
+    "is_enemy_kill",
+    "is_live_round_kill",
+    "round_kill_order",
+    "is_opening_kill",
+    "is_opening_death",
+    "is_early_engagement",
+    "is_postplant_kill",
+    "trade_kill_count",
+    "victim_was_traded",
+    "is_site_engagement",
+    "is_flash_assisted_kill",
+]
+
+MODEL_KILL_COLUMNS = [
+    "demo_file", "map_name", "round_num", "tick", "tickrate", "round_start_tick",
+    "bomb_plant_tick", "round_time_seconds",
+    "attacker_name", "attacker_steamid", "attacker_side", "attacker_team_clan",
+    "attacker_place", "attacker_X", "attacker_Y",
+    "victim_name", "victim_steamid", "victim_side", "victim_team_clan",
+    "victim_place", "victim_X", "victim_Y",
+    "assister_name", "assister_steamid", "assister_side", "assister_team_clan",
+    "weapon", "is_live_round_kill", "is_opening_kill", "is_opening_death",
+    "is_early_engagement", "is_postplant_kill", "is_site_engagement",
+    "is_flash_assisted_kill", "trade_kill_count", "victim_was_traded",
+]
+
+
+def select_model_columns(kills: pl.DataFrame) -> pl.DataFrame:
+    """Keep only columns consumed by Player Role and Grid ML1."""
+    missing = [column for column in MODEL_KILL_COLUMNS if column not in kills.columns]
+    if missing:
+        raise ValueError(f"all_kills is missing model columns: {', '.join(missing)}")
+    return kills.select(MODEL_KILL_COLUMNS)
+
+
+def _add_round_timing(kills: pl.DataFrame) -> pl.DataFrame:
+    """ระบุ kill ฝั่งตรงข้ามในรอบจริง และแปลง tick เป็นเวลาหลังเริ่มรอบ"""
+    rate = pl.col("tickrate").fill_null(DEFAULT_TICKRATE).clip(lower_bound=1)
+    enemy = (
+        pl.col("attacker_steamid").is_not_null()
+        & pl.col("attacker_side").is_in(["ct", "t"])
+        & pl.col("victim_side").is_in(["ct", "t"])
+        & (pl.col("attacker_side") != pl.col("victim_side"))
+    )
+    return kills.with_columns(
+        enemy.alias("is_enemy_kill"),
+        (enemy & pl.col("round_start_tick").is_not_null() & (pl.col("tick") >= pl.col("round_start_tick")))
+        .alias("is_live_round_kill"),
+        pl.when(pl.col("round_start_tick").is_not_null() & (pl.col("tick") >= pl.col("round_start_tick")))
+        .then((pl.col("tick") - pl.col("round_start_tick")) / rate)
+        .otherwise(None)
+        .alias("round_time_seconds"),
+    )
+
+
+def _add_event_flags(kills: pl.DataFrame) -> pl.DataFrame:
+    """เพิ่มลำดับ kill และ flags: opening, early, post-plant, site และ flash assist"""
+    return kills.with_columns(
+        pl.when(pl.col("is_live_round_kill"))
+        .then(pl.col("is_live_round_kill").cast(pl.Int64).cum_sum().over(["demo_file", "round_num"]))
+        .otherwise(None)
+        .cast(pl.Int64)
+        .alias("round_kill_order"),
+        (pl.col("is_live_round_kill") & pl.col("round_time_seconds").is_between(0, EARLY_ENGAGEMENT_SECONDS))
+        .alias("is_early_engagement"),
+        (
+            pl.col("is_live_round_kill")
+            & pl.col("bomb_plant_tick").is_not_null()
+            & (pl.col("tick") >= pl.col("bomb_plant_tick"))
+        ).alias("is_postplant_kill"),
+    ).with_columns(
+        (
+            pl.col("attacker_place").fill_null("").str.starts_with("Bombsite")
+            | pl.col("victim_place").fill_null("").str.starts_with("Bombsite")
+        ).alias("is_site_engagement"),
+        pl.col("assistedflash").fill_null(False).cast(pl.Boolean).alias("is_flash_assisted_kill"),
+    ).with_columns(
+        (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_kill"),
+        (pl.col("round_kill_order") == 1).fill_null(False).alias("is_opening_death"),
+    )
+
+
+def _add_trade_columns(ordered: pl.DataFrame) -> pl.DataFrame:
+    """ตรวจ kill คืนในรอบเดียวกัน โดยหนึ่ง kill อาจ trade ให้หลายคนได้"""
+    trade_count = [0] * len(ordered)
+    victim_traded = [False] * len(ordered)
+    for round_rows in ordered.partition_by(["demo_file", "round_num"], maintain_order=True):
+        prior: list[dict] = []
+        for row in round_rows.iter_rows(named=True):
+            if not row["is_live_round_kill"]:
+                continue
+            tickrate = row["tickrate"] or DEFAULT_TICKRATE
+            matched = [
+                death for death in prior
+                if row["tick"] > death["tick"]
+                and row["tick"] <= death["tick"] + TRADE_WINDOW_SECONDS * tickrate
+                and row["victim_steamid"] == death["attacker_steamid"]
+                and row["attacker_side"] == death["victim_side"]
+            ]
+            trade_count[row["_role_row"]] = len(matched)
+            for death in matched:
+                victim_traded[death["_role_row"]] = True
+            prior.append(row)
+
+    return ordered.with_columns(
+        pl.Series("trade_kill_count", trade_count, dtype=pl.Int64),
+        pl.Series("victim_was_traded", victim_traded, dtype=pl.Boolean),
+    )
+
+
+def add_role_event_columns(kills: pl.DataFrame) -> pl.DataFrame:
+    """ตรวจข้อมูล → เรียงเหตุการณ์ → คำนวณเวลา → เพิ่ม flags → ตรวจ trade"""
+    if kills.is_empty():
+        return kills
+
+    required = {
+        "demo_file", "round_num", "tick", "tickrate", "round_start_tick", "bomb_plant_tick",
+        "attacker_steamid", "victim_steamid", "attacker_side", "victim_side",
+        "attacker_place", "victim_place", "assistedflash",
+    }
+    missing = sorted(required - set(kills.columns))
+    if missing:
+        raise ValueError("all_kills is missing source columns for role features: " + ", ".join(missing))
+
+    # Rebuild derived columns so cached or previously processed input behaves the same.
+    existing = [column for column in ROLE_EVENT_COLUMNS if column in kills.columns]
+    if existing:
+        kills = kills.drop(existing)
+
+    ordered = kills.sort(["demo_file", "round_num", "tick"]).with_row_index("_role_row")
+    timed = _add_round_timing(ordered)
+    flagged = _add_event_flags(timed)
+    return _add_trade_columns(flagged).drop("_role_row")
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Parse reference demos into one role-ready CSV")
+    ap.add_argument("--limit", type=int, help="Parse only the first N demo files")
+    ap.add_argument("--force", action="store_true", help="Re-parse all demos instead of using cache")
+    ap.add_argument("--out", type=Path, default=OUT_CSV, help=f"Output CSV path (default: {OUT_CSV.name})")
+    args = ap.parse_args()
+
+    demos = sorted(DEMO_DIR.rglob("*.dem"))     # Includes map subfolders; ignores partial downloads
+    if not demos:
+        sys.exit(f"No .dem files found in {DEMO_DIR}")
+    if args.limit:
+        demos = demos[: args.limit]
+
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    frames, failed = [], []
+
+    for i, path in enumerate(demos, 1):
+        cache = cache_path_for_demo(path)
+        size_mb = path.stat().st_size / 1e6
+
+        if cache.exists() and not args.force:
+            frames.append(pl.read_parquet(cache))
+            print(f"[{i}/{len(demos)}] skip (cached) {path.name}", flush=True)
+            continue
+
+        print(f"[{i}/{len(demos)}] parsing {path.name} ({size_mb:.0f} MB) ...", end=" ", flush=True)
+        t0 = time.perf_counter()
+        try:
+            kills = parse_one(path)
+        except Exception as e:
+            print(f"failed: {type(e).__name__}: {e}", flush=True)
+            failed.append((path.name, f"{type(e).__name__}: {e}"))
+            continue
+        kills.write_parquet(cache)
+        frames.append(kills)
+        print(f"{len(kills):,} kills in {time.perf_counter() - t0:.0f}s", flush=True)
+
+    if not frames:
+        sys.exit("No demo was parsed successfully")
+
+
+    final = select_model_columns(add_role_event_columns(pl.concat(frames, how="diagonal_relaxed")))
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    final.write_csv(args.out)
+
+    demo_count = final.n_unique("demo_file")
+    print(f"\n=== complete: {demo_count} matches | {len(final):,} kills ===")
+    map_counts = dict(final["map_name"].value_counts().iter_rows())
+    print(f"maps: {map_counts}")
+    print(f"saved to: {args.out}")
+    if failed:
+        print(f"\nfailed to parse {len(failed)} files:")
+        for name, err in failed:
+            print(f"  {name} - {err}")
+
+if __name__ == "__main__":
+    main()

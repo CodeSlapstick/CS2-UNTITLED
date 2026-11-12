@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+# ทุก library ที่โค้ดในรีโปนี้ import จริง
+#
+# ติดตั้ง:  pip install -r requirements.txt            (รันระบบ)
+#           pip install -r requirements-dev.txt        (เพิ่มเครื่องมือ test/lint)
+# หรือใช้ Docker ก็ไม่ต้องลงเอง — ดู Dockerfile / docker-compose.yml
+
+# --- parser: อ่านไฟล์ .dem — backend/services/parser.py ---
+# awpy 3 replaces the parser API used here; retain the compatible 2.x release.
+# Verify upgrades with scripts/check_parser_compatibility.py on a real demo.
+awpy==2.0.2
+demoparser2==0.42.1
+polars==2.1.0
+
+# --- backend: API + worker — backend/ ---
+fastapi==0.162.0
+pydantic==2.14.2         # imported directly by backend/schemas/reports.py
+uvicorn[standard]==0.54.0
+python-multipart==0.0.33 # FastAPI ใช้ตัวนี้อ่านไฟล์ที่อัปโหลดมา (POST /api/demos)
+pyjwt==2.15.1            # token ล็อกอิน (JWT ใน httpOnly cookie) — backend/services/auth.py
+certifi==2026.10.23      # CA bundle สำหรับตรวจ TLS ของ Steam OpenID
+asyncpg==0.32.0          # driver PostgreSQL แบบ async
+sqlalchemy[asyncio]==2.1.8
+alembic==1.20.1          # migration ของสคีมา
+rq==3.0.0                # คิวงาน parse เดโมในเบื้องหลัง
+redis==8.1.0             # ที่เก็บคิวของ RQ
+pandas==3.1.0
+numpy==2.5.4
+
+# --- research/models: โมเดลกับการวาดภาพ (ไม่จำเป็นต่อการรันเว็บ) ---
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pillow==13.0.0

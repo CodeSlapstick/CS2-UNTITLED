@@ -1,0 +1,18 @@
+CS2 UNTITLED portable package
+Source branch: backup-v2
+Source commit: 336aaea
+Created: 2026-11-11
+
+Included:
+- Git-tracked source at the commit above
+- PostgreSQL custom-format database backup
+- output/models runtime ML artifacts for 8 maps
+- data/all_kills.csv and data/mirage_kills.csv
+- optimized website media under frontend/public/media/home
+- original media sources under Media
+
+Excluded:
+- reference and uploaded .dem files
+- intermediate artifacts and caches
+- .git, .venv, node_modules, Docker volumes
+- local .env and secrets

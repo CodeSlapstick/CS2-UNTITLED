@@ -1,0 +1,120 @@
+// คำแปลภาษาอังกฤษ — กุญแจคือข้อความภาษาไทยในโค้ดแบบตรงตัวอักษร (ดู ../i18n.tsx)
+export const EN_ANALYSIS: Record<string, string> = {
+  // โหมด + ฝั่ง (AnalysisPage MODES / SIDES / SIDE_NOTE)
+  "ทีมเราตายตรงไหน": "Where we die",
+  "เทียบกับทีมอาชีพ": "Compared with pros",
+  "ตรงไหนที่ทีมเราเสียคนบ่อยกว่าทีมอาชีพ เทียบเป็นสัดส่วนของจุดตายทั้งหมด เพราะสองชุดมีจำนวนแมตช์ไม่เท่ากัน":
+    "Where we lose players more often than pro teams, compared as a share of all death spots because the two sets have different numbers of matches.",
+  "ทั้งสองฝั่ง": "Both sides",
+  "ตอนเป็น CT": "As CT",
+  "ตอนเป็น T": "As T",
+  "รวมทั้งสองฝั่ง": "both sides",
+  "เฉพาะตอนเป็น CT": "as CT only",
+  "เฉพาะตอนเป็น T": "as T only",
+
+  // หัวหน้า + ตัวกรอง
+  "กำลังโหลด…": "Loading…",
+  "โหลดรายการแมตช์ไม่ได้: {msg}": "Couldn't load matches: {msg}",
+  "เครื่องมือวิเคราะห์": "Analysis",
+  "สิ่งที่ดู": "View",
+  "แมพ": "Map",
+  "แมตช์ของทีม": "Team matches",
+  "ทุกแมตช์ที่อัปโหลด ({n})": "All uploaded matches ({n})",
+  "โหลดข้อมูลไม่ได้: {msg}": "Couldn't load data: {msg}",
+  "กำลังนับจุดตาย…": "Counting death spots…",
+  'เลือกรอบอย่างน้อยหนึ่งรอบ หรือกด "ทั้งหมด"': 'Select at least one round or press "All".',
+  'เลือกผู้เล่นอย่างน้อยหนึ่งคน หรือกด "ทั้งหมด"': 'Select at least one player or press "All".',
+
+  // แผงควบคุม heatmap
+  "ตั้งค่าการแสดงผล heatmap": "Heatmap display settings",
+  "ฝั่งของคนที่ตาย": "Side of the player who died",
+  'เลือก "แมตช์ของทีม" แมตช์เดียวด้านบนก่อน ถึงจะเจาะจงรอบหรือผู้เล่นได้':
+    'Pick a single match under "Team matches" above to filter by round or player.',
+  "รอบ": "Round",
+  "ผู้เล่น": "Players",
+  "ทั้งหมด": "All",
+  "ไม่เอาเลย": "None",
+  "เลือกรอบ": "Select rounds",
+  "เลือกผู้เล่น": "Choose players",
+  "กำลังโหลดรายชื่อ…": "Loading roster…",
+  "ปรับการแสดงผล": "Display settings",
+  "รัศมี": "Radius",
+  "รัศมีของจุดความร้อน": "Heat spot radius",
+  "เบลอ": "Blur",
+  "ความเบลอเพิ่มเติม": "Extra blur",
+  "ความทึบ": "Opacity",
+  "ความทึบของชั้นสี": "Color layer opacity",
+
+  // ตาราง + คำอธิบายสี
+  "{n} ช่อง": "{n} cells",
+  "ไม่มีชื่อเรียก": "Unnamed",
+  "คำอธิบายสี": "Color key",
+  "สีของแต่ละโซน = ทีมเราตายบ่อยกว่าทีมอาชีพกี่เท่า ยิ่งเข้มยิ่งต่างมาก":
+    "Zone color = how many times more often we die there than pro teams. Darker = bigger gap.",
+  "ต่ำกว่า {near}× หรือทีมเราตายในโซนนั้นไม่ถึง {min} ครั้ง = ไม่ระบาย (ต่างกันไม่ชัดพอจะสรุปอะไรได้)":
+    "Below {near}×, or fewer than {min} of our deaths in the zone = not shaded (the gap is too unclear to conclude anything).",
+  "จุดที่ทีมเราตายบ่อยกว่าทีมอาชีพ": "Where we die more often than pro teams",
+  "{a} · ตาย {ad} ครั้ง เทียบกับ {b} · ตาย {bd} ครั้ง": "{a} · {ad} deaths compared with {b} · {bd} deaths",
+  "ข้อมูลยังไม่ถึงเกณฑ์ ต้องตายบ่อยกว่าทีมอาชีพอย่างน้อย {near}× และมีจำนวนครั้งเพียงพอ":
+    "Not enough data. A spot must have at least {near}× the pro death share and enough deaths to qualify.",
+  "ตรงไหนของแมพ": "Where on the map",
+  "เราตาย": "Our deaths",
+  "ของเรา": "Ours",
+  "ทีมอาชีพ": "Pro teams",
+  "ต่างกี่เท่า": "Times more",
+  "ตารางใช้สัดส่วนจุดตายของแต่ละชุดข้อมูล เพื่อชดเชยจำนวนแมตช์ที่ไม่เท่ากัน ทีมอาชีพมี 50 แมตช์":
+    "The table compares each dataset's share of deaths to account for different match counts. The pro dataset contains 50 matches.",
+  "ยังไม่มีช่องไหนตายถึง {min} ครั้ง (ตายมากสุด {max} ครั้ง) — ข้อมูลน้อยเกินกว่าจะระบายแผนที่":
+    "No cell has {min} deaths yet (the most is {max}) — too little data to shade the map.",
+  "จำนวนครั้งที่ตายในช่องนั้น ({note}) ยิ่งเข้มยิ่งตายบ่อย": "Deaths per cell ({note}). Darker = more deaths.",
+  "ครั้ง · ต่ำกว่า {min} ครั้งไม่ระบาย": "deaths · fewer than {min} not shaded",
+  "ช่องที่ตายบ่อยที่สุด": "Most frequent death spots",
+  "{label} · ตายรวม {d} ครั้ง ใน {n} ช่อง": "{label} · {d} deaths in {n} cells",
+  "ตาย": "Deaths",
+  "สัดส่วน": "Share",
+  "{place} (ช่อง {cx}, {cy}) · ตาย {d} ครั้ง": "{place} (cell {cx}, {cy}) · {d} deaths",
+
+  // ป้ายชุดข้อมูล (ประกอบใหม่จากฟิลด์ของ /api/analysis/deaths)
+  "{demo} (1 แมตช์)": "{demo} (1 match)",
+  "แมตช์ของทีม {n} แมตช์": "Team matches: {n}",
+  "เดโมทีมอาชีพ {n} แมตช์": "Pro demos: {n} matches",
+  "{n} รอบที่เลือก": "{n} rounds selected",
+  "{n} คนที่เลือก": "{n} players selected",
+
+  // ยังไม่มีอะไรให้เทียบ
+  "ยังไม่มีแมตช์ให้เทียบ": "No matches to compare yet",
+  "หน้านี้เทียบแมตช์ของทีมกับเดโมทีมอาชีพบนแมพเดียวกัน — ยังไม่มีแมตช์ที่อัปโหลดเข้ามาเลย":
+    "This page compares the team's matches with pro demos on the same map. No matches have been uploaded yet.",
+  "หน้านี้เทียบแมตช์ของทีมกับเดโมทีมอาชีพบนแมพเดียวกัน — มีแมตช์ที่อัปโหลด {n} แมตช์ แต่ยังไม่ตรงกับแมพอ้างอิง ({maps})":
+    "This page compares the team's matches with pro demos on the same map. {n} uploaded match(es), but none match the reference maps ({maps}).",
+  "ไปหน้าแมตช์": "Go to matches",
+  "รูปแบบการเล่นของผู้เล่น": "Player behavior",
+  "ศัตรู": "Opponent",
+  "กำลังคำนวณรูปแบบการเล่น…": "Calculating player behavior…",
+  "โหลดรูปแบบการเล่นไม่ได้: {msg}": "Couldn't load player behavior: {msg}",
+  "ยังแสดงรูปแบบการเล่นไม่ได้": "Player behavior isn't available yet",
+  "player_behavior_model_unavailable": "The cached model artifact is unavailable.",
+  "player_behavior_uploaded_matches_only": "Behavior inference is available only for uploaded matches.",
+  "player_behavior_unsupported_map": "The current model does not support this map.",
+  "player_behavior_unavailable": "There is not enough compatible data for this match.",
+  "พฤติกรรมตามฝั่ง": "side behavior",
+  "ไม่มีผู้เล่นจากฝั่งนี้ในตัวกรอง": "No players from this side match the filter.",
+  "{n} รอบ": "{n} rounds",
+  "สรุปจากรูปแบบใน {n} รอบ": "Pattern based on {n} rounds",
+  "ข้อมูลยังไม่พอ ต้องมีอย่างน้อย {n} รอบในฝั่งนี้": "Not enough data; at least {n} rounds on this side are required.",
+  "พบมากกว่าค่ากลางอ้างอิง": "Observed more often than the reference midpoint",
+  "พบน้อยกว่าค่ากลางอ้างอิง": "Observed less often than the reference midpoint",
+  "ระยะ {d} · ส่วนต่างจากกลุ่มถัดไป {m}": "Distance {d} · margin to next group {m}",
+  "การช่วยต่อรอบ": "Assists per round",
+  "การช่วยด้วยแฟลชต่อรอบ": "Flash assists per round",
+  "การมีส่วนร่วมในจังหวะแรก": "Opening involvement",
+  "การคิลแรก": "Opening kills",
+  "การปะทะช่วงต้นรอบ": "Early-round engagements",
+  "การเทรดคิลต่อรอบ": "Trade kills per round",
+  "การตายที่เพื่อนเทรดคืน": "Deaths traded by a teammate",
+  "คิลหลังวางบอมบ์ต่อรอบ": "Post-plant kills per round",
+  "การปะทะบริเวณไซต์": "Site engagements",
+  "เวลาคิลเฉลี่ย": "Average kill time",
+  "จำนวนพื้นที่ที่มีเหตุการณ์": "Distinct event areas",
+  "ความถี่ในพื้นที่หลัก": "Concentration in the primary area",
+};
