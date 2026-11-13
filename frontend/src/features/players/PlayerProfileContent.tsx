@@ -131,7 +131,6 @@ export function PlayerProfileContent({ data: d, recent, onRecentChange }: {
 
         {tab === "duels" && <div className="profile-duels">
           <section className="profile-section"><h2>{t("การปะทะแรกของรอบ")}</h2>
-            <p className="profile-caption">{t("First kills / (First kills + First deaths)")}</p>
             <table className="profile-data-table"><thead><tr><th>{t("ฝั่ง")}</th><th>First kill</th><th>First death</th><th>{t("ชนะการปะทะ")}</th></tr></thead>
               <tbody>{(["both", "ct", "t"] as const).map(side => {
                 const entry = d.entry[side];
