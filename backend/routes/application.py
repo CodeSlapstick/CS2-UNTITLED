@@ -1,3 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+backend/routes/application.py — ประกอบ FastAPI และ HTTP routes ของเว็บ CS2 Analytics
+
+เปรียบเทียบง่าย ๆ: ไฟล์นี้คือ "พนักงานหลังเคาน์เตอร์"
+  - หน้าเว็บ (frontend/) = ลูกค้าที่มายืนหน้าเคาน์เตอร์
+  - ไฟล์นี้ = พนักงานที่คอยรับคำสั่ง ไปหยิบของจากคลัง (PostgreSQL) แล้วส่งกลับไปให้
+
+หน้าที่ของไฟล์นี้มี 3 อย่าง (หน้าเว็บทั้งหมดอยู่ที่ frontend/ — React)
+  1) ล็อกอินด้วย Steam หรือ guest session (backend/services/auth.py)
+  2) จำว่า "ใครล็อกอินอยู่" ด้วย JWT ในคุกกี้ httpOnly (JavaScript อ่านไม่ได้)
+  3) ตอบ /api/* — ดึงสถิติจากฐานข้อมูลแล้วส่งเป็น JSON ให้หน้าเว็บเอาไปวาด
+
+ข้อมูลอยู่ใน PostgreSQL (ตาราง: backend/models/ + Alembic, view: backend/models/views.sql, โหลดผ่าน /api/demos หรือ backend/services/etl.py)
+ไฟล์นี้ไม่อ่าน csv เองแล้ว — อ่านผ่าน SQL อย่างเดียว จะได้ filter/รวมข้อมูลได้เร็วโดยไม่ต้องโหลดทั้งตารางเข้าแรม
+
+รัน:  python -m uvicorn backend.app:app --reload   (ในเครื่อง — หน้าเว็บ npm run dev ส่งต่อ /api มาที่นี่)
+ผู้ใช้ไม่เข้า API ตรง ๆ: เปิดหน้าเว็บ แล้วหน้าเว็บ (หรือ nginx ใน Docker) ส่ง /api /auth /assets มาให้
+Swagger: <หน้าเว็บ>/api/docs
+"""
+
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 import mimetypes
 import os
 import re
@@ -26,18 +49,18 @@ from backend.config.settings import ASSETS_DIR, DEMOS_DIR, FRONTEND_URL, GUEST_D
 from backend.jobs import JSON_DIR, QueueUnavailable, enqueue_parse, job_state, queue_health  # คิวงาน parse (Sprint 2)
 from backend.repositories.coach import load_coach_facts
 from backend.routes.players import create_player_router
-from backend.routes.settings import create_settings_router
-from backend.services.player_avatars import match_avatars
-from backend.services.review import build_heatmap_cells
 from backend.routes.reports import create_report_router
+from backend.routes.settings import create_settings_router
 from backend.services import auth  # ล็อกอิน: Steam OpenID + JWT ใน httpOnly cookie
 from backend.services.coach import build_coach_samples, load_coach_model, recommend_round
 from backend.services.features import assign_teams
 from backend.services.opening import build_opening_rounds, match_date, select_matches
+from backend.services.player_avatars import match_avatars
 from backend.services.player_roles import build_match_profiles, compatibility_reason, infer_match, load_role_model
 from backend.services.review import (
     HEATMAP_EVENTS,
     build_economy,
+    build_heatmap_cells,
     build_round_detail,
     build_round_list,
     build_round_positions,
@@ -51,7 +74,7 @@ from backend.utilities.logging import log
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 MAX_DEMO_MB = int(os.environ.get("MAX_DEMO_MB", "600"))   # เพดานขนาดไฟล์ที่ยอมรับ กันคนอัปของใหญ่จนดิสก์เต็ม
-DEMO_NAME_RE = re.compile(r"^[A-Za-z0-9._()-]{1,120}\.dem$", re.IGNORECASE)
+DEMO_NAME_RE = re.compile(r"^[A-Za-z0-9._()-]{1,120}\.dem$", re.IGNORECASE)  # การตั้งชื่อ
 
 DEMO_MAGIC = b"PBDEMS2\x00"
 
@@ -92,8 +115,7 @@ mimetypes.add_type("image/webp", ".webp")
 
 
 # ---------------------------------------------------------------------------
-#
-#
+# Error Handler & Database Dependency
 # ---------------------------------------------------------------------------
 @app.exception_handler(Exception)
 async def unhandled_error(request: Request, exc: Exception):
@@ -121,6 +143,7 @@ async def _optional_columns(conn: asyncpg.Connection, table: str, names: tuple[s
 
 
 # ---------------------------------------------------------------------------
+# Viewer Dependency
 # ---------------------------------------------------------------------------
 def require_viewer(request: Request) -> dict:
     """Dependency: route ไหนใส่อันนี้ = ต้องมี session ก่อน — ประตูบานเดียวของทั้งระบบ
@@ -140,11 +163,8 @@ def require_viewer(request: Request) -> dict:
 
 
 # ---------------------------------------------------------------------------
-#
+# Rate Limiting & Auth Routes
 # ---------------------------------------------------------------------------
-
-#
-#
 AUTH_MAX_TRIES = int(os.environ.get("AUTH_MAX_TRIES", "20"))     # กี่ครั้งต่อหนึ่งช่วงเวลา
 AUTH_WINDOW_SEC = int(os.environ.get("AUTH_WINDOW_SEC", "300"))  # ความยาวช่วงเวลา (วินาที)
 _auth_hits: dict[str, tuple[int, float]] = {}                    # ip -> (นับได้กี่ครั้ง, ช่วงเวลานี้เริ่มเมื่อไร)
@@ -222,7 +242,7 @@ async def auth_steam_callback(request: Request, next: str = "/player",
     expected_return_to = (f"{_public_base(request)}/auth/steam/callback"
                           f"?next={urllib.parse.quote(_safe_next(next), safe='/')}")
     steamid = await run_in_threadpool(auth.verify_steam_openid, params,
-                                     expected_return_to=expected_return_to)
+                                      expected_return_to=expected_return_to)
     if not steamid:
         log("[AUTH] Steam ไม่ยืนยันการล็อกอินนี้")
         return _frontend_redirect(request, "/login?err=steam")
@@ -293,7 +313,7 @@ async def auth_me(request: Request, viewer: dict = Depends(require_viewer)):
                     avatar = profile["avatar"]
                     if avatar:
                         await conn.execute("UPDATE accounts SET avatar = $2 WHERE id = $1", viewer["id"], avatar)
-        except Exception as e:                                    # noqa: BLE001 — รูปหายดีกว่า session หลุด
+        except Exception as e:                                        # noqa: BLE001 — รูปหายดีกว่า session หลุด
             log(f"[AUTH] ดึง avatar ของ user {viewer['id']} ไม่ได้: {e}")
     return {"user": {**viewer, "avatar": avatar}}
 
@@ -307,6 +327,7 @@ def auth_logout():
 
 
 # ---------------------------------------------------------------------------
+# Match Catalog & Health
 # ---------------------------------------------------------------------------
 def rows(records) -> list[dict]:
     """asyncpg คืน Record มาให้ แปลงเป็น dict ธรรมดาเพื่อให้ FastAPI ส่งเป็น JSON ได้"""
@@ -372,6 +393,7 @@ async def require_match_access(
     return allowed
 
 
+# เช็คผู้ใช้Steam
 def require_steam_viewer(viewer: dict) -> None:
     if viewer["type"] != auth.STEAM:
         raise HTTPException(403, "ฟังก์ชันนี้ต้องล็อกอินด้วย Steam")
@@ -431,14 +453,6 @@ async def api_delete_match(match_id: int, viewer: dict = Depends(require_viewer)
     return {"deleted": True, "cleanup_failed": cleanup_failed}
 
 
-@app.get("/api/matches/{match_id}/avatars")
-async def api_match_avatars(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
-    if not await conn.fetchval("SELECT EXISTS(SELECT 1 FROM matches WHERE id = $1 AND source = 'upload')", match_id):
-        raise HTTPException(404, "ไม่พบแมตช์นี้")
-    await require_match_access(conn, viewer, match_id=match_id)
-    return await match_avatars(conn, match_id)
-
-
 @app.get("/api/matches/{match_id}")
 async def api_match(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
     """แมตช์เดียวแบบละเอียด: สรุป + รายรอบ + สกอร์บอร์ดของนักแข่งในแมตช์นั้น"""
@@ -469,9 +483,9 @@ async def api_match(match_id: int, viewer: dict = Depends(require_viewer), conn:
                  ids AS (SELECT attacker_id AS steam_id FROM mk WHERE attacker_id IS NOT NULL
                          UNION SELECT victim_id FROM mk)
             SELECT p.steam_id::text AS steam_id, p.name,
-                   (SELECT COUNT(*) FROM mk WHERE attacker_id = p.steam_id)              AS kills,
-                   (SELECT COUNT(*) FROM mk WHERE victim_id   = p.steam_id)              AS deaths,
-                   (SELECT COUNT(*) FROM mk WHERE assister_id = p.steam_id)              AS assists,
+                   (SELECT COUNT(*) FROM mk WHERE attacker_id = p.steam_id)               AS kills,
+                   (SELECT COUNT(*) FROM mk WHERE victim_id   = p.steam_id)               AS deaths,
+                   (SELECT COUNT(*) FROM mk WHERE assister_id = p.steam_id)               AS assists,
                    (SELECT COUNT(*) FROM mk WHERE attacker_id = p.steam_id AND headshot) AS headshots
             FROM ids JOIN players p USING (steam_id)
             ORDER BY kills DESC, deaths ASC""", match_id)
@@ -492,6 +506,14 @@ async def api_match(match_id: int, viewer: dict = Depends(require_viewer), conn:
         GROUP BY pr.steam_id""", match_id)
     features = {f["steam_id"]: dict(f) for f in feats if f["features_version"]}
     return {"match": dict(match), "rounds": rows(rounds_), "scoreboard": rows(scoreboard), "features": features}
+
+
+@app.get("/api/matches/{match_id}/avatars")
+async def api_match_avatars(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
+    if not await conn.fetchval("SELECT EXISTS(SELECT 1 FROM matches WHERE id = $1 AND source = 'upload')", match_id):
+        raise HTTPException(404, "ไม่พบแมตช์นี้")
+    await require_match_access(conn, viewer, match_id=match_id)
+    return await match_avatars(conn, match_id)
 
 
 @app.get("/api/matches/{match_id}/status")
@@ -515,14 +537,16 @@ async def api_match_status(match_id: int, viewer: dict = Depends(require_viewer)
 
 
 # ---------------------------------------------------------------------------
+# Router ย่อยของ Player และ Settings
 # ---------------------------------------------------------------------------
 app.include_router(create_player_router(require_viewer, db, require_steam_viewer))
 app.include_router(create_settings_router(require_viewer, db, require_steam_viewer))
 
 
 # ---------------------------------------------------------------------------
-#
+# Upload Validation & Logic
 # ---------------------------------------------------------------------------
+# ตรวจหัวไฟล์กับขนาดระหว่างเขียน
 def save_upload(file: UploadFile, dest: Path) -> int:
     """เขียนไฟล์ที่อัปโหลดลงดิสก์ทีละก้อน คืนขนาดเป็นไบต์
 
@@ -537,26 +561,27 @@ def save_upload(file: UploadFile, dest: Path) -> int:
     size = 0
     try:
         with open(part, "wb") as out:
-            while chunk := file.file.read(1024 * 1024):
-                if size == 0 and not chunk.startswith(DEMO_MAGIC):
+            while chunk := file.file.read(1024 * 1024):  # อ่านไฟล์ทีละ 1 MB
+                if size == 0 and not chunk.startswith(DEMO_MAGIC):  # เช็คหัวไฟล์
                     raise HTTPException(400, "ไฟล์นี้ไม่ใช่เดโมของ CS2 — หัวไฟล์ไม่ใช่ PBDEMS2 "
                                              "(เดโมของ CS:GO รุ่นเก่าใช้กับระบบนี้ไม่ได้)")
-                size += len(chunk)
+                size += len(chunk)  # เช็คขนาดไฟล์
                 if size > limit:
                     raise HTTPException(413, f"ไฟล์ใหญ่เกิน {MAX_DEMO_MB} MB")
                 out.write(chunk)
         if size == 0:
             raise HTTPException(400, "ไฟล์ว่าง")
-        try:
+        try:  # ถ้ามีข้อมูลและผ่านทุกเงื่อนไข เปลี่ยนจาก .part เป็นชื่อ dest
             part.replace(dest)      # .replace() = เปลี่ยนชื่อทับของเดิมได้ และเป็น atomic บนดิสก์เดียวกัน
         except PermissionError:     # Windows: ไฟล์ปลายทางถูกเปิดอยู่ (เช่น worker กำลังแกะไฟล์เดิม) — ไม่ใช่ 500
             raise HTTPException(409, "ไฟล์ชื่อนี้กำลังถูกใช้งานอยู่ (อาจกำลังถูกแกะ) — รอให้เสร็จแล้วลองใหม่")
-        return size
+        return size  # ส่งขนาดไฟล์เป็นไบต์กลับไปให้ api_upload_demo()
     finally:
         part.unlink(missing_ok=True)   # เหลือ .part ค้างอยู่ = อัปไม่สำเร็จ เก็บกวาดทิ้ง
 
 
-async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:
+# ตรวจจำนวนครั้งที่อัปโหลด ว่าผู้ใช้นี้ครบโควตาในหนึ่งชั่วโมงหรือยัง
+async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:  # ถ้ายังไม่เกินโควตา ไม่ต้องคืนค่าอะไรให้ api_upload_demo()
     """เกินโควตาต่อชั่วโมงแล้วตอบ 429 — นับจาก matches.imported_at ของคนนั้น
 
     นับจากฐานข้อมูลไม่ใช่หน่วยความจำ เพราะตัวนับในหน่วยความจำหายทุกครั้งที่รีสตาร์ต
@@ -567,12 +592,13 @@ async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:
     used = await conn.fetchval("""
         SELECT count(*) FROM matches
         WHERE uploaded_by = $1 AND imported_at > now() - interval '1 hour'
-    """, viewer["id"])
-    if used >= UPLOAD_MAX_PER_HOUR:
+    """, viewer["id"])  # ข้อมูลผู้ใช้ที่อัปโหลด
+    if used >= UPLOAD_MAX_PER_HOUR:  # ใช้งานถี่เกินโควตา
         raise HTTPException(429, f"อัปโหลดครบโควตาแล้ว ({UPLOAD_MAX_PER_HOUR} ไฟล์ต่อชั่วโมง) "
                                  "— รอสักครู่แล้วลองใหม่")
 
 
+# ผู้ใช้คนนี้ เป็นคนอัปโหลดแมตช์นี้หรือเปล่า?
 def is_match_owner(match: dict, viewer: dict) -> bool:
     """ผู้ดูคนนี้เป็นเจ้าของแมตช์นี้จริงไหม — ไม่เกี่ยวกับว่า "ทำได้หรือไม่" (นั่นคือ can_modify_match)
 
@@ -588,6 +614,7 @@ def is_match_owner(match: dict, viewer: dict) -> bool:
     return owner is not None and owner == viewer["id"]
 
 
+# ผู้ใช้คนนี้มีสิทธิ์แก้หรือลบแมตช์นี้ไหม?
 def can_modify_match(match: dict, viewer: dict) -> bool:
     """Only the Steam account that uploaded a match may delete it."""
     return viewer["type"] == auth.STEAM and is_match_owner(match, viewer)
@@ -604,25 +631,28 @@ async def api_upload_demo(
     ส่งทีละไฟล์ หน้าเว็บเป็นคนวนส่งเองถ้าผู้ใช้ลากมาหลายไฟล์
     ทำแบบนี้เพื่อให้แต่ละไฟล์มีสถานะของตัวเอง ไฟล์หนึ่งพังก็ไม่ลากไฟล์อื่นล้มไปด้วย
     """
-    require_steam_viewer(viewer)
+    require_steam_viewer(viewer)  # เช็คผู้ใช้ steam
 
-    name = Path(file.filename or "").name
-    if not DEMO_NAME_RE.match(name):
+    name = Path(file.filename or "").name  # ตัด path ให้เหลือแต่ชื่อไฟล์ __.dem
+    if not DEMO_NAME_RE.match(name):  # ตรวจว่าชื่อใช้รูปแบบที่ยอมรับ เช่น ลงท้าย .dem
         raise HTTPException(400, "รับเฉพาะไฟล์ .dem และชื่อไฟล์ใช้ได้แค่ตัวอักษร ตัวเลข . _ - ( )")
 
+    # ห้ามทับไฟล์เก่า โดยเช็คแบบไม่สนตัวพิมพ์เล็ก-ใหญ่
     existing = await conn.fetchrow("""
         SELECT id FROM matches WHERE lower(demo_file) = lower($1)
     """, name)
     if existing:
         raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
 
-    await check_upload_quota(conn, viewer)
+    await check_upload_quota(conn, viewer)  # ตรวจจำนวนครั้งในหนึ่งชั่วโมง ถ้าเกินตอบ 429
 
-    DEMOS_DIR.mkdir(parents=True, exist_ok=True)
-    dem_path = DEMOS_DIR / name
+    # 1. รับไฟล์ลงดิส และเปลี่ยนนามสกุลไฟล์ชั่วคราว
+    DEMOS_DIR.mkdir(parents=True, exist_ok=True)  # สร้างโฟลเดอร์ถ้ายังไม่มี
+    dem_path = DEMOS_DIR / name  # ชื่อ .dem ที่ worker จะเปิดอ่าน
     staged_path = DEMOS_DIR / f".{name}.{secrets.token_hex(8)}.upload"
-    size = await run_in_threadpool(save_upload, file, staged_path)
+    size = await run_in_threadpool(save_upload, file, staged_path)  # เขียนและตรวจไฟล์ใหม่ ได้ขนาดกลับมา
 
+    # 2. สร้างแถวใหม่ในฐานข้อมูล และเช็คไฟล์ซํ้าด้วย Advisory Lock
     published = False
     orphan_path = None
     locked = False
@@ -634,7 +664,7 @@ async def api_upload_demo(
             existing = await conn.fetchrow("SELECT id FROM matches WHERE lower(demo_file) = lower($1)", name)
             if existing:
                 raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
-            # The unique key also arbitrates requests that passed the early check together.
+            # ในกรณีมีคนอัพโหลดไฟล์ชื่อเดียวพร้อมกัน จะไม่สร้างแถวใหม่
             match_id = await conn.fetchval("""
                 INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
                 VALUES ($1, 'queued', $2, $3, $4)
@@ -647,34 +677,39 @@ async def api_upload_demo(
                 orphan_dir.mkdir(exist_ok=True)
                 orphan_path = orphan_dir / f"{name}.{secrets.token_hex(8)}.bak"
                 dem_path.replace(orphan_path)
-            staged_path.replace(dem_path)
-            published = True
+            staged_path.replace(dem_path)  # เปลี่ยนกลับมาใช้ชื่อจริง
+            published = True              # เปลี่ยนกลับมาใช้ชื่อจริงแล้ว
     except Exception:
         if published:
-            dem_path.unlink(missing_ok=True)
+            dem_path.unlink(missing_ok=True)  # ลบไฟล์ทิ้งถ้ามีการ error ในภายหลัง
         if orphan_path is not None and orphan_path.exists() and not dem_path.exists():
             orphan_path.replace(dem_path)
         raise
     finally:
         try:
-            staged_path.unlink(missing_ok=True)
+            staged_path.unlink(missing_ok=True)  # เก็บกวาดไฟล์ .upload ที่ยังเหลือ
         finally:
             if locked:
                 await conn.execute("SELECT pg_advisory_unlock(hashtextextended($1, 0))", lock_name)
 
+    ### เมื่อได้ match_id แล้ว API ส่งเลขนี้ไปให้ระบบคิว ###
+    # 3. ส่ง match_id ให้คิวเพื่อให้ worker ทำงานต่อ
     try:
-        job_id = await run_in_threadpool(enqueue_parse, match_id)
+        job_id = await run_in_threadpool(enqueue_parse, match_id)  # เรียก enqueue_parse(match_id)
     except QueueUnavailable as e:
         await conn.execute("UPDATE matches SET status = 'error', error_message = $2 WHERE id = $1", match_id, str(e))
         log(f"[UPLOAD] {name}: {e}")
         raise HTTPException(503, "ส่งงานเข้าคิวไม่ได้ — ลบแมตช์ที่มีสถานะผิดพลาด แล้วลองอัปโหลดใหม่เมื่อระบบพร้อม")
+
+    # คิวรับงานได้ บันทึก job_id
     await conn.execute("UPDATE matches SET job_id = $2 WHERE id = $1;", match_id, job_id)
     log(f"[UPLOAD] {name} ({size / 1024 / 1024:.1f} MB) -> match {match_id} เข้าคิว job {job_id}")
 
+    # API ตอบ HTTP 202 ว่ารับไฟล์และส่งงานเข้าคิวแล้ว
     return JSONResponse(status_code=202, content={
         "match_id": match_id,
         "demo_file": name,
-        "size_mb": round(size / 1024 / 1024, 1),
+        "size_mb": round(size / 1024 / 1024, 1),  # ทำให้เป็น MB
         "status": "queued",
         "job_id": job_id,
         "status_url": f"/api/matches/{match_id}/status",
@@ -682,7 +717,7 @@ async def api_upload_demo(
 
 
 # ---------------------------------------------------------------------------
-#
+# Match Review & Roster
 # ---------------------------------------------------------------------------
 async def _review_match(conn: asyncpg.Connection, demo_file: str, viewer: dict) -> dict:
     await require_match_access(conn, viewer, demo_file=demo_file)
@@ -1049,9 +1084,9 @@ async def api_review_round(demo_file: str, round_num: int, viewer: dict = Depend
                SUM(deaths)::int AS deaths, SUM(assists)::int AS assists
         FROM events GROUP BY steam_id""", m["id"], round_num)
     detail = build_round_detail(match=m, rnd=dict(rnd), roster=roster, in_round=rows(in_round), kills=rows(kills),
-                              grenades=rows(grenades), frame=radar_frame(m["map_name"]),
-                              model=load_grid_model(map_name=m["map_name"]),
-                              damages=rows(damages), latest_damage_tick=latest_damage_tick)
+                                grenades=rows(grenades), frame=radar_frame(m["map_name"]),
+                                model=load_grid_model(map_name=m["map_name"]),
+                                damages=rows(damages), latest_damage_tick=latest_damage_tick)
     detail["scoreboard_start"] = rows(prior_stats)
     return detail
 
@@ -1145,8 +1180,8 @@ async def api_review_heatmap(
         "map": m["map_name"],
         "points": points,
         "count": len(points),
-        "cells": build_heatmap_cells(rows(pts), frame, event, m["tickrate"] or 128),
         "rounds": n_rounds,
+        "cells": build_heatmap_cells(rows(pts), frame, event, m["tickrate"] or 128),
         "roster": [{"steam_id": str(p["steam_id"]), "name": p["name"], "team": p["team"],
                     "start_side": p["start_side"]} for p in sorted(roster, key=lambda p: (p["team"] or "", p["name"]))],
         "radar": {"image": "/assets" + frame.image, "size": frame.size, "map": frame.map_name},
