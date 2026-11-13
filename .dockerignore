@@ -27,8 +27,3 @@ venv/
 # frontend build ทำใน image ของตัวเอง ไม่ต้องเข้า image ของ backend
 node_modules/
 frontend/
-
-# Local credentials must never enter an image.
-.env
-.env.*
-!.env.example

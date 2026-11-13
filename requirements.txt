@@ -18,6 +18,7 @@ pydantic==2.14.2         # imported directly by backend/schemas/reports.py
 uvicorn[standard]==0.54.0
 python-multipart==0.0.33 # FastAPI ใช้ตัวนี้อ่านไฟล์ที่อัปโหลดมา (POST /api/demos)
 pyjwt==2.15.1            # token ล็อกอิน (JWT ใน httpOnly cookie) — backend/services/auth.py
+cryptography==46.0.3     # encrypted Steam history authentication codes
 certifi==2026.10.23      # CA bundle สำหรับตรวจ TLS ของ Steam OpenID
 asyncpg==0.32.0          # driver PostgreSQL แบบ async
 sqlalchemy[asyncio]==2.1.8

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { api, isBusy, matchesQuery, type Match, type RoundListItem } from "@/shared/api";
 import { endReasonLabel, MapThumb, MatchTabs, matchTitle, NotFound, num, sideLabel } from "@/shared/ui/utils";
 import { tr, useT } from "@/shared/i18n";
+import { PlayerAvatar } from "@/shared/ui/PlayerAvatar";
 
 // ================================================================================================
 // ================================================================================================
@@ -145,6 +146,7 @@ function MatchProgress({ entry }: { entry: Match }) {
 
 export function MatchScoreboard({ matchId }: { matchId: number }) {
   const q = useQuery({ queryKey: ["match", matchId], queryFn: () => api.match(matchId) });
+  const avatars = useQuery({ queryKey: ["match-avatars", matchId], queryFn: () => api.matchAvatars(matchId), staleTime: 15 * 60_000, retry: false });
   const { t } = useT();
   if (q.isLoading) return <p className="muted small">{t("กำลังโหลดสกอร์บอร์ด…")}</p>;
   if (q.error || !q.data) return <p className="err small">{t("โหลดสกอร์บอร์ดไม่ได้: {msg}", { msg: (q.error as Error | null)?.message ?? "" })}</p>;
@@ -189,7 +191,9 @@ export function MatchScoreboard({ matchId }: { matchId: number }) {
             const f = features[p.steam_id];
             return (
               <tr key={p.steam_id}>
-                <td><Link to={`/player/${encodeURIComponent(p.steam_id)}`} className="row-title">{p.name}</Link></td>
+                <td><Link to={`/player/${encodeURIComponent(p.steam_id)}`} className="row-title scoreboard-player">
+                  <PlayerAvatar name={p.name} src={avatars.data?.[p.steam_id]} /><span>{p.name}</span>
+                </Link></td>
                 <td>{p.start_side ? <span className={`badge b-${p.start_side}`}>{sideLabel(p.start_side)}</span> : "—"}</td>
                 <td className="num">{p.kills}</td>
                 <td className="num">{p.deaths}</td>

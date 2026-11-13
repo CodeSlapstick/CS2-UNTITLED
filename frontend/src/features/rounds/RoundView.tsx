@@ -6,7 +6,7 @@ import {
   playerApi,
   type ReviewTeam,
   type RoundDetail,
-  type ScoreRow,
+  type ReplayStats,
 } from "@/shared/api";
 import {
   clampZoom,
@@ -22,13 +22,14 @@ import {
   weaponLabel,
 } from "@/shared/ui/utils";
 import { useT } from "@/shared/i18n";
-import { defuseAt, defuseCountdown, defuseHasKit, playersAt, type LivePlayer } from "./playback";
+import { defuseAt, defuseCountdown, defuseHasKit, playersAt, replayStatsAt, type LivePlayer } from "./playback";
 import { PLAYBACK_SPEEDS as SPEEDS, useRoundPlayback } from "./useRoundPlayback";
 import { clampRadarCenter, DefuseHud, MapView, NadeMiniIcon } from "./RoundMap";
 
 // Preserve existing imports while rendering lives in its own module.
 export { DefuseHud, GrenadeGlyph, MapView, placeLivePlayerLabels, PlantedBomb, PlaybackDeathMarker, truncatePlayerName } from "./RoundMap";
 import { EquipmentIcon, WeaponIcon, isReplayWeapon, isHeldUtility } from "@/shared/ui/gameIcons";
+import { KillFeed } from "./KillFeed";
 
 // ================================================================================================
 // ================================================================================================
@@ -56,12 +57,6 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
     queryFn: () => api.reviewPositions(demo, roundNum),
     enabled: true,
     staleTime: Infinity, // ตำแหน่งของรอบที่แกะแล้วไม่เปลี่ยน
-  });
-  const match = useQuery({
-    queryKey: ["match", q.data?.match.id],
-    queryFn: () => api.match(q.data!.match.id),
-    enabled: !!q.data?.match.id,
-    staleTime: Infinity,
   });
   const latestEventT = Math.max(0, q.data?.round.latest_event_t ?? 0,
     ...(q.data?.deaths.map((death) => death.t_round ?? 0) ?? []));
@@ -149,7 +144,7 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
           <TeamRoster
             teams={d.teams}
             scores={scores}
-            scoreboard={match.data?.scoreboard}
+            scoreboard={d.scoreboard_start ? replayStatsAt(d, time) : undefined}
             highlight={focusPlayer}
             onHighlight={(p) => setView({ player: p })}
             onHover={setHover}
@@ -224,6 +219,12 @@ export function RoundView({ demo, roundNum, view, setView, roundSelector, scores
               <p className="muted">{t("ยังไม่มีภาพเรดาร์ของแมพ {map}", { map: d.match.map_name ?? "" })}</p>
             )}
           </div>
+          <KillFeed deaths={d.deaths} time={time} onSeek={death => {
+            const seekTime = Math.min(endT, Math.ceil(death.t_round! * 10) / 10);
+            setPlaying(false);
+            setTime(seekTime);
+            setView({ death: death.order, time: seekTime });
+          }} />
           <div className="map-play viewer-controls">
             {positions.isLoading ? (
               <span className="muted small">{t("กำลังโหลดตำแหน่งผู้เล่น…")}</span>
@@ -311,7 +312,7 @@ function useReducedMotion(): boolean {
 
 interface RosterProps {
   teams: ReviewTeam[];
-  scoreboard?: ScoreRow[];
+  scoreboard?: ReplayStats[];
   scores?: { ct: number; t: number };
   highlight: string | null;
   onHighlight: (steamid: string | null) => void;
@@ -434,7 +435,7 @@ export function TeamRoster({ teams, scores, scoreboard, highlight, onHighlight, 
                     {utilities.map((name, index) => <span className="roster-utility" title={weaponLabel(name)} key={`${name}-${index}`}><WeaponIcon name={name} className="pgear-small" /></span>)}
                   </div>
                 )}
-                <span className="roster-kda" title={`${tx("สถิติทั้งแมตช์นี้")} · K / D / A`} aria-label={`${p.name} · ${tx("สถิติทั้งแมตช์นี้")} · K / D / A: ${stats ? `${stats.kills} / ${stats.deaths} / ${stats.assists}` : "—"}`}>
+                <span className="roster-kda" title={`${tx("สถิติสะสมถึงเวลารีเพลย์")} · K / D / A`} aria-label={`${p.name} · ${tx("สถิติสะสมถึงเวลารีเพลย์")} · K / D / A: ${stats ? `${stats.kills} / ${stats.deaths} / ${stats.assists}` : "—"}`}>
                   <small>K / D / A</small> {stats ? `${stats.kills} / ${stats.deaths} / ${stats.assists}` : "— / — / —"}
                 </span>
                 </div>

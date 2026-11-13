@@ -66,7 +66,7 @@ export const EN_ANALYSIS: Record<string, string> = {
     "The table compares each dataset's share of deaths to account for different match counts. The pro dataset contains 50 matches.",
   "ยังไม่มีช่องไหนตายถึง {min} ครั้ง (ตายมากสุด {max} ครั้ง) — ข้อมูลน้อยเกินกว่าจะระบายแผนที่":
     "No cell has {min} deaths yet (the most is {max}) — too little data to shade the map.",
-  "จำนวนครั้งที่ตายในช่องนั้น ({note}) ยิ่งเข้มยิ่งตายบ่อย": "Deaths per cell ({note}). Darker = more deaths.",
+  "การตายต่อช่อง": "Deaths per cell",
   "ครั้ง · ต่ำกว่า {min} ครั้งไม่ระบาย": "deaths · fewer than {min} not shaded",
   "ช่องที่ตายบ่อยที่สุด": "Most frequent death spots",
   "{label} · ตายรวม {d} ครั้ง ใน {n} ช่อง": "{label} · {d} deaths in {n} cells",

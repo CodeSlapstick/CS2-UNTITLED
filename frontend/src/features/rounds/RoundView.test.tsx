@@ -187,14 +187,29 @@ it("shows the complete recorded inventory after the defuse kit, including duplic
   await vi.waitFor(() => expect(document.querySelectorAll(".roster-utility").length).toBe(0));
 });
 
-it("shows match K/D/A by Steam ID even for a dead player, without inventing missing totals", async () => {
+it("shows replay K/D/A by Steam ID and restores the baseline when seeking backwards", async () => {
   setup();
   const row = screen.getByTestId("roster-row");
   expect(row.querySelector(".roster-kda")?.textContent).toContain("— / — / —");
-  await act(async () => { client.setQueryData(["match", 1], { scoreboard: [
-    { steam_id: "other", name: "Player One", kills: 99, deaths: 99, assists: 99 },
-    { steam_id: "1", name: "Player One", kills: 12, deaths: 8, assists: 4 },
-  ] }); });
+  const d = detail(1);
+  d.scoreboard_start = [
+    { steam_id: "other", kills: 99, deaths: 99, assists: 99 },
+    { steam_id: "1", kills: 12, deaths: 8, assists: 4 },
+  ];
+  const person = (steamid: string) => ({ steamid, name: "Player One", side: "t", color: "#fff", slot: 1 });
+  d.deaths = [
+    { t_round: 4, victim: person("other"), attacker: person("1"), is_duel: true },
+    { t_round: 6, victim: person("other"), attacker: null, assister_steamid: "1" },
+    { t_round: 8, victim: person("1"), attacker: null },
+  ] as RoundDetail["deaths"];
+  await act(async () => { client.setQueryData(["review-round", "match.dem", 1], d); });
   await vi.waitFor(() => expect(row.querySelector(".roster-kda")?.textContent).toContain("12 / 8 / 4"));
+  const seek = screen.getByLabelText("เลื่อนเวลาในรอบ") as HTMLInputElement;
+  fireEvent.change(seek, { target: { value: "4" } });
+  expect(row.querySelector(".roster-kda")?.textContent).toContain("13 / 8 / 4");
+  fireEvent.change(seek, { target: { value: "8" } });
+  expect(row.querySelector(".roster-kda")?.textContent).toContain("13 / 9 / 5");
+  fireEvent.change(seek, { target: { value: "0" } });
+  expect(row.querySelector(".roster-kda")?.textContent).toContain("12 / 8 / 4");
   expect(row.getAttribute("data-dead")).toBe("1");
 });

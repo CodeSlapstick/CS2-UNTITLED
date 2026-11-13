@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import mimetypes
 import os
 import re
@@ -27,6 +26,9 @@ from backend.config.settings import ASSETS_DIR, DEMOS_DIR, FRONTEND_URL, GUEST_D
 from backend.jobs import JSON_DIR, QueueUnavailable, enqueue_parse, job_state, queue_health  # คิวงาน parse (Sprint 2)
 from backend.repositories.coach import load_coach_facts
 from backend.routes.players import create_player_router
+from backend.routes.settings import create_settings_router
+from backend.services.player_avatars import match_avatars
+from backend.services.review import build_heatmap_cells
 from backend.routes.reports import create_report_router
 from backend.services import auth  # ล็อกอิน: Steam OpenID + JWT ใน httpOnly cookie
 from backend.services.coach import build_coach_samples, load_coach_model, recommend_round
@@ -49,7 +51,7 @@ from backend.utilities.logging import log
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 MAX_DEMO_MB = int(os.environ.get("MAX_DEMO_MB", "600"))   # เพดานขนาดไฟล์ที่ยอมรับ กันคนอัปของใหญ่จนดิสก์เต็ม
-DEMO_NAME_RE = re.compile(r"^[A-Za-z0-9._()-]{1,120}\.dem$", re.IGNORECASE)  # การตั้งชื่อ
+DEMO_NAME_RE = re.compile(r"^[A-Za-z0-9._()-]{1,120}\.dem$", re.IGNORECASE)
 
 DEMO_MAGIC = b"PBDEMS2\x00"
 
@@ -93,7 +95,6 @@ mimetypes.add_type("image/webp", ".webp")
 #
 #
 # ---------------------------------------------------------------------------
-# Error Handler & Database Dependency
 @app.exception_handler(Exception)
 async def unhandled_error(request: Request, exc: Exception):
     log(f"[ERROR] {request.method} {request.url.path} -> {type(exc).__name__}: {exc}\n{traceback.format_exc()}")
@@ -121,7 +122,6 @@ async def _optional_columns(conn: asyncpg.Connection, table: str, names: tuple[s
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# Viewer Dependency
 def require_viewer(request: Request) -> dict:
     """Dependency: route ไหนใส่อันนี้ = ต้องมี session ก่อน — ประตูบานเดียวของทั้งระบบ
 
@@ -145,7 +145,6 @@ def require_viewer(request: Request) -> dict:
 
 #
 #
-# Rate Limiting & Auth Routes
 AUTH_MAX_TRIES = int(os.environ.get("AUTH_MAX_TRIES", "20"))     # กี่ครั้งต่อหนึ่งช่วงเวลา
 AUTH_WINDOW_SEC = int(os.environ.get("AUTH_WINDOW_SEC", "300"))  # ความยาวช่วงเวลา (วินาที)
 _auth_hits: dict[str, tuple[int, float]] = {}                    # ip -> (นับได้กี่ครั้ง, ช่วงเวลานี้เริ่มเมื่อไร)
@@ -309,7 +308,6 @@ def auth_logout():
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# Match Catalog & Health
 def rows(records) -> list[dict]:
     """asyncpg คืน Record มาให้ แปลงเป็น dict ธรรมดาเพื่อให้ FastAPI ส่งเป็น JSON ได้"""
     return [dict(r) for r in records]
@@ -374,7 +372,6 @@ async def require_match_access(
     return allowed
 
 
-# เช็คผู้ใช้Steam
 def require_steam_viewer(viewer: dict) -> None:
     if viewer["type"] != auth.STEAM:
         raise HTTPException(403, "ฟังก์ชันนี้ต้องล็อกอินด้วย Steam")
@@ -432,6 +429,14 @@ async def api_delete_match(match_id: int, viewer: dict = Depends(require_viewer)
         except OSError:
             cleanup_failed.append(path.name)
     return {"deleted": True, "cleanup_failed": cleanup_failed}
+
+
+@app.get("/api/matches/{match_id}/avatars")
+async def api_match_avatars(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
+    if not await conn.fetchval("SELECT EXISTS(SELECT 1 FROM matches WHERE id = $1 AND source = 'upload')", match_id):
+        raise HTTPException(404, "ไม่พบแมตช์นี้")
+    await require_match_access(conn, viewer, match_id=match_id)
+    return await match_avatars(conn, match_id)
 
 
 @app.get("/api/matches/{match_id}")
@@ -511,15 +516,13 @@ async def api_match_status(match_id: int, viewer: dict = Depends(require_viewer)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# Router ย่อยของ Player (สถิติและโปรไฟล์ผู้เล่น)
 app.include_router(create_player_router(require_viewer, db, require_steam_viewer))
+app.include_router(create_settings_router(require_viewer, db, require_steam_viewer))
 
 
 # ---------------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------------
-# Upload Validation & Logic
-# ตรวจหัวไฟล์กับขนาดระหว่างเขียน
 def save_upload(file: UploadFile, dest: Path) -> int:
     """เขียนไฟล์ที่อัปโหลดลงดิสก์ทีละก้อน คืนขนาดเป็นไบต์
 
@@ -534,27 +537,26 @@ def save_upload(file: UploadFile, dest: Path) -> int:
     size = 0
     try:
         with open(part, "wb") as out:
-            while chunk := file.file.read(1024 * 1024):  # อ่านไฟล์ทีละ 1 MB
-                if size == 0 and not chunk.startswith(DEMO_MAGIC):  # เช็คหัวไฟล์
+            while chunk := file.file.read(1024 * 1024):
+                if size == 0 and not chunk.startswith(DEMO_MAGIC):
                     raise HTTPException(400, "ไฟล์นี้ไม่ใช่เดโมของ CS2 — หัวไฟล์ไม่ใช่ PBDEMS2 "
                                              "(เดโมของ CS:GO รุ่นเก่าใช้กับระบบนี้ไม่ได้)")
-                size += len(chunk)  # เช็คขนาดไฟล์
+                size += len(chunk)
                 if size > limit:
                     raise HTTPException(413, f"ไฟล์ใหญ่เกิน {MAX_DEMO_MB} MB")
                 out.write(chunk)
         if size == 0:
             raise HTTPException(400, "ไฟล์ว่าง")
-        try:  # ถ้ามีข้อมูลและผ่านทุกเงื่อนไข เปลี่ยนจาก .part เป็นชื่อ dest
+        try:
             part.replace(dest)      # .replace() = เปลี่ยนชื่อทับของเดิมได้ และเป็น atomic บนดิสก์เดียวกัน
         except PermissionError:     # Windows: ไฟล์ปลายทางถูกเปิดอยู่ (เช่น worker กำลังแกะไฟล์เดิม) — ไม่ใช่ 500
             raise HTTPException(409, "ไฟล์ชื่อนี้กำลังถูกใช้งานอยู่ (อาจกำลังถูกแกะ) — รอให้เสร็จแล้วลองใหม่")
-        return size  # ส่งขนาดไฟล์เป็นไบต์กลับไปให้ api_upload_demo()
+        return size
     finally:
         part.unlink(missing_ok=True)   # เหลือ .part ค้างอยู่ = อัปไม่สำเร็จ เก็บกวาดทิ้ง
 
 
-# ตรวจจำนวนครั้งที่อัปโหลด ว่าผู้ใช้นี้ครบโควตาในหนึ่งชั่วโมงหรือยัง
-async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:  # ถ้ายังไม่เกินโควตา ไม่ต้องคืนค่าอะไรให้ api_upload_demo()
+async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:
     """เกินโควตาต่อชั่วโมงแล้วตอบ 429 — นับจาก matches.imported_at ของคนนั้น
 
     นับจากฐานข้อมูลไม่ใช่หน่วยความจำ เพราะตัวนับในหน่วยความจำหายทุกครั้งที่รีสตาร์ต
@@ -565,13 +567,12 @@ async def check_upload_quota(conn: asyncpg.Connection, viewer: dict) -> None:  #
     used = await conn.fetchval("""
         SELECT count(*) FROM matches
         WHERE uploaded_by = $1 AND imported_at > now() - interval '1 hour'
-    """, viewer["id"])  # ข้อมูลผู้ใช้ที่อัปโหลด
-    if used >= UPLOAD_MAX_PER_HOUR:  # ใช้งานถี่เกินโควตา
+    """, viewer["id"])
+    if used >= UPLOAD_MAX_PER_HOUR:
         raise HTTPException(429, f"อัปโหลดครบโควตาแล้ว ({UPLOAD_MAX_PER_HOUR} ไฟล์ต่อชั่วโมง) "
                                  "— รอสักครู่แล้วลองใหม่")
 
 
-# ผู้ใช้คนนี้ เป็นคนอัปโหลดแมตช์นี้หรือเปล่า?
 def is_match_owner(match: dict, viewer: dict) -> bool:
     """ผู้ดูคนนี้เป็นเจ้าของแมตช์นี้จริงไหม — ไม่เกี่ยวกับว่า "ทำได้หรือไม่" (นั่นคือ can_modify_match)
 
@@ -587,7 +588,6 @@ def is_match_owner(match: dict, viewer: dict) -> bool:
     return owner is not None and owner == viewer["id"]
 
 
-# ผู้ใช้คนนี้มีสิทธิ์แก้หรือลบแมตช์นี้ไหม?
 def can_modify_match(match: dict, viewer: dict) -> bool:
     """Only the Steam account that uploaded a match may delete it."""
     return viewer["type"] == auth.STEAM and is_match_owner(match, viewer)
@@ -604,28 +604,25 @@ async def api_upload_demo(
     ส่งทีละไฟล์ หน้าเว็บเป็นคนวนส่งเองถ้าผู้ใช้ลากมาหลายไฟล์
     ทำแบบนี้เพื่อให้แต่ละไฟล์มีสถานะของตัวเอง ไฟล์หนึ่งพังก็ไม่ลากไฟล์อื่นล้มไปด้วย
     """
-    require_steam_viewer(viewer)  # เช็คผู้ใช้ steam
+    require_steam_viewer(viewer)
 
-    name = Path(file.filename or "").name  # ตัด path ให้เหลือแต่ชื่อไฟล์ __.dem
-    if not DEMO_NAME_RE.match(name):  # ตรวจว่าชื่อใช้รูปแบบที่ยอมรับ เช่น ลงท้าย .dem
+    name = Path(file.filename or "").name
+    if not DEMO_NAME_RE.match(name):
         raise HTTPException(400, "รับเฉพาะไฟล์ .dem และชื่อไฟล์ใช้ได้แค่ตัวอักษร ตัวเลข . _ - ( )")
 
-    # ห้ามทับไฟล์เก่า โดยเช็คแบบไม่สนตัวพิมพ์เล็ก-ใหญ่[cite: 7]
     existing = await conn.fetchrow("""
         SELECT id FROM matches WHERE lower(demo_file) = lower($1)
     """, name)
     if existing:
         raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
 
-    await check_upload_quota(conn, viewer)  # ตรวจจำนวนครั้งในหนึ่งชั่วโมง ถ้าเกินตอบ 429
+    await check_upload_quota(conn, viewer)
 
-    # 1. รับไฟล์ลงดิส และเปลี่ยนนามสกุลไฟล์ชั่วคราว
-    DEMOS_DIR.mkdir(parents=True, exist_ok=True)  # สร้างโฟลเดอร์ถ้ายังไม่มี
-    dem_path = DEMOS_DIR / name  # ชื่อ .dem ที่ worker จะเปิดอ่าน
+    DEMOS_DIR.mkdir(parents=True, exist_ok=True)
+    dem_path = DEMOS_DIR / name
     staged_path = DEMOS_DIR / f".{name}.{secrets.token_hex(8)}.upload"
-    size = await run_in_threadpool(save_upload, file, staged_path)  # เขียนและตรวจไฟล์ใหม่ ได้ขนาดกลับมา
+    size = await run_in_threadpool(save_upload, file, staged_path)
 
-    # 2. สร้างแถวใหม่ในฐานข้อมูล และเช็คไฟล์ซํ้าด้วย
     published = False
     orphan_path = None
     locked = False
@@ -638,7 +635,6 @@ async def api_upload_demo(
             if existing:
                 raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
             # The unique key also arbitrates requests that passed the early check together.
-            # ในกรณีมีคนอัพโหลดไฟล์ชื่อเดียวพร้อมกัน จะไม่สร้างแถวใหม่
             match_id = await conn.fetchval("""
                 INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
                 VALUES ($1, 'queued', $2, $3, $4)
@@ -651,38 +647,34 @@ async def api_upload_demo(
                 orphan_dir.mkdir(exist_ok=True)
                 orphan_path = orphan_dir / f"{name}.{secrets.token_hex(8)}.bak"
                 dem_path.replace(orphan_path)
-            staged_path.replace(dem_path)  # เปลี่ยนกลับมาใช้ชื่อจริง
-            published = True  # เปลี่ยนกลับมาใช้ชื่อจริงแล้ว
+            staged_path.replace(dem_path)
+            published = True
     except Exception:
         if published:
-            dem_path.unlink(missing_ok=True)  # ลบไฟล์ทิ้งถ้ามีการ error ในภายหลัง
+            dem_path.unlink(missing_ok=True)
         if orphan_path is not None and orphan_path.exists() and not dem_path.exists():
             orphan_path.replace(dem_path)
         raise
     finally:
         try:
-            staged_path.unlink(missing_ok=True)  # เก็บกวาดไฟล์ .upload ที่ยังเหลือ
+            staged_path.unlink(missing_ok=True)
         finally:
             if locked:
                 await conn.execute("SELECT pg_advisory_unlock(hashtextextended($1, 0))", lock_name)
 
-    ### เมื่อได้ match_id แล้ว API ส่งเลขนี้ไปให้ระบบคิว ###
-    # 3. ส่ง match_id ให้คิวเพื่อให้ worker ทำงานต่อ
     try:
-        job_id = await run_in_threadpool(enqueue_parse, match_id)  # เรียก enqueue_parse(match_id)
+        job_id = await run_in_threadpool(enqueue_parse, match_id)
     except QueueUnavailable as e:
         await conn.execute("UPDATE matches SET status = 'error', error_message = $2 WHERE id = $1", match_id, str(e))
         log(f"[UPLOAD] {name}: {e}")
         raise HTTPException(503, "ส่งงานเข้าคิวไม่ได้ — ลบแมตช์ที่มีสถานะผิดพลาด แล้วลองอัปโหลดใหม่เมื่อระบบพร้อม")
-    # คิวรับงานได้ บันทึก job_id
     await conn.execute("UPDATE matches SET job_id = $2 WHERE id = $1;", match_id, job_id)
     log(f"[UPLOAD] {name} ({size / 1024 / 1024:.1f} MB) -> match {match_id} เข้าคิว job {job_id}")
 
-    # API ตอบ HTTP 202 ว่ารับไฟล์และส่งงานเข้าคิวแล้ว
     return JSONResponse(status_code=202, content={
         "match_id": match_id,
         "demo_file": name,
-        "size_mb": round(size / 1024 / 1024, 1),  # ทำให้เป็น MB
+        "size_mb": round(size / 1024 / 1024, 1),
         "status": "queued",
         "job_id": job_id,
         "status_url": f"/api/matches/{match_id}/status",
@@ -691,8 +683,6 @@ async def api_upload_demo(
 
 # ---------------------------------------------------------------------------
 #
-# ---------------------------------------------------------------------------
-# Match Review & Roster
 # ---------------------------------------------------------------------------
 async def _review_match(conn: asyncpg.Connection, demo_file: str, viewer: dict) -> dict:
     await require_match_access(conn, viewer, demo_file=demo_file)
@@ -733,7 +723,6 @@ async def _review_roster(conn: asyncpg.Connection, match_id: int) -> list[dict]:
             for sid, team in team_of.items()]
 
 
-# ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 ANALYSIS_SCOPES = {
     "reference": "เดโมทีมอาชีพ",
@@ -1043,10 +1032,28 @@ async def api_review_round(demo_file: str, round_num: int, viewer: dict = Depend
         SELECT id, tick, attacker_id, victim_id, damage
         FROM damages WHERE round_id = $1 ORDER BY tick, id""", rnd["id"])
     latest_damage_tick = damages[-1]["tick"] if damages else None
-    return build_round_detail(match=m, rnd=dict(rnd), roster=roster, in_round=rows(in_round), kills=rows(kills),
+    # Seed playback with completed rounds only. Current-round events are applied at the replay time.
+    prior_stats = await conn.fetch("""
+        WITH prior AS (
+            SELECT k.* FROM kills k JOIN rounds r ON r.id = k.round_id
+            WHERE r.match_id = $1 AND r.round_num < $2
+        ), events AS (
+            SELECT attacker_id AS steam_id, 1 AS kills, 0 AS deaths, 0 AS assists
+            FROM prior WHERE attacker_id IS NOT NULL AND attacker_side <> victim_side
+            UNION ALL
+            SELECT victim_id, 0, 1, 0 FROM prior
+            UNION ALL
+            SELECT assister_id, 0, 0, 1 FROM prior WHERE assister_id IS NOT NULL
+        )
+        SELECT steam_id::text AS steam_id, SUM(kills)::int AS kills,
+               SUM(deaths)::int AS deaths, SUM(assists)::int AS assists
+        FROM events GROUP BY steam_id""", m["id"], round_num)
+    detail = build_round_detail(match=m, rnd=dict(rnd), roster=roster, in_round=rows(in_round), kills=rows(kills),
                               grenades=rows(grenades), frame=radar_frame(m["map_name"]),
                               model=load_grid_model(map_name=m["map_name"]),
                               damages=rows(damages), latest_damage_tick=latest_damage_tick)
+    detail["scoreboard_start"] = rows(prior_stats)
+    return detail
 
 
 @app.get("/api/review/{demo_file}/rounds/{round_num}/positions")
@@ -1087,8 +1094,10 @@ _HEATMAP_SQL = {
           AND ($3::bigint[] IS NULL OR k.victim_id = ANY($3))
           AND ($4::int[] IS NULL OR r.round_num = ANY($4))""",
     "positions": """
-        SELECT x, y FROM player_positions
-        WHERE match_id = $1 AND health > 0
+        SELECT x, y, health, tick,
+               LEAD(tick) OVER (PARTITION BY steam_id, round_num ORDER BY tick) AS next_tick
+        FROM player_positions
+        WHERE match_id = $1
           AND ($2 = 'all' OR side = $2)
           AND ($3::bigint[] IS NULL OR steam_id = ANY($3))
           AND ($4::int[] IS NULL OR round_num = ANY($4))""",
@@ -1128,13 +1137,15 @@ async def api_review_heatmap(
     pts = await conn.fetch(sql, *args)
     roster = await _review_roster(conn, m["id"])
     n_rounds = await conn.fetchval("SELECT COUNT(*) FROM rounds WHERE match_id = $1", m["id"])
-    points = heatmap_points([r["x"] for r in pts], [r["y"] for r in pts], frame)
+    live_points = [r for r in pts if event != "positions" or (r["health"] or 0) > 0]
+    points = heatmap_points([r["x"] for r in live_points], [r["y"] for r in live_points], frame)
     return {
         "event": event,
         "demo": demo_file,
         "map": m["map_name"],
         "points": points,
         "count": len(points),
+        "cells": build_heatmap_cells(rows(pts), frame, event, m["tickrate"] or 128),
         "rounds": n_rounds,
         "roster": [{"steam_id": str(p["steam_id"]), "name": p["name"], "team": p["team"],
                     "start_side": p["start_side"]} for p in sorted(roster, key=lambda p: (p["team"] or "", p["name"]))],

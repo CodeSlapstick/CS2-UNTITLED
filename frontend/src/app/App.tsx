@@ -99,6 +99,7 @@ export function UserMenu() {
             </>
           ) : (
             <>
+              <Link className="um-item" role="menuitem" to="/settings" onClick={() => setOpen(false)}>{t("ตั้งค่า")}</Link>
               <button type="button" className="um-item" role="menuitem" onClick={leave}>
                 {t("ออกจากระบบ")}
               </button>
@@ -113,10 +114,10 @@ export function UserMenu() {
 // ================================================================================================
 // ================================================================================================
 const NAV = [
-  { to: "/player", label: "สถิติของฉัน", end: false, steamOnly: true },
   { to: "/matches", label: "แมตช์", end: false, steamOnly: false },
   { to: "/analysis", label: "เครื่องมือวิเคราะห์", end: false, steamOnly: false },
   { to: "/coach", label: "โค้ช", end: false, steamOnly: false },
+  { to: "/player", label: "สถิติของฉัน", end: false, steamOnly: true },
 ];
 
 function useViewerIsGuest() {

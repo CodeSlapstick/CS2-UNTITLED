@@ -15,6 +15,7 @@ const EconomyPage = lazy(() => import("@/features/matches/EconomyPage").then((mo
 const MatchesPage = lazy(() => import("@/features/matches/MatchesPage").then((module) => ({ default: module.MatchesPage })));
 const MatchPage = lazy(() => import("@/features/matches/MatchPage").then((module) => ({ default: module.MatchPage })));
 const PlayerPage = lazy(() => import("@/features/players/PlayerPage").then((module) => ({ default: module.PlayerPage })));
+const SettingsPage = lazy(() => import("@/features/settings/SettingsPage").then((module) => ({ default: module.SettingsPage })));
 const RoundPage = lazy(() => import("@/features/rounds/RoundPage").then((module) => ({ default: module.RoundPage })));
 const PlayerSearchPage = lazy(() => import("@/features/search/PlayerSearch").then((module) => ({ default: module.PlayerSearchPage })));
 
@@ -58,6 +59,7 @@ export function AppRoutes() {
         <Route path="/opening-route" element={<Navigate to="/analysis?tool=opening-route" replace />} />
         <Route path="/coach" element={<CoachPage />} />
         <Route path="/player" element={<PlayerPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/player/:steamId" element={<PlayerPage />} />
         <Route path="/players" element={<PlayerSearchPage />} />
         <Route path="*" element={<NotFound />} />

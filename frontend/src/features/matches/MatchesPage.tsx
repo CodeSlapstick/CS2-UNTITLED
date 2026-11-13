@@ -11,6 +11,11 @@ import { useT } from "@/shared/i18n";
  *
  */
 const STATUS_LABEL: Record<MatchStatus, string> = { queued: "รอคิว", parsing: "กำลังแกะ", done: "พร้อม", error: "แกะไม่สำเร็จ" };
+function mapName(map: string) {
+  const name = map.replace(/^de_/, "");
+  if (name.toLowerCase() === "dust2") return "Dust II";
+  return name.replace(/_/g, " ").replace(/\b\w/g, letter => letter.toUpperCase());
+}
 export function MatchesPage() {
   const matches = useQuery(matchesQuery);
   const me = useQuery({ queryKey: ["me"], queryFn: auth.me, retry: false, staleTime: 5 * 60_000 });
@@ -47,8 +52,7 @@ export function MatchesPage() {
         {!guest && <>
           <button type="button" className="btn-primary btn-icon" onClick={upload.pick} data-testid="upload-button">
             <IconUpload /> {t("อัปโหลดเดโม")}
-            
-          </button>  
+          </button>
           <input
             ref={upload.inputRef}
             type="file"
@@ -56,7 +60,7 @@ export function MatchesPage() {
             multiple
             hidden
             data-testid="file-input"
-            onChange={(e) => { upload.onFiles(e.target.files); e.target.value = ""; }} //รับไฟล์ที่ผู้ใช้เลือก 
+            onChange={(e) => { upload.onFiles(e.target.files); e.target.value = ""; }}
           />
         </>}
       </div>
@@ -80,7 +84,7 @@ export function MatchesPage() {
             <span className="sr-only">{t("แมพ")}</span>
             <select value={map} onChange={(e) => setMap(e.target.value)} data-testid="filter-map">
               <option value="">{t("ทุกแมพ")}</option>
-              {maps.map((x) => <option key={x} value={x}>{x}</option>)}
+              {maps.map((x) => <option key={x} value={x}>{mapName(x)}</option>)}
             </select>
           </label>
         )}
@@ -170,7 +174,7 @@ function MatchList({ rows, canDelete }: { rows: Match[]; canDelete: boolean }) {
               <MapThumb map={m.map_name} className="m-thumb" />
               <span className="m-title">{matchTitle(m)}</span>
               <span className="m-meta">
-                {m.map_name ?? t("ยังไม่รู้แมพ")}
+                {m.map_name ? mapName(m.map_name) : t("ยังไม่รู้แมพ")}
                 {done && <> · {t("{n} รอบ", { n: num(m.rounds) })}</>}
               </span>
               {done ? (
@@ -231,7 +235,7 @@ function useUploader() {
       for (const f of files) {
         patch(f.name, { state: "uploading", msg: undefined });
         try {
-          await api.upload(f); //ให้ฟังก์ชันนี้รอผลการอัปโหลดไฟล์นั้นก่อนทำขั้นตอนถัดไป
+          await api.upload(f);
           patch(f.name, { state: "queued", msg: "เข้าคิวแล้ว กำลังรอแกะ" });
           qc.invalidateQueries({ queryKey: ["matches"] }); // แถวใหม่โผล่ทันที แล้ว poll ต่อเองจนแกะเสร็จ
         } catch (e) {
