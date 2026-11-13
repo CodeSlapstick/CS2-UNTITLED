@@ -1,4 +1,4 @@
-import type { ReviewDefuse, RoundDetail, RoundPositions } from "@/shared/api";
+import type { ReplayStats, ReviewDefuse, RoundDetail, RoundPositions } from "@/shared/api";
 
 export function defuseAt(
   events: ReviewDefuse[] | undefined, time: number, resolvedT: number | null | undefined,
@@ -179,4 +179,22 @@ export function playersAt(pos: RoundPositions, t: number, roster: PlaybackRoster
         hasBomb: p.has_bomb ?? null,
       } as LivePlayer;
     });
+}
+
+/** Recompute from the baseline so seeking backwards cannot retain future events. */
+export function replayStatsAt(detail: RoundDetail, time: number): ReplayStats[] {
+  const stats = new Map<string, ReplayStats>(detail.teams.flatMap((team) => team.players.map((player) => [player.steamid, {
+    steam_id: player.steamid, kills: 0, deaths: 0, assists: 0,
+  }] as const)));
+  for (const initial of detail.scoreboard_start ?? []) stats.set(initial.steam_id, { ...initial });
+  for (const death of detail.deaths) {
+    if (death.t_round == null || death.t_round < 0 || death.t_round > time) continue;
+    const victim = stats.get(death.victim.steamid);
+    const attacker = death.attacker && stats.get(death.attacker.steamid);
+    const assister = death.assister_steamid && stats.get(death.assister_steamid);
+    if (victim) victim.deaths += 1;
+    if (attacker && death.is_duel) attacker.kills += 1;
+    if (assister) assister.assists += 1;
+  }
+  return [...stats.values()];
 }

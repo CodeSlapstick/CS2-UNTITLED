@@ -329,6 +329,7 @@ def _death_rows(kills: list[dict], person, *, start, tickrate: int,
             "order": i, "tick": int(k["tick"]), "t_round": _t(k["tick"], start, tickrate),
             "victim": victim, "attacker": attacker,
             "assister": k.get("assister_name"),
+            "assister_steamid": str(k["assister_id"]) if k.get("assister_id") else None,
             "is_duel": is_duel, "team_kill": bool(attacker) and not is_duel and k.get("attacker_side") == k.get("victim_side"),
             "weapon": k.get("weapon"), "headshot": bool(k.get("headshot")),
             "attacker_blind": bool(k.get("attacker_blind")), "thru_smoke": bool(k.get("thru_smoke")),
@@ -541,6 +542,35 @@ def heatmap_points(xs, ys, frame: RadarFrame) -> list[list[float]]:
 
 
 TEAM_BUY_TYPES = ("pistol", "eco", "semi_eco", "semi_buy", "full")
+
+
+def build_heatmap_cells(records: list[dict], frame: RadarFrame, event: str, tickrate: int) -> dict:
+    """Aggregate radar cells; recorded position intervals approximate player-seconds.
+
+    Cap intervals at the median sampling step to avoid counting gaps in recordings.
+    A final snapshot has no observed following interval and contributes zero seconds.
+    """
+    deltas = [row["next_tick"] - row["tick"] for row in records
+              if row.get("next_tick") is not None and row.get("tick") is not None
+              and row["next_tick"] > row["tick"]] if event == "positions" else []
+    step = float(np.median(deltas)) if deltas and tickrate > 0 else None
+    unit = "player_seconds" if step else "samples" if event == "positions" else "events"
+    counts: dict[tuple[int, int], float] = {}
+    for row in records:
+        if event == "positions" and (row.get("health") or 0) <= 0:
+            continue
+        x, y = row.get("x"), row.get("y")
+        if x is None or y is None or not in_frame(x, y, frame):
+            continue
+        weight = 1.0
+        if step:
+            delta = max(0, (row.get("next_tick") or row["tick"]) - row["tick"])
+            weight = min(delta, step) / tickrate
+        px, py = world_to_pixel(x, y, frame)
+        key = min(31, int(px * 32 / frame.size)), min(31, int(py * 32 / frame.size))
+        counts[key] = counts.get(key, 0) + weight
+    cells = [[cx, cy, round(value, 4)] for (cx, cy), value in sorted(counts.items()) if value > 0]
+    return {"n": 32, "unit": unit, "cells": cells, "max": max((cell[2] for cell in cells), default=0)}
 
 
 def build_economy(econ: list[dict], sides: list[dict], roster: list[dict]) -> dict:

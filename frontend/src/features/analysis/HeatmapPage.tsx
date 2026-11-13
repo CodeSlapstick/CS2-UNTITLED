@@ -1,7 +1,7 @@
 import { type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
-import { api, matchesQuery, type HeatEvent, type MatchHeatmap } from "@/shared/api";
+import { api, matchesQuery, type HeatEvent, type MatchHeatmap, type HeatmapCells } from "@/shared/api";
 import { useT } from "@/shared/i18n";
 import { useViewportFit } from "@/shared/ui/useViewportFit";
 import { Breadcrumb, MapThumb, MatchTabs, NADE_ICON, NotFound, num } from "@/shared/ui/utils";
@@ -17,7 +17,7 @@ type Side = "all" | "ct" | "t";
 const EVENTS: { key: HeatEvent; label: string; who: string; group: "คน" | "ระเบิด" }[] = [
   { key: "kills", label: "คิล", who: "ตำแหน่งคนยิงตอนยิงคู่แข่งตาย", group: "คน" },
   { key: "deaths", label: "ตาย", who: "ตำแหน่งที่ผู้เล่นตาย", group: "คน" },
-  { key: "positions", label: "ยืน", who: "ตำแหน่งที่ผู้เล่นยืน เก็บ 8 ครั้งต่อวินาทีตลอดรอบ", group: "คน" },
+  { key: "positions", label: "ยืน", who: "ตำแหน่งผู้เล่นที่ยังมีชีวิตจากข้อมูลที่บันทึก", group: "คน" },
   { key: "smoke", label: "สโมค", who: "จุดที่สโมคแตก", group: "ระเบิด" },
   { key: "flash", label: "แฟลช", who: "จุดที่แฟลชแตก", group: "ระเบิด" },
   { key: "he", label: "HE", who: "จุดที่ HE แตก", group: "ระเบิด" },
@@ -124,10 +124,26 @@ function HeatmapBody({ demo, totalRounds }: { demo: string; totalRounds: number 
   const currentData = q.isPlaceholderData && !none ? null : data;
   const empty = none || (currentData?.count === 0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cells = useMemo<HeatmapCells>(() => {
+    if (empty || q.isPlaceholderData) return { n: 32, unit: data?.cells?.unit ?? "events", cells: [], max: 0 };
+    if (data?.cells) return data.cells;
+    const counts = new Map<string, [number, number, number]>();
+    for (const [x, y] of data?.points ?? []) {
+      const cx = Math.min(31, Math.max(0, Math.floor(x * 32 / data!.radar.size)));
+      const cy = Math.min(31, Math.max(0, Math.floor(y * 32 / data!.radar.size)));
+      const key = `${cx},${cy}`;
+      const cell = counts.get(key) ?? [cx, cy, 0];
+      cell[2] += 1;
+      counts.set(key, cell);
+    }
+    const values = [...counts.values()];
+    return { n: 32, unit: ev === "positions" ? "samples" : "events", cells: values, max: Math.max(0, ...values.map(cell => cell[2])) };
+  }, [data, ev, empty, q.isPlaceholderData]);
+  const unit = t(cells.unit === "player_seconds" ? "คน·วินาทีโดยประมาณ" : cells.unit === "samples" ? "จุดที่บันทึก" : ev === "kills" ? "คิล" : ev === "deaths" ? "การตาย" : "ระเบิด");
 
   return (
     <div className="heat-page" data-testid="heatmap-page">
-      <Breadcrumb items={[{ label: t("แมตช์"), to: "/matches" }]} />
+      <Breadcrumb items={[{ label: t("แมตช์"), to: "/matches" }, { label: demo }]} />
       <div className="page-head mt-head">
         <MapThumb map={data?.map} className="mh-thumb" />
         <div>
@@ -144,7 +160,7 @@ function HeatmapBody({ demo, totalRounds }: { demo: string; totalRounds: number 
             ) : data ? (
               <>
                 <HeatCanvas data={data} points={empty || q.isPlaceholderData ? [] : data.points} radius={radius} blur={blur}
-                  opacity={opacity} canvasRef={canvasRef} />
+                  opacity={opacity} canvasRef={canvasRef} cells={cells} unit={unit} />
                 {empty && <div className="heat-empty" role="status">
                   {t(none ? "ยังไม่ได้เลือกผู้เล่น" : "ไม่พบข้อมูลในรอบที่เลือก")}
                 </div>}
@@ -157,7 +173,7 @@ function HeatmapBody({ demo, totalRounds }: { demo: string; totalRounds: number 
             )}
           </div>
           <div className="heat-foot">
-            <span className="heat-key" aria-hidden="true">
+            <span className="heat-key">
               <span>{t("น้อย")}</span><i /><span>{t("มาก")}</span>
             </span>
           </div>
@@ -255,6 +271,7 @@ function HeatmapBody({ demo, totalRounds }: { demo: string; totalRounds: number 
               format={(v) => `${Math.round(v * 100)}%`} />
           </fieldset>
 
+
         </aside>
       </div>
     </div>
@@ -346,13 +363,15 @@ function drawHeat(canvas: HTMLCanvasElement, size: number, points: [number, numb
 
 const MAX_Z = 6;
 
-function HeatCanvas({ data, points, radius, blur, opacity, canvasRef }: {
+function HeatCanvas({ data, points, radius, blur, opacity, canvasRef, cells, unit }: {
   data: MatchHeatmap;
   points: [number, number][];
   radius: number;
   blur: number;
   opacity: number;
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  cells: HeatmapCells;
+  unit: string;
 }) {
   const { t } = useT();
   const size = data.radar.size;
@@ -363,6 +382,30 @@ function HeatCanvas({ data, points, radius, blur, opacity, canvasRef }: {
   const [view, setView] = useState({ z: 1, tx: 0, ty: 0 });
   const box = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
+  const values = useMemo(() => new Map(cells.cells.map(([x, y, value]) => [y * cells.n + x, value])), [cells]);
+  const [hover, setHover] = useState<{
+    left: number; top: number; pointerX: number; pointerY: number; mapX: number; mapY: number;
+    value: number; cells: HeatmapCells; view: typeof view;
+  } | null>(null);
+  const tooltip = hover?.cells === cells && hover.view === view ? hover : null;
+  const inspect = (clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    const container = box.current;
+    if (!canvas || !container || points.length === 0) { setHover(null); return; }
+    const radar = canvas.getBoundingClientRect();
+    const bounds = container.getBoundingClientRect();
+    const mapX = (clientX - radar.left) / radar.width * size;
+    const mapY = (clientY - radar.top) / radar.height * size;
+    if (mapX < 0 || mapY < 0 || mapX >= size || mapY >= size) { setHover(null); return; }
+    const x = Math.floor(mapX / size * cells.n);
+    const y = Math.floor(mapY / size * cells.n);
+    const pointerX = clientX - bounds.left;
+    const pointerY = clientY - bounds.top;
+    setHover({ mapX, mapY, pointerX, pointerY,
+      left: Math.max(8, Math.min(pointerX + 14, bounds.width - 228)),
+      top: Math.max(8, Math.min(pointerY + 14, bounds.height - 128)),
+      value: values.get(y * cells.n + x) ?? 0, cells, view });
+  };
   const clamp = (z: number, tx: number, ty: number) => {
     const lim = 1 - z; // เลื่อนได้ไม่เกินขอบภาพ
     return { z, tx: Math.min(0, Math.max(lim, tx)), ty: Math.min(0, Math.max(lim, ty)) };
@@ -391,23 +434,65 @@ function HeatCanvas({ data, points, radius, blur, opacity, canvasRef }: {
       className={`heat-box${view.z > 1 ? " zoomed" : ""}`}
       ref={box}
       onPointerDown={(e) => {
-        if (view.z <= 1 || e.button !== 0) return;
+        if ((e.target as Element).closest("button")) return;
+        if (view.z <= 1) { inspect(e.clientX, e.clientY); return; }
+        if (e.button !== 0) return;
+        setHover(null);
         drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty };
         e.currentTarget.setPointerCapture(e.pointerId);
       }}
       onPointerMove={(e) => {
         const d = drag.current;
-        if (!d) return;
+        if (!d) {
+          if ((e.target as Element).closest("button")) setHover(null);
+          else inspect(e.clientX, e.clientY);
+          return;
+        }
         const r = e.currentTarget.getBoundingClientRect();
         setView((v) => clamp(v.z, d.tx + (e.clientX - d.x) / r.width, d.ty + (e.clientY - d.y) / r.height));
       }}
-      onPointerUp={() => (drag.current = null)}
+      onPointerUp={(e) => {
+        const d = drag.current;
+        drag.current = null;
+        if (e.pointerType === "touch" && (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) < 4)) inspect(e.clientX, e.clientY);
+      }}
+      onPointerCancel={() => { drag.current = null; setHover(null); }}
+      onPointerLeave={(e) => { if (e.pointerType !== "touch") setHover(null); }}
       data-testid="heatmap-box"
     >
       <div className="heat-stage" style={{ transform: `translate(${view.tx * 100}%, ${view.ty * 100}%) scale(${view.z})` }}>
         <img src={data.radar.image} alt={t("ภาพเรดาร์ {map}", { map: data.radar.map })} draggable={false} />
-        <canvas ref={canvasRef} style={{ opacity }} data-testid="heatmap-canvas" />
+        <canvas ref={canvasRef} style={{ opacity }} data-testid="heatmap-canvas" tabIndex={0} role="img"
+          aria-label={t("แผนที่ความหนาแน่น ใช้ปุ่มลูกศรเพื่อดูค่าในบริเวณต่าง ๆ")}
+          aria-describedby={tooltip ? "heatmap-value-tooltip" : undefined}
+          onFocus={(e) => {
+            if (!e.currentTarget.matches(":focus-visible")) return;
+            const r = box.current?.getBoundingClientRect();
+            if (r) inspect(r.left + r.width / 2, r.top + r.height / 2);
+          }}
+          onBlur={() => setHover(null)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") { setHover(null); return; }
+            const delta: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+            if (!delta[e.key]) return;
+            e.preventDefault();
+            const r = e.currentTarget.getBoundingClientRect();
+            const [dx, dy] = delta[e.key];
+            const mapX = Math.max(0.5, Math.min(size - 0.5, (tooltip?.mapX ?? size / 2) + dx * size / cells.n));
+            const mapY = Math.max(0.5, Math.min(size - 0.5, (tooltip?.mapY ?? size / 2) + dy * size / cells.n));
+            const bounds = box.current!.getBoundingClientRect();
+            inspect(Math.max(bounds.left + 1, Math.min(bounds.right - 1, r.left + mapX / size * r.width)),
+              Math.max(bounds.top + 1, Math.min(bounds.bottom - 1, r.top + mapY / size * r.height)));
+          }} />
       </div>
+      {tooltip && <>
+        <span className="heat-inspection-point" aria-hidden="true" style={{ left: tooltip.pointerX, top: tooltip.pointerY }} />
+        <div id="heatmap-value-tooltip" role="tooltip" className="heat-density-tooltip" style={{ left: tooltip.left, top: tooltip.top }}>
+          <span>{t("บริเวณที่ชี้")}</span>
+          <strong>{tooltip.value.toLocaleString(undefined, { maximumFractionDigits: 2 })} {unit}</strong>
+          <small>{t("พื้นที่ {size} × {size} px บนภาพแผนที่", { size: size / cells.n })}</small>
+        </div>
+      </>}
       <div className="map-zoom" role="group" aria-label={t("ซูมแผนที่")}>
         <button type="button" onClick={() => zoomAt(1.4)} disabled={view.z >= MAX_Z} aria-label={t("ซูมเข้า")}
           title={t("ซูมเข้า (หรือหมุนล้อเมาส์บนแผนที่)")}>+</button>

@@ -9,6 +9,9 @@ x-backend: &backend
     DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-cs2_analytics}
     REDIS_URL: redis://redis:6379/0
     QUEUE_BACKEND: rq
+    STEAM_API_KEY: ${STEAM_API_KEY:-}
+    STEAM_GC_URL: http://steam-gc:8091
+    STEAM_GC_SERVICE_TOKEN: ${STEAM_GC_SERVICE_TOKEN:-}
   volumes:
     - ./demos:/app/demos            # ไฟล์ .dem ที่อัปโหลด — api เขียน worker อ่าน ต้องเห็นโฟลเดอร์เดียวกัน
     - ./output:/app/output          # ผล parse และ artifact จาก research/ ที่รันในเครื่อง
@@ -19,6 +22,18 @@ x-backend: &backend
       condition: service_healthy
 
 services:
+  steam-gc:
+    profiles: ["steam-sync"]
+    build: ./integrations/steam-gc
+    restart: unless-stopped
+    environment:
+      STEAM_GC_REFRESH_TOKEN: ${STEAM_GC_REFRESH_TOKEN:-}
+      STEAM_GC_SERVICE_TOKEN: ${STEAM_GC_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8091/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
   db:
     image: postgres:16-alpine
     container_name: cs2-postgres

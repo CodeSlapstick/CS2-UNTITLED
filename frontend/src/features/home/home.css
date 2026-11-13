@@ -66,3 +66,14 @@ html[data-theme="light"] .home-feature-meta > span { color: #a34400; }
   .home-demo figcaption { padding: 10px 12px; }
 }
 @media (prefers-reduced-motion: reduce) { .home-feature { transition: none; } }
+
+html[lang="th"] .home-page h1,
+html[lang="th"] .home-page h2,
+html[lang="th"] .home-page h3,
+html[lang="th"] .home-primary {
+  font-family: "Anuphan", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.4;
+}
+.home-hero-actions { margin-top: 28px; }

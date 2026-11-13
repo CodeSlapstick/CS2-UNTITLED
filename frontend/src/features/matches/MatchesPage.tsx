@@ -11,6 +11,11 @@ import { useT } from "@/shared/i18n";
  *
  */
 const STATUS_LABEL: Record<MatchStatus, string> = { queued: "รอคิว", parsing: "กำลังแกะ", done: "พร้อม", error: "แกะไม่สำเร็จ" };
+function mapName(map: string) {
+  const name = map.replace(/^de_/, "");
+  if (name.toLowerCase() === "dust2") return "Dust II";
+  return name.replace(/_/g, " ").replace(/\b\w/g, letter => letter.toUpperCase());
+}
 export function MatchesPage() {
   const matches = useQuery(matchesQuery);
   const me = useQuery({ queryKey: ["me"], queryFn: auth.me, retry: false, staleTime: 5 * 60_000 });
@@ -79,7 +84,7 @@ export function MatchesPage() {
             <span className="sr-only">{t("แมพ")}</span>
             <select value={map} onChange={(e) => setMap(e.target.value)} data-testid="filter-map">
               <option value="">{t("ทุกแมพ")}</option>
-              {maps.map((x) => <option key={x} value={x}>{x}</option>)}
+              {maps.map((x) => <option key={x} value={x}>{mapName(x)}</option>)}
             </select>
           </label>
         )}
@@ -169,7 +174,7 @@ function MatchList({ rows, canDelete }: { rows: Match[]; canDelete: boolean }) {
               <MapThumb map={m.map_name} className="m-thumb" />
               <span className="m-title">{matchTitle(m)}</span>
               <span className="m-meta">
-                {m.map_name ?? t("ยังไม่รู้แมพ")}
+                {m.map_name ? mapName(m.map_name) : t("ยังไม่รู้แมพ")}
                 {done && <> · {t("{n} รอบ", { n: num(m.rounds) })}</>}
               </span>
               {done ? (

@@ -1,0 +1,20 @@
+.replay-kill-feed { position: absolute; top: 58px; right: 10px; z-index: 6; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; max-width: calc(100% - 20px); margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.replay-kill-feed li { max-width: 100%; }
+.replay-kill-feed button { display: flex; align-items: center; justify-content: flex-end; gap: 7px; max-width: 100%; min-height: 32px; padding: 6px 9px; border: 1px solid #344455; border-radius: 4px; background: #0c1522; color: #eaf2fb; font: 500 11px/1.35 Anuphan, sans-serif; cursor: pointer; pointer-events: auto; }
+.replay-kill-feed button:hover { border-color: #8fb4ff; background: #17283d; }
+.replay-kill-feed button:focus-visible { outline: 2px solid #00e5ff; outline-offset: 2px; }
+.replay-kill-feed time { color: #9aaec5; font-size: 10px; font-variant-numeric: tabular-nums; flex: none; }
+.feed-player { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.feed-ct { color: #8fb4ff; }
+.feed-t { color: #ffb067; }
+.feed-assist { max-width: 75px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #b7c5d7; font-size: 10px; }
+.feed-weapon { display: flex; flex: none; width: 32px; align-items: center; justify-content: center; }
+.feed-weapon svg { width: 32px; height: 17px; fill: currentColor; }
+.feed-headshot { display: flex; flex: none; color: #eaf2fb; }
+.feed-headshot svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+@media (max-width: 760px) {
+  .replay-kill-feed { position: static; width: 100%; max-width: none; flex: none; padding: 8px; border-top: 1px solid var(--line); background: var(--card); align-items: stretch; }
+  .replay-kill-feed button { width: 100%; min-height: 38px; gap: 5px; padding: 6px; justify-content: flex-start; }
+  .feed-player { max-width: 80px; }
+  .feed-assist { max-width: 45px; }
+}

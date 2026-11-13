@@ -14,13 +14,12 @@ const COPY = {
   th: {
     navFeatures: "สำรวจฟีเจอร์", signIn: "เข้าสู่ระบบ",
     headline: ["ดูให้ครบทั้งรอบ", "ก่อนสรุปจากจังหวะเดียว"],
-    lead: "เปลี่ยนเดโม CS2 ให้เป็นภาพรวมทีละรอบ เห็นตำแหน่งผู้เล่น จังหวะปะทะ และ utility ที่กำลังทำงานในแต่ละวินาที",
-    tryNow: "ลองใช้งาน", note: "อ้างอิงจากเดโมของทีมคุณ · ดูข้อเท็จจริงโดยไม่ตัดสินผู้เล่น",
+    tryNow: "เข้าใช้งาน CS2 UNTITLED",
     demoLabel: "ชมการใช้งาน CS2 UNTITLED", demoNote: "คลิปสาธิตจากระบบของเรา",
     workflowTitle: ["หนึ่งเดโม", "รีวิวได้ครบทั้งแมตช์"],
     preview: "เล่นภาพตัวอย่าง", pause: "หยุดภาพตัวอย่าง", open: "เปิดฟีเจอร์",
-    finalTitle: "เริ่มรีวิวจากแมตช์ของคุณ",
-    finalBody: "เข้าสู่ระบบด้วย Steam เพื่ออัปโหลดเดโม หรือเปิดโหมดผู้เยี่ยมชมเพื่อสำรวจแมตช์ตัวอย่างก่อน",
+    finalTitle: "ดูแมตช์ของคุณ",
+    finalBody: "เข้าสู่ระบบด้วย Steam เพื่ออัปโหลดเดโม หรือดูแมตช์ตัวอย่างในโหมดผู้เยี่ยมชม",
     finalCta: "เข้าใช้งาน CS2 UNTITLED",
     features: [
       ["อัปโหลดเดโม", "นำเข้าไฟล์ .dem ของการแข่งขัน ระบบจะประมวลผลและเพิ่มแมตช์ให้พร้อมรีวิว"],
@@ -35,14 +34,13 @@ const COPY = {
   en: {
     navFeatures: "Explore features", signIn: "Sign in",
     headline: ["See the whole round", "before judging one moment"],
-    lead: "Turn a CS2 demo into a round-by-round map story. See where every player was, when the fight happened, and which utility was active at that second.",
-    tryNow: "Explore the system", note: "Your team's demo data · facts without grading players",
+    tryNow: "Open CS2 UNTITLED",
     demoLabel: "CS2 UNTITLED in action", demoNote: "A walkthrough of our application",
     workflowTitle: ["One demo.", "A complete match review."],
     preview: "Play preview", pause: "Pause preview", open: "Open feature",
-    finalTitle: "Make your match the starting point",
+    finalTitle: "Review your match",
     finalBody: "Sign in with Steam to upload a demo, or explore a sample match in guest mode first.",
-    finalCta: "Explore CS2 UNTITLED",
+    finalCta: "Open CS2 UNTITLED",
     features: [
       ["Upload demo", "Import a .dem match file. The system processes it and adds the match to your review library."],
       ["2D Replay", "Replay events, scrub the timeline, and follow player positions and grenades on the map."],
@@ -159,10 +157,8 @@ export function HomePage() {
       <section className="home-hero">
         <div className="home-hero-copy">
           <h1>{c.headline.map(line => <span key={line}>{line}</span>)}</h1>
-          <p>{c.lead}</p>
           <div className="home-hero-actions">
             <Link className="home-primary" to={loginPath}>{c.tryNow}<Arrow /></Link>
-            <span>{c.note}</span>
           </div>
         </div>
         <figure className="home-demo" id="demo">

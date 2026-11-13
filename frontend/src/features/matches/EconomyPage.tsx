@@ -229,6 +229,7 @@ function EquipmentValueChart({ data, buyTypes, demo }: { data: MatchEconomy; buy
     let disposed = false;
     let chart: import("echarts").ECharts | null = null;
     let observer: ResizeObserver | null = null;
+    let themeObserver: MutationObserver | null = null;
     void import("echarts").then((echarts) => {
       if (disposed || !rootRef.current) return;
       chart = echarts.init(rootRef.current, undefined, { renderer: "canvas" });
@@ -277,6 +278,22 @@ function EquipmentValueChart({ data, buyTypes, demo }: { data: MatchEconomy; buy
           }),
         })),
       });
+      themeObserver = new MutationObserver(() => {
+        const current = getComputedStyle(document.documentElement);
+        const textColor = current.getPropertyValue("--text").trim() || "#17202c";
+        const mutedColor = current.getPropertyValue("--muted").trim() || "#596575";
+        const lineColor = current.getPropertyValue("--line").trim() || "#c9d1dc";
+        const cardColor = current.getPropertyValue("--card").trim() || "#fff";
+        chart?.setOption({
+          textStyle: { color: textColor },
+          legend: { textStyle: { color: textColor } },
+          xAxis: { axisLine: { lineStyle: { color: lineColor } }, axisLabel: { color: mutedColor }, axisPointer: { lineStyle: { color: mutedColor } } },
+          yAxis: { axisLabel: { color: mutedColor }, splitLine: { lineStyle: { color: lineColor } } },
+          tooltip: { backgroundColor: cardColor, borderColor: lineColor, textStyle: { color: textColor } },
+          series: data.teams.map(() => ({ itemStyle: { borderColor: cardColor } })),
+        });
+      });
+      themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
       chart.on("click", (event: { dataIndex?: number }) => {
         const round = event.dataIndex == null ? null : data.rounds[event.dataIndex];
         if (round) navigate(`/matches/${encodeURIComponent(demo)}/rounds/${round.round_num}`);
@@ -287,7 +304,7 @@ function EquipmentValueChart({ data, buyTypes, demo }: { data: MatchEconomy; buy
       });
       observer.observe(root);
     });
-    return () => { disposed = true; observer?.disconnect(); chart?.dispose(); };
+    return () => { disposed = true; observer?.disconnect(); themeObserver?.disconnect(); chart?.dispose(); };
   }, [buyTypes, data, demo, navigate, t]);
   return <div ref={rootRef} className="econ-echart" role="img" aria-label={t("กราฟมูลค่าอุปกรณ์ทั้งทีมรายรอบ คลิกจุดเพื่อเปิด Demo Viewer")} />;
 }

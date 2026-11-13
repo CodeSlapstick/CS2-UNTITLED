@@ -156,6 +156,7 @@ export interface ReviewDeath {
   victim: ReviewPerson;
   attacker: ReviewPerson | null;
   assister: string | null;
+  assister_steamid?: string | null;
   is_duel: boolean;
   team_kill: boolean;
   weapon: string | null;
@@ -239,7 +240,15 @@ export interface RoundPositions {
   }[] }[];
 }
 
+export interface ReplayStats {
+  steam_id: string;
+  kills: number;
+  deaths: number;
+  assists: number;
+}
+
 export interface RoundDetail {
+  scoreboard_start?: ReplayStats[];
   match: { id: number; demo_file: string; map_name: string; tickrate: number; team_a: string | null; team_b: string | null };
   round: {
     num: number;
@@ -361,6 +370,7 @@ export interface MatchEconomy {
 
 export type HeatEvent = "kills" | "deaths" | "positions" | "smoke" | "flash" | "he" | "molotov";
 export interface MatchHeatmap {
+  cells?: HeatmapCells;
   event: HeatEvent;
   demo: string;
   map: string;
@@ -369,6 +379,13 @@ export interface MatchHeatmap {
   rounds: number;
   roster: { steam_id: string; name: string; team: string | null; start_side: string | null }[];
   radar: { image: string; size: number; map: string };
+}
+
+export interface HeatmapCells {
+  n: number;
+  unit: "events" | "samples" | "player_seconds";
+  cells: [number, number, number][];
+  max: number;
 }
 
 const enc = encodeURIComponent;
@@ -403,6 +420,7 @@ export interface CoachResult {
 }
 
 export const api = {
+  matchAvatars: (id: number) => request<Record<string, string | null>>(`/api/matches/${id}/avatars`),
   coach: (demo: string, side: Side) => request<CoachResult>(`/api/coach/${enc(demo)}?side=${side}`),
   openingCatalog: () => request<OpeningCatalogRow[]>("/api/opening-route/catalog"),
   openingRoutes: (steamid: string, map: string, side: Side, limit: number) =>

@@ -13,6 +13,25 @@ const REASONS: Record<string, string> = {
   insufficient_support: "ยังมีตัวอย่างรอบลักษณะนี้ไม่พอสำหรับแนะนำแผน",
 };
 
+const PLAN_MAPS: Record<string, { name: string; folder: string; shots?: [number, number, number]; middle?: string }> = {
+  de_mirage: { name: "Mirage", folder: "mirage" },
+  de_dust2: { name: "Dust II", folder: "dust2" },
+  de_ancient: { name: "Ancient", folder: "ancient", shots: [1, 2, 3] },
+  de_anubis: { name: "Anubis", folder: "anubis", shots: [2, 3, 4] },
+  de_cache: { name: "Cache", folder: "cache", shots: [1, 2, 3], middle: "" },
+  de_inferno: { name: "Inferno", folder: "inferno", shots: [1, 2, 3], middle: "BANANA" },
+  de_nuke: { name: "Nuke", folder: "nuke", shots: [1, 2, 4], middle: "GARAGE" },
+  de_overpass: { name: "Overpass", folder: "overpass", shots: [1, 2, 3], middle: "CONNECTOR" },
+};
+
+// Source galleries: https://op.gg/cs2/maps/de_<map>. Source labels identify each area;
+// Cache's gallery does not, so those images carry only the map name.
+function planImage(map: NonNullable<(typeof PLAN_MAPS)[string]>, area: "a" | "b" | "mid") {
+  if (!map.shots) return `/site-prediction/${map.folder}/${area}.jpg`;
+  const index = map.shots[area === "a" ? 0 : area === "b" ? 1 : 2];
+  return `https://s-stats-platform-cdn.op.gg/cs2/images/map_icons/screenshots/720p/de_${map.folder}_${index}_png.png?image=q_auto:good,f_jpg,w_960`;
+}
+
 type TFn = (key: string, vars?: Record<string, string | number>) => string;
 
 function planLabel(name: string, t: TFn): string {
@@ -43,9 +62,7 @@ export function CoachPage() {
   const coach = useQuery({ queryKey: ["coach", match?.demo_file, side], queryFn: () => api.coach(match!.demo_file, side), enabled: !!match });
   const reportMatch = match?.source === "upload" ? match : undefined;
   const round = coach.data?.rounds.find((r) => String(r.round_num) === params.get("round")) ?? coach.data?.rounds[0];
-  const planMap = match?.map_name === "de_mirage" || match?.map_name === "de_dust2" ? match.map_name : null;
-  const planMapName = planMap === "de_mirage" ? "Mirage" : planMap === "de_dust2" ? "Dust II" : "";
-  const planMapFolder = planMap === "de_mirage" ? "mirage" : planMap === "de_dust2" ? "dust2" : "";
+  const planMap = match?.map_name ? PLAN_MAPS[match.map_name] : undefined;
   function change(key: string, value: string) {
     const next = new URLSearchParams(params); next.set(key, value);
     if (key === "demo") next.delete("round");
@@ -68,9 +85,9 @@ export function CoachPage() {
         {!round.available ? <div className="card"><p>{t(REASONS[round.reason ?? "insufficient_support"])}</p></div> : <>
           <div className="coach-options">{round.options.map((option, index) => {
             const area = planArea(option.name);
-            const areaLabel = area.toUpperCase();
+            const areaLabel = match?.map_name === "de_cache" ? "" : area === "mid" ? planMap?.middle ?? "MID" : area.toUpperCase();
             return <article className="card coach-plan-card" key={option.id}>
-              {planMap && <div className="coach-plan-media"><img src={`/site-prediction/${planMapFolder}/${area}.jpg`} alt={t("ภาพบริเวณ {area} ของแมพ {map}", { area: areaLabel, map: planMapName })} loading="lazy" /><span>{planMapName} · {areaLabel}</span></div>}
+              {planMap && <div className="coach-plan-media"><img key={`${planMap.folder}-${area}`} src={planImage(planMap, area)} alt={areaLabel ? t("ภาพบริเวณ {area} ของแมพ {map}", { area: areaLabel, map: planMap.name }) : planMap.name} loading="lazy" referrerPolicy="no-referrer" onError={event => { event.currentTarget.style.visibility = "hidden"; }} /><span>{planMap.name}{areaLabel && ` · ${areaLabel}`}</span></div>}
               <div className="coach-plan-body">
                 <h2>{index + 1}. {planLabel(option.name, t)}</h2>
                 <dl className="coach-profile">{(["a", "mid", "b", "other"] as const).map((profileArea) => <div key={profileArea}><dt>{profileArea === "other" ? t("พื้นที่อื่น") : profileArea.toUpperCase()}</dt><dd>{Math.round(option.profile[`${profileArea}_15`] * 100)}%</dd></div>)}</dl>

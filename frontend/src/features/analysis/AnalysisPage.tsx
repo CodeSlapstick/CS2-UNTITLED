@@ -163,14 +163,6 @@ export function AnalysisPage() {
         </label>
       </div>
 
-      {activeMatch && (
-        <div className="analysis-context" aria-label={t("แมตช์ที่กำลังวิเคราะห์")}>
-          <span><small>{t("ทีม")}</small><strong>{t("ศัตรู")} vs {t("ทีมเรา")}</strong></span>
-          <span><small>{t("แผนที่")}</small><strong>{activeMatch.map_name}</strong></span>
-          <span><small>{t("แมตช์")}</small><strong>{matchLabel(activeMatch)}</strong></span>
-        </div>
-      )}
-
       {error && <p className="err" role="alert">{t("โหลดข้อมูลไม่ได้: {msg}", { msg: error.message })}</p>}
       {loading && <p className="muted" role="status">{t("กำลังนับจุดตาย…")}</p>}
 
@@ -557,12 +549,6 @@ function continuousFreqPaint(cells: DeathCellCount[], side: Side) {
   };
 }
 
-const SIDE_NOTE: Record<Side, string> = {
-  all: "รวมทั้งสองฝั่ง",
-  ct: "เฉพาะตอนเป็น CT",
-  t: "เฉพาะตอนเป็น T",
-};
-
 /**
  */
 function GradientKey({ cells, side }: { cells: DeathCellCount[]; side: Side }) {
@@ -585,7 +571,7 @@ function GradientKey({ cells, side }: { cells: DeathCellCount[]; side: Side }) {
   });
   return (
     <div className="map-key grad-key" aria-label={t("คำอธิบายสี")}>
-      <span className="muted">{t("จำนวนครั้งที่ตายในช่องนั้น ({note}) ยิ่งเข้มยิ่งตายบ่อย", { note: t(SIDE_NOTE[side]) })}</span>
+      <span className="muted">{t("การตายต่อช่อง")}</span>
       <span className="grad-bar-wrap">
         <span className="grad-num">{MIN_PAINTED_DEATHS}</span>
         <svg className="grad-bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">

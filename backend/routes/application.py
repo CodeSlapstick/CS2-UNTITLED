@@ -26,6 +26,9 @@ from backend.config.settings import ASSETS_DIR, DEMOS_DIR, FRONTEND_URL, GUEST_D
 from backend.jobs import JSON_DIR, QueueUnavailable, enqueue_parse, job_state, queue_health  # คิวงาน parse (Sprint 2)
 from backend.repositories.coach import load_coach_facts
 from backend.routes.players import create_player_router
+from backend.routes.settings import create_settings_router
+from backend.services.player_avatars import match_avatars
+from backend.services.review import build_heatmap_cells
 from backend.routes.reports import create_report_router
 from backend.services import auth  # ล็อกอิน: Steam OpenID + JWT ใน httpOnly cookie
 from backend.services.coach import build_coach_samples, load_coach_model, recommend_round
@@ -428,6 +431,14 @@ async def api_delete_match(match_id: int, viewer: dict = Depends(require_viewer)
     return {"deleted": True, "cleanup_failed": cleanup_failed}
 
 
+@app.get("/api/matches/{match_id}/avatars")
+async def api_match_avatars(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
+    if not await conn.fetchval("SELECT EXISTS(SELECT 1 FROM matches WHERE id = $1 AND source = 'upload')", match_id):
+        raise HTTPException(404, "ไม่พบแมตช์นี้")
+    await require_match_access(conn, viewer, match_id=match_id)
+    return await match_avatars(conn, match_id)
+
+
 @app.get("/api/matches/{match_id}")
 async def api_match(match_id: int, viewer: dict = Depends(require_viewer), conn: asyncpg.Connection = Depends(db)):
     """แมตช์เดียวแบบละเอียด: สรุป + รายรอบ + สกอร์บอร์ดของนักแข่งในแมตช์นั้น"""
@@ -506,6 +517,7 @@ async def api_match_status(match_id: int, viewer: dict = Depends(require_viewer)
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 app.include_router(create_player_router(require_viewer, db, require_steam_viewer))
+app.include_router(create_settings_router(require_viewer, db, require_steam_viewer))
 
 
 # ---------------------------------------------------------------------------
@@ -1020,10 +1032,28 @@ async def api_review_round(demo_file: str, round_num: int, viewer: dict = Depend
         SELECT id, tick, attacker_id, victim_id, damage
         FROM damages WHERE round_id = $1 ORDER BY tick, id""", rnd["id"])
     latest_damage_tick = damages[-1]["tick"] if damages else None
-    return build_round_detail(match=m, rnd=dict(rnd), roster=roster, in_round=rows(in_round), kills=rows(kills),
+    # Seed playback with completed rounds only. Current-round events are applied at the replay time.
+    prior_stats = await conn.fetch("""
+        WITH prior AS (
+            SELECT k.* FROM kills k JOIN rounds r ON r.id = k.round_id
+            WHERE r.match_id = $1 AND r.round_num < $2
+        ), events AS (
+            SELECT attacker_id AS steam_id, 1 AS kills, 0 AS deaths, 0 AS assists
+            FROM prior WHERE attacker_id IS NOT NULL AND attacker_side <> victim_side
+            UNION ALL
+            SELECT victim_id, 0, 1, 0 FROM prior
+            UNION ALL
+            SELECT assister_id, 0, 0, 1 FROM prior WHERE assister_id IS NOT NULL
+        )
+        SELECT steam_id::text AS steam_id, SUM(kills)::int AS kills,
+               SUM(deaths)::int AS deaths, SUM(assists)::int AS assists
+        FROM events GROUP BY steam_id""", m["id"], round_num)
+    detail = build_round_detail(match=m, rnd=dict(rnd), roster=roster, in_round=rows(in_round), kills=rows(kills),
                               grenades=rows(grenades), frame=radar_frame(m["map_name"]),
                               model=load_grid_model(map_name=m["map_name"]),
                               damages=rows(damages), latest_damage_tick=latest_damage_tick)
+    detail["scoreboard_start"] = rows(prior_stats)
+    return detail
 
 
 @app.get("/api/review/{demo_file}/rounds/{round_num}/positions")
@@ -1064,8 +1094,10 @@ _HEATMAP_SQL = {
           AND ($3::bigint[] IS NULL OR k.victim_id = ANY($3))
           AND ($4::int[] IS NULL OR r.round_num = ANY($4))""",
     "positions": """
-        SELECT x, y FROM player_positions
-        WHERE match_id = $1 AND health > 0
+        SELECT x, y, health, tick,
+               LEAD(tick) OVER (PARTITION BY steam_id, round_num ORDER BY tick) AS next_tick
+        FROM player_positions
+        WHERE match_id = $1
           AND ($2 = 'all' OR side = $2)
           AND ($3::bigint[] IS NULL OR steam_id = ANY($3))
           AND ($4::int[] IS NULL OR round_num = ANY($4))""",
@@ -1105,13 +1137,15 @@ async def api_review_heatmap(
     pts = await conn.fetch(sql, *args)
     roster = await _review_roster(conn, m["id"])
     n_rounds = await conn.fetchval("SELECT COUNT(*) FROM rounds WHERE match_id = $1", m["id"])
-    points = heatmap_points([r["x"] for r in pts], [r["y"] for r in pts], frame)
+    live_points = [r for r in pts if event != "positions" or (r["health"] or 0) > 0]
+    points = heatmap_points([r["x"] for r in live_points], [r["y"] for r in live_points], frame)
     return {
         "event": event,
         "demo": demo_file,
         "map": m["map_name"],
         "points": points,
         "count": len(points),
+        "cells": build_heatmap_cells(rows(pts), frame, event, m["tickrate"] or 128),
         "rounds": n_rounds,
         "roster": [{"steam_id": str(p["steam_id"]), "name": p["name"], "team": p["team"],
                     "start_side": p["start_side"]} for p in sorted(roster, key=lambda p: (p["team"] or "", p["name"]))],

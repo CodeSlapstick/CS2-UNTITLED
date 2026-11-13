@@ -1,0 +1,22 @@
+.settings-page { max-width: 760px; margin: 0 auto; }
+.settings-page h1 { margin-bottom: 28px; }
+.settings-steam { padding: 24px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+.settings-steam h2 { font: 600 20px/1.5 Anuphan, sans-serif; margin: 0; }
+.settings-steam > p, .settings-sync p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.settings-status { display: flex; flex-wrap: wrap; gap: 16px 36px; padding: 18px 0; margin: 18px 0; border-block: 1px solid var(--line-2); }
+.settings-status dt { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.settings-status dd { margin: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.settings-form { display: grid; gap: 16px; margin-top: 22px; }
+.settings-form label { display: grid; gap: 8px; font-size: 13px; }
+.settings-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font: inherit; }
+.settings-form input::placeholder { color: var(--muted); opacity: 1; }
+.settings-help { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 0; }
+.settings-form > a { font-size: 13px; width: fit-content; }
+.settings-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; font-size: 13px; }
+.settings-sync { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--line); }
+.settings-sync h3 { font: 600 16px Anuphan, sans-serif; margin: 0; }
+.settings-sync p { margin-bottom: 0; max-width: 43ch; }
+.settings-notice { border: 1px solid var(--line); border-radius: 4px; padding: 12px; }
+.settings-steam > .settings-result { color: var(--text); }
+.settings-page :focus-visible { outline: 2px solid var(--interactive); outline-offset: 3px; }
+@media(max-width:520px) { .settings-steam { padding: 18px; } .settings-sync { align-items: stretch; } .settings-sync .btn-primary { width: 100%; } }
