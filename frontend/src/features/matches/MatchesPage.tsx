@@ -47,7 +47,8 @@ export function MatchesPage() {
         {!guest && <>
           <button type="button" className="btn-primary btn-icon" onClick={upload.pick} data-testid="upload-button">
             <IconUpload /> {t("อัปโหลดเดโม")}
-          </button>
+            
+          </button>  
           <input
             ref={upload.inputRef}
             type="file"
@@ -55,7 +56,7 @@ export function MatchesPage() {
             multiple
             hidden
             data-testid="file-input"
-            onChange={(e) => { upload.onFiles(e.target.files); e.target.value = ""; }}
+            onChange={(e) => { upload.onFiles(e.target.files); e.target.value = ""; }} //รับไฟล์ที่ผู้ใช้เลือก 
           />
         </>}
       </div>
@@ -230,7 +231,7 @@ function useUploader() {
       for (const f of files) {
         patch(f.name, { state: "uploading", msg: undefined });
         try {
-          await api.upload(f);
+          await api.upload(f); //ให้ฟังก์ชันนี้รอผลการอัปโหลดไฟล์นั้นก่อนทำขั้นตอนถัดไป
           patch(f.name, { state: "queued", msg: "เข้าคิวแล้ว กำลังรอแกะ" });
           qc.invalidateQueries({ queryKey: ["matches"] }); // แถวใหม่โผล่ทันที แล้ว poll ต่อเองจนแกะเสร็จ
         } catch (e) {

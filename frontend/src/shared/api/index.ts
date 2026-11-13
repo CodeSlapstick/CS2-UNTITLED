@@ -435,7 +435,7 @@ export const api = {
   deleteMatch: (id: number) => request<{ deleted: boolean; cleanup_failed: string[] }>(`/api/matches/${id}`, { method: "DELETE" }),
   match: (id: number | string) => request<MatchDetail>(`/api/matches/${id}`),
   status: (id: number | string) => request<StatusInfo>(`/api/matches/${id}/status`),
-  upload: (file: File) => {
+  upload: (file: File) => { //เตรียม HTTP request
     const form = new FormData();
     form.append("file", file);
     return request<UploadResult>("/api/demos", { method: "POST", body: form });

@@ -7,14 +7,14 @@ backend/jobs/demo_processing.py — ส่งงานแกะเดโมเ�
     python -m backend.jobs    เปิด worker ฟังคิว (ใน Docker คือ service worker)
 """
 import asyncio
-import gc
+import gc # จัดการหน่วยความจำอัตโนมัติ
 import json
 import os
-import sys
+import sys # เข้าถึงสิ่งที่เกี่ยวกับ Python runtime
 import threading
-import traceback
+import traceback # เก็บข้อความและตำแหน่งที่พังลง matches.error_message
 import uuid
-from pathlib import Path
+from pathlib import Path # ใช้แทนการต่อ path แบบ string
 
 import asyncpg
 
@@ -29,15 +29,15 @@ from backend.services.etl import load_match_doc  # เชื่อม etl
 #
 # ==================================================================================================
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-QUEUE_BACKEND = os.environ.get("QUEUE_BACKEND", "rq").strip().lower()
-QUEUE_NAME = "parse"
-JOB_TIMEOUT_SEC = 30 * 60      # เดโมใหญ่ ๆ แกะไม่ถึงนาที แต่เผื่อเครื่องช้า/ไฟล์ผิดปกติ
-RESULT_TTL_SEC = 24 * 3600
+QUEUE_BACKEND = os.environ.get("QUEUE_BACKEND", "rq").strip().lower() # ลบช่องว่างต้นและท้าย และเปลี่ยนเป็นตัวพิมพ์เล็ก
+QUEUE_NAME = "parse" #ชื่อ queue ใน Redis/RQ
+JOB_TIMEOUT_SEC = 30 * 60      # เวลาสูงสุดที่ RQ ยอมให้ job ทำงาน ถ้าเกิน30นาทีจะล้มเหลว
+RESULT_TTL_SEC = 24 * 3600     # RQ เก็บผลสำเร็จของ job ไว้ 86,400 วินาที หรือ 24 ชั่วโมง
 
 
+ # สร้าง error ชนิด “queue ใช้งานไม่ได้
 class QueueUnavailable(Exception):
     """ต่อ Redis ไม่ได้ — ผู้เรียกควรตั้งแมตช์เป็น error พร้อมข้อความนี้ ไม่ใช่ปล่อยค้าง queued ตลอดกาล"""
-
 
 # เชื่อมต่อ Redis
 def _redis():
@@ -69,16 +69,15 @@ def enqueue_parse(match_id: int) -> str:
     return job.id
 
 
-# ถามสถานะงานใน Redis โดยใช้ job_id
+# ถามสถานะงานใน Redis โดยใช้ job_id   # สถานะของ job_id
 def job_state(job_id: str | None) -> str | None:
     """สถานะจากฝั่งคิว (ไม่ใช่ matches.status) — ไว้บอกว่า worker หยิบงานไปหรือยัง"""
-    if not job_id or QUEUE_BACKEND == "thread" or job_id.startswith("thread-"):
+    if not job_id or QUEUE_BACKEND == "thread" or job_id.startswith("thread-"): # เหตุผลที่จะ error
         return None
     try:
         from rq.job import Job
         return Job.fetch(job_id, connection=_redis()).get_status(refresh=True)
-    except Exception:   # noqa: BLE001 — งานหมดอายุ / Redis ล่ม: ไม่ใช่เหตุให้ endpoint สถานะพัง
-        # งานหมดอายุ / Redis ล่ม: ไม่ใช่เหตุให้ endpoint สถานะพัง
+    except Exception:   # งานหมดอายุ / Redis ล่ม: ไม่ใช่เหตุให้ endpoint สถานะพัง
         return None
 
 
@@ -92,7 +91,7 @@ def queue_health() -> dict:
         r = _redis()
         q = _queue()
         return {"backend": "rq", "ok": True, "queued": q.count, "workers": Worker.count(connection=r, queue=q)}
-    except Exception as e:   # noqa: BLE001
+    except Exception as e: 
         # ถ้า Redis ดับ ลืมเปิด Docker หรือการเชื่อมต่อหลุด
         return {"backend": "rq", "ok": False, "error": f"{type(e).__name__}: {e}"}
 
@@ -114,17 +113,17 @@ def _parse_file(path: Path) -> dict:
     """เรียก parser แล้วห่อ "ทุกอย่าง" ที่ผิดพลาดเป็น JobError — รวม PanicException จาก Rust (BaseException)"""
     try:
         # เชื่อม parser
-        from backend.services.parser import parse_demo as parse_file  # เปลี่ยนชื่อ
+        from backend.services.parser import parse_demo as parse_file  # เปลี่ยนชื่อเครื่องมือแกะเดโมจากไฟล์ parser.py
     except ImportError as e:
         raise JobError(f"worker นี้ยังไม่มี library สำหรับแกะเดโม ({e.name}) — pip install -r requirements.txt") from None
     err: str | None = None
     try:
-        return parse_file(path)
-    except (KeyboardInterrupt, SystemExit):
+        return parse_file(path) # เอาไฟล์เดโมที่อยู่ตาม path ส่งให้ parser แกะ
+    except (KeyboardInterrupt, SystemExit): # ถ้าระบบสั่งหยุดโปรแกรมให้หยุดจริง
         raise
-    except BaseException as e:   # ตั้งใจดักกว้าง ดูคำอธิบายบนหัวไฟล์
+    except BaseException as e:  # จับ error ให้กว้างๆ   # ถ้าไม่ใช่การสั่งหยุดโปรแกรม แต่ parser เกิดปัญหาอื่น  
         err = f"แกะเดโมไม่สำเร็จ: {type(e).__name__}: {e}"  # ถ้าแกะไม่ได้แจ้งข้อความผิดพลาดให้ worker นำไปรายงานต่อ
-    gc.collect()
+    gc.collect() # ลบไฟล์ชั่วคราว
     raise JobError(err)
 
 
@@ -137,7 +136,7 @@ async def _db(sql: str, *args):
         await conn.close()
 
 
-# ส่งข้อมูล doc กับ match_id ไปให้ ETL บันทึก
+# ควบคุมงาน ส่งข้อมูล doc กับ match_id ไปให้ ETL บันทึก
 async def _load(doc: dict, match_id: int) -> int:
     conn = await asyncpg.connect(DATABASE_URL)
     try:
@@ -179,7 +178,7 @@ def parse_demo(match_id: int) -> dict:
     # ถ้ามีการหยุดโปรแกรม
     except (KeyboardInterrupt, SystemExit):
         raise
-    except BaseException as e:   # noqa: BLE001 — ทุกความผิดพลาดต้องลงเอยที่ status=error ตามข้อกำหนด
+    except BaseException as e:   # ทุกความผิดพลาดต้องลงเอยที่ status=error ตามข้อกำหนด
         msg = str(e) if isinstance(e, JobError) else f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
         asyncio.run(_db("""
             UPDATE matches SET status = 'error', error_message = $2, finished_at = now() WHERE id = $1;
@@ -191,23 +190,23 @@ def parse_demo(match_id: int) -> dict:
 #
 #
 # ==================================================================================================
-# เฝ้างาน
+
+# เฝ้างาน เริ่ม worker
 def main() -> None:
     from redis import Redis
     from rq import Queue, SimpleWorker, Worker
 
-    for s in (sys.stdout, sys.stderr):     # ให้คอนโซล Windows พิมพ์ไทยได้
+    for s in (sys.stdout, sys.stderr):     
         try:
-            s.reconfigure(encoding="utf-8")
-        except (AttributeError, ValueError):
+            s.reconfigure(encoding="utf-8") # ให้คอนโซล Windows พิมพ์ไทยได้
+        except (AttributeError, ValueError): # หากตั้งไม่ได้ก็ข้าม
             pass
 
     conn = Redis.from_url(REDIS_URL)
     queue = Queue(QUEUE_NAME, connection=conn)
-    worker_cls = SimpleWorker if os.name == "nt" else Worker
-    print(f"[worker] ฟังคิว '{QUEUE_NAME}' ที่ {REDIS_URL} ({worker_cls.__name__})")
-    worker_cls([queue], connection=conn).work(with_scheduler=False)
+    worker_cls = SimpleWorker if os.name == "nt" else Worker  # Windows ใช้ SimpleWorker ส่วนระบบอื่นใช้ Worker
+    print(f"[worker] ฟังคิว '{QUEUE_NAME}' ที่ {REDIS_URL} ({worker_cls.__name__})") # พิมพ์ข้อความบอกคนดู log ว่า worker เริ่มฟังคิวไหน อยู่ที่ Redis ไหน และใช้ worker ชนิดใด
+    worker_cls([queue], connection=conn).work(with_scheduler=False)  
 
-
-if __name__ == "__main__":
+if __name__ == "__main__": # ถ้าไฟล์นี้ถูกสั่งเปิดโดยตรง ให้เริ่ม main()
     main()
