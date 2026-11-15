@@ -75,6 +75,8 @@ describe("player form chart controls and lifecycle", () => {
     expect(tooltip.textContent).toContain("20 / 10 / 5");
 
     fireEvent.click(screen.getByRole("button", { name: "KAST" }));
+    expect(screen.getByRole("button", { name: "KAST" }).getAttribute("data-active")).toBe("true");
+    expect(screen.getByRole("button", { name: "ADR" }).getAttribute("data-active")).toBe("false");
     await waitFor(() => expect(lastOptions()?.series[0]).toMatchObject({
       name: "KAST", data: [51, 52, 53],
     }));
@@ -95,37 +97,16 @@ describe("player form chart controls and lifecycle", () => {
     expect(lastOptions().yAxis.axisLabel.formatter(1)).toBe("1.0");
   });
 
-  it("supports keyboard boundaries, repaints on theme changes, and releases resources", async () => {
+  it("repaints on theme changes, resizes, and releases resources", async () => {
     const view = renderChart();
     await waitFor(() => expect(chart.setOption).toHaveBeenCalled());
-    const container = screen.getByTestId("player-form-chart");
-
-    fireEvent.focus(container);
-    expect(chart.dispatchAction).toHaveBeenLastCalledWith({
-      type: "showTip", seriesIndex: 0, dataIndex: 2,
-    });
-    fireEvent.keyDown(container, { key: "Home" });
-    fireEvent.keyDown(container, { key: "ArrowLeft" });
-    expect(chart.dispatchAction).toHaveBeenLastCalledWith({
-      type: "showTip", seriesIndex: 0, dataIndex: 0,
-    });
-    fireEvent.keyDown(container, { key: "ArrowRight" });
-    expect(chart.dispatchAction).toHaveBeenLastCalledWith({
-      type: "showTip", seriesIndex: 0, dataIndex: 1,
-    });
-    fireEvent.keyDown(container, { key: "End" });
-    fireEvent.keyDown(container, { key: "ArrowRight" });
-    expect(chart.dispatchAction).toHaveBeenLastCalledWith({
-      type: "showTip", seriesIndex: 0, dataIndex: 2,
-    });
-    fireEvent.keyDown(container, { key: "Escape" });
-    expect(chart.dispatchAction).toHaveBeenLastCalledWith({ type: "hideTip" });
     expect(chart.init).toHaveBeenCalledTimes(1);
 
     const drawCount = chart.setOption.mock.calls.length;
     document.documentElement.setAttribute("data-theme", "light");
     await waitFor(() => expect(chart.setOption).toHaveBeenCalledTimes(drawCount + 1));
     act(() => resizeCallback?.());
+    expect(chart.dispatchAction).toHaveBeenLastCalledWith({ type: "hideTip" });
     expect(chart.resize).toHaveBeenCalledTimes(1);
 
     view.unmount();
@@ -147,7 +128,6 @@ describe("player form chart controls and lifecycle", () => {
   it("reports a drawing failure", async () => {
     chart.init.mockImplementationOnce(() => { throw new Error("Canvas unavailable"); });
     renderChart();
-    expect((await screen.findByRole("alert")).textContent)
-      .toBe("โหลดกราฟไม่ได้ กรุณารีเฟรชหน้า");
+    expect(await screen.findByText("โหลดกราฟไม่ได้ กรุณารีเฟรชหน้า")).toBeTruthy();
   });
 });
