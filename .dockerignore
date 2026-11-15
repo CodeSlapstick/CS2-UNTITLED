@@ -27,3 +27,6 @@ venv/
 # frontend build ทำใน image ของตัวเอง ไม่ต้องเข้า image ของ backend
 node_modules/
 frontend/
+
+# Local verification results, test credentials, and isolated dependencies
+audit-*/

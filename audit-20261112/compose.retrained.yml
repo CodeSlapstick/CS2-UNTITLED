@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      MODEL_ROOT: /app/retrained
+      PYTHONPATH: /app
+    volumes:
+      - ./audit-20261112/active-models:/app/retrained:ro
+      - ./audit-20261112/serve_retrained.py:/tmp/serve_retrained.py:ro
+    command: sh -c "alembic upgrade head && python /tmp/serve_retrained.py"

@@ -1,0 +1,840 @@
+{
+  "model": "separate-side-player-role-kmeans",
+  "version": 2,
+  "map": "de_overpass",
+  "unit": "player-match-side",
+  "n_clusters_per_side": 6,
+  "min_rounds_per_profile": 5,
+  "training_source": "data\\all_kills.csv",
+  "source_matches": 50,
+  "source_kills": 7172,
+  "interpretation_note": "Role names interpret unsupervised centroids; they are not training labels, performance grades, or permanent identities. CSV-only training has no grenade throws, movement, or planter id. Support uses assist/flash-assist proxies; anchor/rotator use kill-event callout proxies; bomb carrier/site executor uses site and post-plant kill-event proxies. A sixth Hybrid cluster covers mixed patterns when kill events do not support a specific role name.",
+  "models": {
+    "t": {
+      "side": "t",
+      "roles": [
+        "Entry",
+        "Support",
+        "Lurker",
+        "Trader",
+        "Bomb carrier / Site executor"
+      ],
+      "features": [
+        "assists_per_round",
+        "flash_assists_per_round",
+        "opening_attempt_rate",
+        "opening_kill_rate",
+        "early_engagement_rate",
+        "trade_kills_per_round",
+        "traded_death_rate",
+        "postplant_kills_per_round",
+        "site_engagement_rate",
+        "avg_kill_time",
+        "place_diversity",
+        "place_concentration"
+      ],
+      "profiles": 490,
+      "players": 315,
+      "matches": 50,
+      "metrics": {
+        "silhouette": 0.091541,
+        "bootstrap_ari": 0.480508,
+        "n_bootstraps": 40,
+        "n_clusters": 6
+      },
+      "preprocess": {
+        "median": {
+          "assists_per_round": 0.2,
+          "flash_assists_per_round": 0.0,
+          "opening_attempt_rate": 0.166667,
+          "opening_kill_rate": 0.083333,
+          "early_engagement_rate": 0.466667,
+          "trade_kills_per_round": 0.166667,
+          "traded_death_rate": 0.2,
+          "postplant_kills_per_round": 0.083333,
+          "site_engagement_rate": 0.583333,
+          "avg_kill_time": 32.016555,
+          "place_diversity": 7.0,
+          "place_concentration": 0.294118
+        },
+        "mean": {
+          "assists_per_round": 0.214241,
+          "flash_assists_per_round": 0.043978,
+          "opening_attempt_rate": 0.2,
+          "opening_kill_rate": 0.081181,
+          "early_engagement_rate": 0.483605,
+          "trade_kills_per_round": 0.226931,
+          "traded_death_rate": 0.226931,
+          "postplant_kills_per_round": 0.105384,
+          "site_engagement_rate": 0.59516,
+          "avg_kill_time": 32.010531,
+          "place_diversity": 6.842857,
+          "place_concentration": 0.313511
+        },
+        "scale": {
+          "assists_per_round": 0.14613,
+          "flash_assists_per_round": 0.08269,
+          "opening_attempt_rate": 0.135015,
+          "opening_kill_rate": 0.091192,
+          "early_engagement_rate": 0.2532,
+          "trade_kills_per_round": 0.178257,
+          "traded_death_rate": 0.133166,
+          "postplant_kills_per_round": 0.119481,
+          "site_engagement_rate": 0.258222,
+          "avg_kill_time": 8.473648,
+          "place_diversity": 1.74315,
+          "place_concentration": 0.090548
+        }
+      },
+      "clusters": [
+        {
+          "id": 1,
+          "role": "Hybrid",
+          "profiles": 60,
+          "role_name_score": null,
+          "role_name_status": "unassigned",
+          "top_signals": [
+            {
+              "feature": "place_concentration",
+              "z": 1.6284
+            },
+            {
+              "feature": "place_diversity",
+              "z": -1.344
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": -0.6268
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": 0.5565
+            },
+            {
+              "feature": "opening_kill_rate",
+              "z": -0.5443
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.254523,
+            "flash_assists_per_round": -0.328668,
+            "opening_attempt_rate": -0.446106,
+            "opening_kill_rate": -0.544312,
+            "early_engagement_rate": -0.626782,
+            "trade_kills_per_round": -0.052862,
+            "traded_death_rate": -0.048521,
+            "postplant_kills_per_round": -0.293506,
+            "site_engagement_rate": 0.034989,
+            "avg_kill_time": 0.556481,
+            "place_diversity": -1.344037,
+            "place_concentration": 1.62838
+          },
+          "center_raw": {
+            "assists_per_round": 0.177047,
+            "flash_assists_per_round": 0.0168,
+            "opening_attempt_rate": 0.139769,
+            "opening_kill_rate": 0.031544,
+            "early_engagement_rate": 0.324903,
+            "trade_kills_per_round": 0.217508,
+            "traded_death_rate": 0.22047,
+            "postplant_kills_per_round": 0.070316,
+            "site_engagement_rate": 0.604195,
+            "avg_kill_time": 36.725958,
+            "place_diversity": 4.5,
+            "place_concentration": 0.460957
+          }
+        },
+        {
+          "id": 2,
+          "role": "Bomb carrier / Site executor",
+          "profiles": 91,
+          "role_name_score": 1.2125,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "postplant_kills_per_round",
+              "z": 1.009
+            },
+            {
+              "feature": "trade_kills_per_round",
+              "z": 0.8203
+            },
+            {
+              "feature": "site_engagement_rate",
+              "z": 0.8021
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": 0.4568
+            },
+            {
+              "feature": "place_diversity",
+              "z": 0.4495
+            }
+          ],
+          "center_z": {
+            "assists_per_round": 0.109474,
+            "flash_assists_per_round": -0.157203,
+            "opening_attempt_rate": -0.180024,
+            "opening_kill_rate": 0.068799,
+            "early_engagement_rate": -0.237869,
+            "trade_kills_per_round": 0.820303,
+            "traded_death_rate": -0.124366,
+            "postplant_kills_per_round": 1.009022,
+            "site_engagement_rate": 0.802117,
+            "avg_kill_time": 0.456789,
+            "place_diversity": 0.449483,
+            "place_concentration": -0.148068
+          },
+          "center_raw": {
+            "assists_per_round": 0.230238,
+            "flash_assists_per_round": 0.030979,
+            "opening_attempt_rate": 0.175694,
+            "opening_kill_rate": 0.087455,
+            "early_engagement_rate": 0.423376,
+            "trade_kills_per_round": 0.373157,
+            "traded_death_rate": 0.21037,
+            "postplant_kills_per_round": 0.225943,
+            "site_engagement_rate": 0.802284,
+            "avg_kill_time": 35.881202,
+            "place_diversity": 7.626374,
+            "place_concentration": 0.300103
+          }
+        },
+        {
+          "id": 3,
+          "role": "Entry",
+          "profiles": 91,
+          "role_name_score": 1.9908,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "opening_kill_rate",
+              "z": 1.4244
+            },
+            {
+              "feature": "opening_attempt_rate",
+              "z": 1.1585
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": 0.9202
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": -0.6608
+            },
+            {
+              "feature": "place_diversity",
+              "z": 0.4936
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.197741,
+            "flash_assists_per_round": -0.35153,
+            "opening_attempt_rate": 1.158459,
+            "opening_kill_rate": 1.424433,
+            "early_engagement_rate": 0.920152,
+            "trade_kills_per_round": -0.17321,
+            "traded_death_rate": -0.062174,
+            "postplant_kills_per_round": -0.136666,
+            "site_engagement_rate": 0.033035,
+            "avg_kill_time": -0.66085,
+            "place_diversity": 0.493612,
+            "place_concentration": -0.311615
+          },
+          "center_raw": {
+            "assists_per_round": 0.185345,
+            "flash_assists_per_round": 0.01491,
+            "opening_attempt_rate": 0.356409,
+            "opening_kill_rate": 0.211078,
+            "early_engagement_rate": 0.716587,
+            "trade_kills_per_round": 0.196056,
+            "traded_death_rate": 0.218652,
+            "postplant_kills_per_round": 0.089055,
+            "site_engagement_rate": 0.60369,
+            "avg_kill_time": 26.410721,
+            "place_diversity": 7.703297,
+            "place_concentration": 0.285294
+          }
+        },
+        {
+          "id": 4,
+          "role": "Lurker",
+          "profiles": 108,
+          "role_name_score": 0.69,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "early_engagement_rate",
+              "z": -0.5402
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": 0.5247
+            },
+            {
+              "feature": "opening_kill_rate",
+              "z": -0.5126
+            },
+            {
+              "feature": "assists_per_round",
+              "z": -0.501
+            },
+            {
+              "feature": "site_engagement_rate",
+              "z": -0.4615
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.501005,
+            "flash_assists_per_round": -0.295756,
+            "opening_attempt_rate": -0.148745,
+            "opening_kill_rate": -0.51264,
+            "early_engagement_rate": -0.540207,
+            "trade_kills_per_round": -0.428273,
+            "traded_death_rate": -0.430417,
+            "postplant_kills_per_round": -0.047141,
+            "site_engagement_rate": -0.461506,
+            "avg_kill_time": 0.524695,
+            "place_diversity": 0.074213,
+            "place_concentration": -0.33545
+          },
+          "center_raw": {
+            "assists_per_round": 0.141029,
+            "flash_assists_per_round": 0.019522,
+            "opening_attempt_rate": 0.179917,
+            "opening_kill_rate": 0.034432,
+            "early_engagement_rate": 0.346824,
+            "trade_kills_per_round": 0.150589,
+            "traded_death_rate": 0.169615,
+            "postplant_kills_per_round": 0.099751,
+            "site_engagement_rate": 0.475989,
+            "avg_kill_time": 36.456608,
+            "place_diversity": 6.972222,
+            "place_concentration": 0.283136
+          }
+        },
+        {
+          "id": 5,
+          "role": "Trader",
+          "profiles": 78,
+          "role_name_score": 0.105,
+          "role_name_status": "weak",
+          "top_signals": [
+            {
+              "feature": "avg_kill_time",
+              "z": -0.953
+            },
+            {
+              "feature": "traded_death_rate",
+              "z": 0.9357
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": 0.7262
+            },
+            {
+              "feature": "postplant_kills_per_round",
+              "z": -0.5744
+            },
+            {
+              "feature": "flash_assists_per_round",
+              "z": -0.3446
+            }
+          ],
+          "center_z": {
+            "assists_per_round": 0.107422,
+            "flash_assists_per_round": -0.344612,
+            "opening_attempt_rate": -0.150622,
+            "opening_kill_rate": -0.314245,
+            "early_engagement_rate": 0.726217,
+            "trade_kills_per_round": -0.125663,
+            "traded_death_rate": 0.935679,
+            "postplant_kills_per_round": -0.574394,
+            "site_engagement_rate": -0.264192,
+            "avg_kill_time": -0.952989,
+            "place_diversity": -0.292301,
+            "place_concentration": -0.058864
+          },
+          "center_raw": {
+            "assists_per_round": 0.229938,
+            "flash_assists_per_round": 0.015482,
+            "opening_attempt_rate": 0.179664,
+            "opening_kill_rate": 0.052524,
+            "early_engagement_rate": 0.667483,
+            "trade_kills_per_round": 0.204531,
+            "traded_death_rate": 0.351532,
+            "postplant_kills_per_round": 0.036755,
+            "site_engagement_rate": 0.52694,
+            "avg_kill_time": 23.93524,
+            "place_diversity": 6.333333,
+            "place_concentration": 0.308181
+          }
+        },
+        {
+          "id": 6,
+          "role": "Support",
+          "profiles": 62,
+          "role_name_score": 2.2789,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "flash_assists_per_round",
+              "z": 2.0135
+            },
+            {
+              "feature": "assists_per_round",
+              "z": 1.1134
+            },
+            {
+              "feature": "opening_attempt_rate",
+              "z": -0.5558
+            },
+            {
+              "feature": "opening_kill_rate",
+              "z": -0.3766
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": -0.3675
+            }
+          ],
+          "center_z": {
+            "assists_per_round": 1.113439,
+            "flash_assists_per_round": 2.013487,
+            "opening_attempt_rate": -0.555779,
+            "opening_kill_rate": -0.376599,
+            "early_engagement_rate": -0.367474,
+            "trade_kills_per_round": 0.005508,
+            "traded_death_rate": -0.106638,
+            "postplant_kills_per_round": -0.191615,
+            "site_engagement_rate": -0.123364,
+            "avg_kill_time": 0.045915,
+            "place_diversity": 0.154918,
+            "place_concentration": -0.242769
+          },
+          "center_raw": {
+            "assists_per_round": 0.376947,
+            "flash_assists_per_round": 0.210472,
+            "opening_attempt_rate": 0.124962,
+            "opening_kill_rate": 0.046838,
+            "early_engagement_rate": 0.39056,
+            "trade_kills_per_round": 0.227913,
+            "traded_death_rate": 0.212731,
+            "postplant_kills_per_round": 0.08249,
+            "site_engagement_rate": 0.563305,
+            "avg_kill_time": 32.399598,
+            "place_diversity": 7.112903,
+            "place_concentration": 0.291528
+          }
+        }
+      ]
+    },
+    "ct": {
+      "side": "ct",
+      "roles": [
+        "Site Anchor",
+        "Rotator",
+        "Aggressive Defender",
+        "Utility Support",
+        "Retake Player"
+      ],
+      "features": [
+        "assists_per_round",
+        "flash_assists_per_round",
+        "opening_attempt_rate",
+        "early_engagement_rate",
+        "trade_kills_per_round",
+        "traded_death_rate",
+        "postplant_kills_per_round",
+        "site_engagement_rate",
+        "avg_kill_time",
+        "place_diversity",
+        "place_concentration"
+      ],
+      "profiles": 490,
+      "players": 310,
+      "matches": 50,
+      "metrics": {
+        "silhouette": 0.097114,
+        "bootstrap_ari": 0.441199,
+        "n_bootstraps": 40,
+        "n_clusters": 6
+      },
+      "preprocess": {
+        "median": {
+          "assists_per_round": 0.190909,
+          "flash_assists_per_round": 0.0,
+          "opening_attempt_rate": 0.166667,
+          "early_engagement_rate": 0.416667,
+          "trade_kills_per_round": 0.166667,
+          "traded_death_rate": 0.166667,
+          "postplant_kills_per_round": 0.077381,
+          "site_engagement_rate": 0.583333,
+          "avg_kill_time": 31.712891,
+          "place_diversity": 7.0,
+          "place_concentration": 0.333333
+        },
+        "mean": {
+          "assists_per_round": 0.23067,
+          "flash_assists_per_round": 0.036134,
+          "opening_attempt_rate": 0.2,
+          "early_engagement_rate": 0.483605,
+          "trade_kills_per_round": 0.170516,
+          "traded_death_rate": 0.170516,
+          "postplant_kills_per_round": 0.081431,
+          "site_engagement_rate": 0.59516,
+          "avg_kill_time": 31.45984,
+          "place_diversity": 6.587755,
+          "place_concentration": 0.344974
+        },
+        "scale": {
+          "assists_per_round": 0.179679,
+          "flash_assists_per_round": 0.073706,
+          "opening_attempt_rate": 0.137821,
+          "early_engagement_rate": 0.276193,
+          "trade_kills_per_round": 0.148081,
+          "traded_death_rate": 0.125928,
+          "postplant_kills_per_round": 0.097052,
+          "site_engagement_rate": 0.292676,
+          "avg_kill_time": 7.07151,
+          "place_diversity": 1.859738,
+          "place_concentration": 0.125934
+        }
+      },
+      "clusters": [
+        {
+          "id": 1,
+          "role": "Rotator",
+          "profiles": 68,
+          "role_name_score": 0.5194,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "trade_kills_per_round",
+              "z": 1.4894
+            },
+            {
+              "feature": "site_engagement_rate",
+              "z": 0.9291
+            },
+            {
+              "feature": "traded_death_rate",
+              "z": 0.5422
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": 0.3696
+            },
+            {
+              "feature": "postplant_kills_per_round",
+              "z": 0.2972
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.063806,
+            "flash_assists_per_round": -0.147336,
+            "opening_attempt_rate": 0.140138,
+            "early_engagement_rate": 0.369553,
+            "trade_kills_per_round": 1.489424,
+            "traded_death_rate": 0.542218,
+            "postplant_kills_per_round": 0.297237,
+            "site_engagement_rate": 0.929086,
+            "avg_kill_time": -0.099516,
+            "place_diversity": 0.205853,
+            "place_concentration": -0.198455
+          },
+          "center_raw": {
+            "assists_per_round": 0.219205,
+            "flash_assists_per_round": 0.025275,
+            "opening_attempt_rate": 0.219314,
+            "early_engagement_rate": 0.585672,
+            "trade_kills_per_round": 0.391072,
+            "traded_death_rate": 0.238797,
+            "postplant_kills_per_round": 0.110279,
+            "site_engagement_rate": 0.867081,
+            "avg_kill_time": 30.756109,
+            "place_diversity": 6.970588,
+            "place_concentration": 0.319982
+          }
+        },
+        {
+          "id": 2,
+          "role": "Hybrid",
+          "profiles": 132,
+          "role_name_score": null,
+          "role_name_status": "unassigned",
+          "top_signals": [
+            {
+              "feature": "avg_kill_time",
+              "z": 0.8657
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": -0.8494
+            },
+            {
+              "feature": "opening_attempt_rate",
+              "z": -0.5057
+            },
+            {
+              "feature": "place_diversity",
+              "z": -0.2631
+            },
+            {
+              "feature": "postplant_kills_per_round",
+              "z": -0.2474
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.140474,
+            "flash_assists_per_round": -0.082293,
+            "opening_attempt_rate": -0.505704,
+            "early_engagement_rate": -0.849429,
+            "trade_kills_per_round": -0.241672,
+            "traded_death_rate": 0.088276,
+            "postplant_kills_per_round": -0.247393,
+            "site_engagement_rate": 0.020369,
+            "avg_kill_time": 0.865709,
+            "place_diversity": -0.263086,
+            "place_concentration": 0.005203
+          },
+          "center_raw": {
+            "assists_per_round": 0.20543,
+            "flash_assists_per_round": 0.030069,
+            "opening_attempt_rate": 0.130304,
+            "early_engagement_rate": 0.248999,
+            "trade_kills_per_round": 0.134729,
+            "traded_death_rate": 0.181632,
+            "postplant_kills_per_round": 0.057421,
+            "site_engagement_rate": 0.601121,
+            "avg_kill_time": 37.58171,
+            "place_diversity": 6.098485,
+            "place_concentration": 0.34563
+          }
+        },
+        {
+          "id": 3,
+          "role": "Aggressive Defender",
+          "profiles": 113,
+          "role_name_score": 0.8402,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "opening_attempt_rate",
+              "z": 0.6483
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": -0.6111
+            },
+            {
+              "feature": "place_diversity",
+              "z": 0.6023
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": 0.536
+            },
+            {
+              "feature": "place_concentration",
+              "z": -0.4792
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.237312,
+            "flash_assists_per_round": -0.338168,
+            "opening_attempt_rate": 0.648271,
+            "early_engagement_rate": 0.535955,
+            "trade_kills_per_round": -0.397073,
+            "traded_death_rate": -0.031282,
+            "postplant_kills_per_round": -0.475863,
+            "site_engagement_rate": -0.417858,
+            "avg_kill_time": -0.611114,
+            "place_diversity": 0.602348,
+            "place_concentration": -0.479247
+          },
+          "center_raw": {
+            "assists_per_round": 0.18803,
+            "flash_assists_per_round": 0.011209,
+            "opening_attempt_rate": 0.289345,
+            "early_engagement_rate": 0.631631,
+            "trade_kills_per_round": 0.111717,
+            "traded_death_rate": 0.166577,
+            "postplant_kills_per_round": 0.035248,
+            "site_engagement_rate": 0.472863,
+            "avg_kill_time": 27.138342,
+            "place_diversity": 7.707965,
+            "place_concentration": 0.284621
+          }
+        },
+        {
+          "id": 4,
+          "role": "Site Anchor",
+          "profiles": 66,
+          "role_name_score": 1.4996,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "place_concentration",
+              "z": 1.4477
+            },
+            {
+              "feature": "place_diversity",
+              "z": -1.3752
+            },
+            {
+              "feature": "avg_kill_time",
+              "z": -0.8099
+            },
+            {
+              "feature": "early_engagement_rate",
+              "z": 0.5797
+            },
+            {
+              "feature": "trade_kills_per_round",
+              "z": -0.5233
+            }
+          ],
+          "center_z": {
+            "assists_per_round": 0.059883,
+            "flash_assists_per_round": -0.265269,
+            "opening_attempt_rate": 0.263764,
+            "early_engagement_rate": 0.579683,
+            "trade_kills_per_round": -0.523292,
+            "traded_death_rate": -0.26764,
+            "postplant_kills_per_round": -0.505926,
+            "site_engagement_rate": -0.45527,
+            "avg_kill_time": -0.80987,
+            "place_diversity": -1.375168,
+            "place_concentration": 1.447675
+          },
+          "center_raw": {
+            "assists_per_round": 0.241429,
+            "flash_assists_per_round": 0.016582,
+            "opening_attempt_rate": 0.236352,
+            "early_engagement_rate": 0.643709,
+            "trade_kills_per_round": 0.093026,
+            "traded_death_rate": 0.136812,
+            "postplant_kills_per_round": 0.03233,
+            "site_engagement_rate": 0.461914,
+            "avg_kill_time": 25.732837,
+            "place_diversity": 4.030303,
+            "place_concentration": 0.527286
+          }
+        },
+        {
+          "id": 5,
+          "role": "Utility Support",
+          "profiles": 41,
+          "role_name_score": 2.9431,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "flash_assists_per_round",
+              "z": 2.4406
+            },
+            {
+              "feature": "assists_per_round",
+              "z": 1.6511
+            },
+            {
+              "feature": "site_engagement_rate",
+              "z": 0.4105
+            },
+            {
+              "feature": "trade_kills_per_round",
+              "z": 0.3143
+            },
+            {
+              "feature": "place_concentration",
+              "z": 0.2434
+            }
+          ],
+          "center_z": {
+            "assists_per_round": 1.651062,
+            "flash_assists_per_round": 2.440634,
+            "opening_attempt_rate": -0.113403,
+            "early_engagement_rate": 0.050837,
+            "trade_kills_per_round": 0.314261,
+            "traded_death_rate": 0.03127,
+            "postplant_kills_per_round": 0.040542,
+            "site_engagement_rate": 0.410459,
+            "avg_kill_time": -0.07472,
+            "place_diversity": -0.119319,
+            "place_concentration": 0.243424
+          },
+          "center_raw": {
+            "assists_per_round": 0.527331,
+            "flash_assists_per_round": 0.216023,
+            "opening_attempt_rate": 0.184371,
+            "early_engagement_rate": 0.497645,
+            "trade_kills_per_round": 0.217052,
+            "traded_death_rate": 0.174454,
+            "postplant_kills_per_round": 0.085366,
+            "site_engagement_rate": 0.715291,
+            "avg_kill_time": 30.931453,
+            "place_diversity": 6.365854,
+            "place_concentration": 0.37563
+          }
+        },
+        {
+          "id": 6,
+          "role": "Retake Player",
+          "profiles": 70,
+          "role_name_score": 1.4007,
+          "role_name_status": "supported",
+          "top_signals": [
+            {
+              "feature": "postplant_kills_per_round",
+              "z": 1.3992
+            },
+            {
+              "feature": "place_diversity",
+              "z": 0.6902
+            },
+            {
+              "feature": "place_concentration",
+              "z": -0.5509
+            },
+            {
+              "feature": "opening_attempt_rate",
+              "z": -0.4113
+            },
+            {
+              "feature": "traded_death_rate",
+              "z": -0.4087
+            }
+          ],
+          "center_z": {
+            "assists_per_round": -0.313546,
+            "flash_assists_per_round": -0.335195,
+            "opening_attempt_rate": -0.411286,
+            "early_engagement_rate": -0.198732,
+            "trade_kills_per_round": -0.040834,
+            "traded_death_rate": -0.408661,
+            "postplant_kills_per_round": 1.399216,
+            "site_engagement_rate": -0.077566,
+            "avg_kill_time": 0.258062,
+            "place_diversity": 0.690244,
+            "place_concentration": -0.550913
+          },
+          "center_raw": {
+            "assists_per_round": 0.174332,
+            "flash_assists_per_round": 0.011429,
+            "opening_attempt_rate": 0.143316,
+            "early_engagement_rate": 0.428716,
+            "trade_kills_per_round": 0.164469,
+            "traded_death_rate": 0.119054,
+            "postplant_kills_per_round": 0.217228,
+            "site_engagement_rate": 0.572458,
+            "avg_kill_time": 33.28473,
+            "place_diversity": 7.871429,
+            "place_concentration": 0.275596
+          }
+        }
+      ]
+    }
+  }
+}

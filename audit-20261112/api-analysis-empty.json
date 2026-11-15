@@ -1,0 +1,20 @@
+{
+  "grid_n": 32,
+  "deaths": 0,
+  "cells": [],
+  "map": "de_mirage",
+  "scope": "upload",
+  "side": "all",
+  "demo": "match730_003837851867249901660_1125265208_142.dem",
+  "rounds": null,
+  "players": [
+    "1"
+  ],
+  "matches": 1,
+  "label": "match730_003837851867249901660_1125265208_142.dem (1 แมตช์) · 1 คนที่เลือก",
+  "radar": {
+    "image": "/assets/maps/de_mirage.png",
+    "size": 1024,
+    "map": "de_mirage"
+  }
+}

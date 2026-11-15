@@ -1,0 +1,25 @@
+services:
+  db:
+    container_name: cs2audit-db
+  redis:
+    container_name: cs2audit-redis
+    ports: !override
+      - "127.0.0.1:16379:6379"
+  api:
+    container_name: cs2audit-api
+    ports: !override
+      - "127.0.0.1:18000:8000"
+    volumes: !override
+      - ./audit-20261112/demos:/app/demos
+      - ./audit-20261112/output:/app/output
+      - ./output/models:/app/output/models:ro
+  worker:
+    container_name: cs2audit-worker
+    volumes: !override
+      - ./audit-20261112/demos:/app/demos
+      - ./audit-20261112/output:/app/output
+      - ./output/models:/app/output/models:ro
+  frontend:
+    container_name: cs2audit-frontend
+    ports: !override
+      - "127.0.0.1:${WEB_PORT:-3000}:8080"

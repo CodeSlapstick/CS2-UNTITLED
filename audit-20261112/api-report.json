@@ -1,0 +1,460 @@
+{
+  "header": {
+    "match_id": 9,
+    "demo_file": "match730_003837851867249901660_1125265208_142.dem",
+    "report_type": "coach",
+    "player_id": null,
+    "player_name": null,
+    "team_a": null,
+    "team_b": null,
+    "map_name": "de_mirage",
+    "score_ct": 16,
+    "score_t": 8,
+    "rounds": 24,
+    "match_date": "2026-10-28 12:06:42.260276+00:00",
+    "generated_at": "2026-11-12T08:15:04.598017+00:00",
+    "dataset_version": "report-v1"
+  },
+  "side": "all",
+  "executive_summary": [
+    "วิเคราะห์ 24 รอบจากเดโม match730_003837851867249901660_1125265208_142.dem",
+    "เสียชีวิตซ้ำบริเวณ BombsiteA: พบ 40 deaths ในบริเวณเดียว จาก 179 deaths ของกลุ่มที่เลือก ควรทำต่อ: เปิดรอบอ้างอิง ตรวจ utility ตำแหน่งเพื่อน และทางถอยก่อนการปะทะ",
+    "เสียผู้เล่นคนแรกบ่อย: เสีย opening duel 24 ครั้งใน 24 รอบ ควรทำต่อ: กำหนด first-contact protocol และผู้เล่นที่รับผิดชอบ flash/trade",
+    "การเสียชีวิตที่ยังไม่ได้ trade: มี deaths ที่ไม่ถูก trade 122 จาก 179 ครั้ง ควรทำต่อ: ซ้อมเข้าพื้นที่เป็นคู่และกำหนดระยะยิงซ้ำไม่เกิน 2 วินาที"
+  ],
+  "insights": [
+    {
+      "key": "repeated_death_area",
+      "title": "เสียชีวิตซ้ำบริเวณ BombsiteA",
+      "observation": "พบ 40 deaths ในบริเวณเดียว จาก 179 deaths ของกลุ่มที่เลือก",
+      "impact": "การเสียผู้เล่นซ้ำในพื้นที่เดิมลดตัวเลือกในการควบคุมพื้นที่และการ trade",
+      "evidence": [
+        {
+          "round_num": 6,
+          "time_seconds": 7.0234375,
+          "text": "รอบ 6 มีผู้เสียชีวิต 9 คน",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/6"
+        },
+        {
+          "round_num": 12,
+          "time_seconds": 6.484375,
+          "text": "รอบ 12 มีผู้เสียชีวิต 9 คน",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/12"
+        },
+        {
+          "round_num": 14,
+          "time_seconds": 4.6875,
+          "text": "รอบ 14 มีผู้เสียชีวิต 9 คน",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/14"
+        }
+      ],
+      "possible_causes": [
+        "อาจเข้าเปิดมุมก่อน utility พร้อม",
+        "ระยะห่างของผู้เล่นคู่ trade อาจมากเกินไป"
+      ],
+      "confidence": "high",
+      "recommendation": "เปิดรอบอ้างอิง ตรวจ utility ตำแหน่งเพื่อน และทางถอยก่อนการปะทะ",
+      "next_target": "ลด deaths บริเวณ BombsiteA อย่างน้อย 2 ครั้ง",
+      "sample_size": 40
+    },
+    {
+      "key": "opening_deaths",
+      "title": "เสียผู้เล่นคนแรกบ่อย",
+      "observation": "เสีย opening duel 24 ครั้งใน 24 รอบ",
+      "impact": "ทีมต้องเริ่มแก้สถานการณ์ด้วยจำนวนผู้เล่นน้อยกว่า",
+      "evidence": [
+        {
+          "round_num": 1,
+          "time_seconds": 11.2421875,
+          "text": "รอบ 1 first death ที่ 11 วินาที",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/1"
+        },
+        {
+          "round_num": 2,
+          "time_seconds": 9.21875,
+          "text": "รอบ 2 first death ที่ 9 วินาที",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/2"
+        },
+        {
+          "round_num": 3,
+          "time_seconds": 4.484375,
+          "text": "รอบ 3 first death ที่ 4 วินาที",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/3"
+        },
+        {
+          "round_num": 4,
+          "time_seconds": 4.0546875,
+          "text": "รอบ 4 first death ที่ 4 วินาที",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/4"
+        },
+        {
+          "round_num": 5,
+          "time_seconds": 17.1484375,
+          "text": "รอบ 5 first death ที่ 17 วินาที",
+          "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/5"
+        }
+      ],
+      "possible_causes": [
+        "อาจเริ่มปะทะก่อนมี flash support",
+        "ผู้ตามอาจอยู่ไกลเกินระยะ trade"
+      ],
+      "confidence": "high",
+      "recommendation": "กำหนด first-contact protocol และผู้เล่นที่รับผิดชอบ flash/trade",
+      "next_target": "opening deaths ที่ไม่มี trade ไม่เกิน 12 ครั้ง",
+      "sample_size": 24
+    },
+    {
+      "key": "untraded_deaths",
+      "title": "การเสียชีวิตที่ยังไม่ได้ trade",
+      "observation": "มี deaths ที่ไม่ถูก trade 122 จาก 179 ครั้ง",
+      "impact": "คู่แข่งรักษาความได้เปรียบด้านจำนวนผู้เล่นไว้ได้",
+      "evidence": [],
+      "possible_causes": [
+        "ระยะห่างของเพื่อนอาจไม่พร้อมยิงซ้ำ",
+        "จังหวะเข้าพื้นที่อาจไม่พร้อมกัน"
+      ],
+      "confidence": "high",
+      "recommendation": "ซ้อมเข้าพื้นที่เป็นคู่และกำหนดระยะยิงซ้ำไม่เกิน 2 วินาที",
+      "next_target": "ลด untraded deaths เหลือไม่เกิน 85 ครั้ง",
+      "sample_size": 179
+    }
+  ],
+  "kpis": [
+    {
+      "key": "adr",
+      "label": "ADR",
+      "value": 80.47,
+      "comparison": null,
+      "sample_size": 24,
+      "status": "neutral",
+      "explanation": "ความเสียหายเฉลี่ยต่อรอบ"
+    },
+    {
+      "key": "kast",
+      "label": "KAST",
+      "value": 75.83,
+      "comparison": null,
+      "sample_size": 24,
+      "status": "neutral",
+      "explanation": "รอบที่มี kill, assist, survival หรือถูก trade"
+    },
+    {
+      "key": "opening",
+      "label": "Opening duel",
+      "value": "24/24",
+      "comparison": null,
+      "sample_size": 48,
+      "status": "neutral",
+      "explanation": "จำนวนครั้งที่ชนะ/แพ้การดวลแรก"
+    },
+    {
+      "key": "trade",
+      "label": "Deaths ที่ถูก trade",
+      "value": 31.8,
+      "comparison": null,
+      "sample_size": 179,
+      "status": "neutral",
+      "explanation": "เปอร์เซ็นต์ deaths ที่เพื่อนยิงคืนภายใน 5 วินาที"
+    }
+  ],
+  "turning_points": [
+    {
+      "round_num": 6,
+      "winner_side": "ct",
+      "buy_type": "CT semi_buy / T full",
+      "event": "มีผู้เสียชีวิต 9 คน",
+      "turning_point": "การเสียชีวิตแรกเป็นจุดเริ่มเปลี่ยนจำนวนผู้เล่น",
+      "improvement": "ตรวจ utility และระยะ trade ก่อนจังหวะแรก",
+      "watch_time_seconds": 7.0234375,
+      "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/6"
+    },
+    {
+      "round_num": 12,
+      "winner_side": "ct",
+      "buy_type": "CT full / T full",
+      "event": "มีผู้เสียชีวิต 9 คน",
+      "turning_point": "การเสียชีวิตแรกเป็นจุดเริ่มเปลี่ยนจำนวนผู้เล่น",
+      "improvement": "ตรวจ utility และระยะ trade ก่อนจังหวะแรก",
+      "watch_time_seconds": 6.484375,
+      "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/12"
+    },
+    {
+      "round_num": 14,
+      "winner_side": "t",
+      "buy_type": "CT semi_buy / T semi_buy",
+      "event": "มีผู้เสียชีวิต 9 คน",
+      "turning_point": "การเสียชีวิตแรกเป็นจุดเริ่มเปลี่ยนจำนวนผู้เล่น",
+      "improvement": "ตรวจ utility และระยะ trade ก่อนจังหวะแรก",
+      "watch_time_seconds": 4.6875,
+      "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/14"
+    },
+    {
+      "round_num": 19,
+      "winner_side": "ct",
+      "buy_type": "CT semi_buy / T full",
+      "event": "มีผู้เสียชีวิต 9 คน",
+      "turning_point": "การเสียชีวิตแรกเป็นจุดเริ่มเปลี่ยนจำนวนผู้เล่น",
+      "improvement": "ตรวจ utility และระยะ trade ก่อนจังหวะแรก",
+      "watch_time_seconds": 5.7265625,
+      "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/19"
+    },
+    {
+      "round_num": 20,
+      "winner_side": "ct",
+      "buy_type": "CT semi_buy / T semi_eco",
+      "event": "มีผู้เสียชีวิต 9 คน",
+      "turning_point": "การเสียชีวิตแรกเป็นจุดเริ่มเปลี่ยนจำนวนผู้เล่น",
+      "improvement": "ตรวจ utility และระยะ trade ก่อนจังหวะแรก",
+      "watch_time_seconds": 15.734375,
+      "viewer_url": "/matches/match730_003837851867249901660_1125265208_142.dem/rounds/20"
+    }
+  ],
+  "side_analysis": [
+    {
+      "side": "t",
+      "rounds": 24,
+      "wins": 8,
+      "strengths": [
+        "ชนะ 8 จาก 24 รอบที่มีผล"
+      ],
+      "problems": [
+        "พบ 40 deaths ในบริเวณเดียว จาก 179 deaths ของกลุ่มที่เลือก",
+        "เสีย opening duel 24 ครั้งใน 24 รอบ"
+      ],
+      "evidence": [
+        "รอบ 6 มี 9 deaths",
+        "รอบ 12 มี 9 deaths",
+        "รอบ 14 มี 9 deaths"
+      ],
+      "actions": [
+        "เปิดรอบอ้างอิง ตรวจ utility ตำแหน่งเพื่อน และทางถอยก่อนการปะทะ",
+        "กำหนด first-contact protocol และผู้เล่นที่รับผิดชอบ flash/trade"
+      ]
+    },
+    {
+      "side": "ct",
+      "rounds": 24,
+      "wins": 16,
+      "strengths": [
+        "ชนะ 16 จาก 24 รอบที่มีผล"
+      ],
+      "problems": [
+        "พบ 40 deaths ในบริเวณเดียว จาก 179 deaths ของกลุ่มที่เลือก",
+        "เสีย opening duel 24 ครั้งใน 24 รอบ"
+      ],
+      "evidence": [
+        "รอบ 6 มี 9 deaths",
+        "รอบ 12 มี 9 deaths",
+        "รอบ 14 มี 9 deaths"
+      ],
+      "actions": [
+        "เปิดรอบอ้างอิง ตรวจ utility ตำแหน่งเพื่อน และทางถอยก่อนการปะทะ",
+        "กำหนด first-contact protocol และผู้เล่นที่รับผิดชอบ flash/trade"
+      ]
+    }
+  ],
+  "economy": [],
+  "players": [
+    {
+      "steam_id": "76561199416501422",
+      "name": "奉雨",
+      "rounds": 24,
+      "kills": 27,
+      "deaths": 15,
+      "assists": 9,
+      "adr": 114.1,
+      "kast": 87.5,
+      "rating": 1.54,
+      "opening_kills": 2,
+      "opening_deaths": 2,
+      "trade_kills": 5,
+      "traded_deaths": 5
+    },
+    {
+      "steam_id": "76561198976477932",
+      "name": "RTX_unclerace",
+      "rounds": 24,
+      "kills": 22,
+      "deaths": 16,
+      "assists": 3,
+      "adr": 92.2,
+      "kast": 66.7,
+      "rating": 1.47,
+      "opening_kills": 4,
+      "opening_deaths": 3,
+      "trade_kills": 7,
+      "traded_deaths": 4
+    },
+    {
+      "steam_id": "76561197987951173",
+      "name": "anus",
+      "rounds": 24,
+      "kills": 21,
+      "deaths": 18,
+      "assists": 10,
+      "adr": 102.2,
+      "kast": 87.5,
+      "rating": 1.23,
+      "opening_kills": 2,
+      "opening_deaths": 4,
+      "trade_kills": 7,
+      "traded_deaths": 6
+    },
+    {
+      "steam_id": "76561198360389348",
+      "name": "r1ynnn",
+      "rounds": 24,
+      "kills": 23,
+      "deaths": 21,
+      "assists": 7,
+      "adr": 109.9,
+      "kast": 70.8,
+      "rating": 1.14,
+      "opening_kills": 4,
+      "opening_deaths": 6,
+      "trade_kills": 9,
+      "traded_deaths": 7
+    },
+    {
+      "steam_id": "76561199549867893",
+      "name": "n1ng",
+      "rounds": 24,
+      "kills": 21,
+      "deaths": 18,
+      "assists": 6,
+      "adr": 89.6,
+      "kast": 75.0,
+      "rating": 1.08,
+      "opening_kills": 3,
+      "opening_deaths": 1,
+      "trade_kills": 10,
+      "traded_deaths": 6
+    },
+    {
+      "steam_id": "76561198866870316",
+      "name": "OctobiQ",
+      "rounds": 24,
+      "kills": 17,
+      "deaths": 17,
+      "assists": 6,
+      "adr": 79.0,
+      "kast": 83.3,
+      "rating": 0.98,
+      "opening_kills": 3,
+      "opening_deaths": 1,
+      "trade_kills": 6,
+      "traded_deaths": 7
+    },
+    {
+      "steam_id": "76561199151560761",
+      "name": "王守义看了都说十三香",
+      "rounds": 24,
+      "kills": 15,
+      "deaths": 16,
+      "assists": 6,
+      "adr": 67.6,
+      "kast": 79.2,
+      "rating": 0.92,
+      "opening_kills": 2,
+      "opening_deaths": 2,
+      "trade_kills": 3,
+      "traded_deaths": 3
+    },
+    {
+      "steam_id": "76561199132086570",
+      "name": "FLEXING SO HARD",
+      "rounds": 24,
+      "kills": 17,
+      "deaths": 20,
+      "assists": 5,
+      "adr": 72.3,
+      "kast": 79.2,
+      "rating": 0.82,
+      "opening_kills": 1,
+      "opening_deaths": 2,
+      "trade_kills": 5,
+      "traded_deaths": 8
+    },
+    {
+      "steam_id": "76561197992436137",
+      "name": "𝜏デ气亠⁠⠀ツ",
+      "rounds": 24,
+      "kills": 15,
+      "deaths": 19,
+      "assists": 3,
+      "adr": 62.8,
+      "kast": 70.8,
+      "rating": 0.81,
+      "opening_kills": 3,
+      "opening_deaths": 1,
+      "trade_kills": 5,
+      "traded_deaths": 4
+    },
+    {
+      "steam_id": "76561198280546089",
+      "name": "ぜつぼうの爱",
+      "rounds": 24,
+      "kills": 1,
+      "deaths": 19,
+      "assists": 2,
+      "adr": 15.0,
+      "kast": 58.3,
+      "rating": 0.21,
+      "opening_kills": 0,
+      "opening_deaths": 2,
+      "trade_kills": 0,
+      "traded_deaths": 7
+    }
+  ],
+  "training_plan": [
+    {
+      "title": "เสียชีวิตซ้ำบริเวณ BombsiteA",
+      "problem": "พบ 40 deaths ในบริเวณเดียว จาก 179 deaths ของกลุ่มที่เลือก",
+      "evidence": "รอบ 6 มีผู้เสียชีวิต 9 คน; รอบ 12 มีผู้เสียชีวิต 9 คน; รอบ 14 มีผู้เสียชีวิต 9 คน",
+      "method": "เปิดรอบอ้างอิง ตรวจ utility ตำแหน่งเพื่อน และทางถอยก่อนการปะทะ",
+      "owner": "Coach / IGL",
+      "duration": "15–20 นาทีก่อน Scrim",
+      "target": "ลด deaths บริเวณ BombsiteA อย่างน้อย 2 ครั้ง",
+      "review_after": "หลังแข่งขันครบ 5 แมตช์"
+    },
+    {
+      "title": "เสียผู้เล่นคนแรกบ่อย",
+      "problem": "เสีย opening duel 24 ครั้งใน 24 รอบ",
+      "evidence": "รอบ 1 first death ที่ 11 วินาที; รอบ 2 first death ที่ 9 วินาที; รอบ 3 first death ที่ 4 วินาที",
+      "method": "กำหนด first-contact protocol และผู้เล่นที่รับผิดชอบ flash/trade",
+      "owner": "Coach / IGL",
+      "duration": "15–20 นาทีก่อน Scrim",
+      "target": "opening deaths ที่ไม่มี trade ไม่เกิน 12 ครั้ง",
+      "review_after": "หลังแข่งขันครบ 5 แมตช์"
+    },
+    {
+      "title": "การเสียชีวิตที่ยังไม่ได้ trade",
+      "problem": "มี deaths ที่ไม่ถูก trade 122 จาก 179 ครั้ง",
+      "evidence": "มี deaths ที่ไม่ถูก trade 122 จาก 179 ครั้ง",
+      "method": "ซ้อมเข้าพื้นที่เป็นคู่และกำหนดระยะยิงซ้ำไม่เกิน 2 วินาที",
+      "owner": "Coach / IGL",
+      "duration": "15–20 นาทีก่อน Scrim",
+      "target": "ลด untraded deaths เหลือไม่เกิน 85 ครั้ง",
+      "review_after": "หลังแข่งขันครบ 5 แมตช์"
+    }
+  ],
+  "next_match_goals": [
+    "ลด deaths บริเวณ BombsiteA อย่างน้อย 2 ครั้ง",
+    "opening deaths ที่ไม่มี trade ไม่เกิน 12 ครั้ง",
+    "ลด untraded deaths เหลือไม่เกิน 85 ครั้ง"
+  ],
+  "data_quality": {
+    "demos": 1,
+    "rounds": 24,
+    "dataset_version": "report-v1",
+    "missing": [
+      "Utility damage",
+      "Flash assists",
+      "สถานการณ์ผู้เล่น 5v3 ราย tick"
+    ],
+    "estimated": [
+      "Rating เป็นค่าประมาณจากสูตรเดียวกับหน้าสกอร์บอร์ด"
+    ],
+    "warnings": []
+  }
+}

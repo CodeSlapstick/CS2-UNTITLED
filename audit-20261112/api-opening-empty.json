@@ -1,0 +1,12 @@
+{
+  "radar": {
+    "image": "/assets/maps/de_mirage.png",
+    "size": 1024,
+    "map": "de_mirage"
+  },
+  "rounds": [],
+  "matches": 0,
+  "undated_matches": 0,
+  "window_seconds": 30,
+  "clock_source": "stored_start_tick_unverified"
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "file": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\match_mirage_id9_all.pdf",
+    "pages": [
+      {
+        "page": 1,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 2,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 3,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 4,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 5,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      }
+    ],
+    "is_pdf": true,
+    "encrypted": false
+  },
+  {
+    "file": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\match_Team-A-vs-Team-B.pdf",
+    "pages": [
+      {
+        "page": 1,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 2,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 3,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 4,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      },
+      {
+        "page": 5,
+        "width": 595.280029296875,
+        "height": 841.8900146484375,
+        "text_chars": 0,
+        "images": 5
+      }
+    ],
+    "is_pdf": true,
+    "encrypted": false
+  }
+]

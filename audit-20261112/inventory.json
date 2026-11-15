@@ -1,0 +1,532 @@
+{
+  "maps_discovered": [
+    "de_ancient",
+    "de_anubis",
+    "de_cache",
+    "de_dust2",
+    "de_inferno",
+    "de_mirage",
+    "de_nuke",
+    "de_overpass"
+  ],
+  "manifest_names_no_maps": true,
+  "git_present": false,
+  "raw_demos": [],
+  "dump_header_hex": "5047444d50010f000408010100360000000003000000000f000000000b000000",
+  "files": [
+    {
+      "path": "PACKAGE_MANIFEST.txt",
+      "bytes": 536,
+      "sha256": "cf438813a50dc8cfb0830fdb7ed5417fdc47905ca1ba186febbf57a18f3e938d",
+      "readable": true
+    },
+    {
+      "path": "README.md",
+      "bytes": 5119,
+      "sha256": "d8474cc0fc5d0c522c5150507b9a7972b977f93fc58f3488923b545b9fd9b4fb",
+      "readable": true
+    },
+    {
+      "path": "SETUP_TH.md",
+      "bytes": 3610,
+      "sha256": "54ebf999e739e4860d18412709c9f412ee2deb85c76eb91d97755450c5c9fdc7",
+      "readable": true
+    },
+    {
+      "path": "research/README.md",
+      "bytes": 6429,
+      "sha256": "cbec401b93c7e2c5551f9a643c3753bf492b7a697f58e1635e0405e45e861dc3",
+      "readable": true
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 2054,
+      "sha256": "66eee40123099c08d781580cb125700e3154c2110c1be1f452853fe907428953",
+      "readable": true
+    },
+    {
+      "path": "docker-compose.yml",
+      "bytes": 4011,
+      "sha256": "e6464cd4ee91dbbc96dcb4785132e23ffd0a0847dadd518a35d2f19b9679975a",
+      "readable": true
+    },
+    {
+      "path": "backup/database.dump",
+      "bytes": 13788056,
+      "sha256": "1769807fcc51f78a526d26c69e7cf09a75b9730caf6b2374e78a6063a931c2ee",
+      "readable": true
+    },
+    {
+      "path": "data/all_kills.csv",
+      "bytes": 24093162,
+      "sha256": "3d1a4bdfdf6f8a11999eb22eda4b31563bb6f6a3d5b4def4f977a404d3a33100",
+      "readable": true
+    },
+    {
+      "path": "data/mirage_kills.csv",
+      "bytes": 2022854,
+      "sha256": "4e8be10d7ecf54750f0d0f215f3e2c6830b73c366a2637f2fa0f2fa37ff9b891",
+      "readable": true
+    },
+    {
+      "path": "output/models/de_ancient/grid_ml1.json",
+      "bytes": 19033,
+      "sha256": "faa854f200bf6947cbcbed988c5ad27e88528ca1a46818ad6326fbe3757af1f2",
+      "readable": true,
+      "map": "de_ancient",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_ancient/coach_model.json",
+      "bytes": 340684,
+      "sha256": "338e7d74a8ce0d55b0b2f74dbab7c4416ae8f70b1f4bbf0abb006751e61d3f95",
+      "readable": true,
+      "map": "de_ancient",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_ancient/player_role.json",
+      "bytes": 28559,
+      "sha256": "73f4581c80dcdc4a78eb7fa221905d721392ce8a74b87c5918e0a5388bcd96ab",
+      "readable": true,
+      "map": "de_ancient",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_anubis/grid_ml1.json",
+      "bytes": 37136,
+      "sha256": "38bd48d5de3d45362b0adda2acb8f250fa3b996f54256953e46de01b9476e671",
+      "readable": true,
+      "map": "de_anubis",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_anubis/coach_model.json",
+      "bytes": 347502,
+      "sha256": "4c810751db3b35a1a9d466008a56339f4c3cc2c6cb53af36d0d59bc8220dbc27",
+      "readable": true,
+      "map": "de_anubis",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_anubis/player_role.json",
+      "bytes": 28591,
+      "sha256": "43293e81ae8540af5858352118b8618a61d3b4ae80665a645fdde114e6e84c8c",
+      "readable": true,
+      "map": "de_anubis",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_cache/grid_ml1.json",
+      "bytes": 36154,
+      "sha256": "67e13e9c22ad12331b21328d5660a79648c84afc96d029e5665a3b73a6bd6bde",
+      "readable": true,
+      "map": "de_cache",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_cache/coach_model.json",
+      "bytes": 335639,
+      "sha256": "2f5adae8ca4c2c87f520aa8b617cd38199492ae7ca546dc7be836310527c2019",
+      "readable": true,
+      "map": "de_cache",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_cache/player_role.json",
+      "bytes": 28545,
+      "sha256": "79eb5224d3e535223cba3a51a332369afb6f0a6703c58ad035f6c2b6e53034f4",
+      "readable": true,
+      "map": "de_cache",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_dust2/grid_ml1.json",
+      "bytes": 50076,
+      "sha256": "390adf86a3d95ae2f6dd7d265f42286faac15f195f65bc96fb49e04cb9e5a808",
+      "readable": true,
+      "map": "de_dust2",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_dust2/coach_model.json",
+      "bytes": 387169,
+      "sha256": "eeda78c59804067db035992c7465443e51effdc9038f2c7863a68fcf23279654",
+      "readable": true,
+      "map": "de_dust2",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_dust2/player_role.json",
+      "bytes": 28558,
+      "sha256": "8a0c67ce4e59300b253dc5b4d8f19b1b92025861ea6b070d754c41632cc6cdae",
+      "readable": true,
+      "map": "de_dust2",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_inferno/grid_ml1.json",
+      "bytes": 36431,
+      "sha256": "7a8cecc383cd6c5851e0faabaee66c44b76657d16c99c4d126bc98a14300f53d",
+      "readable": true,
+      "map": "de_inferno",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_inferno/coach_model.json",
+      "bytes": 333939,
+      "sha256": "456c8618093abdbc1146e09a85266c8fcefa564f974983c32d51a04ff6f9ea71",
+      "readable": true,
+      "map": "de_inferno",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_inferno/player_role.json",
+      "bytes": 28553,
+      "sha256": "d3dd10d093e70f9519932bb75b22fdbcc28aabaf8eeb14a23c44d8c2f6daa6f5",
+      "readable": true,
+      "map": "de_inferno",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_mirage/grid_ml1.json",
+      "bytes": 3264,
+      "sha256": "65c660002e49f2d56c11385e2875fd6491d25b58597244955733e19deed14037",
+      "readable": true,
+      "map": "de_mirage",
+      "version": null,
+      "keys": [
+        "map",
+        "radar",
+        "metrics",
+        "hotspots"
+      ]
+    },
+    {
+      "path": "output/models/de_mirage/coach_model.json",
+      "bytes": 312439,
+      "sha256": "7f6fed5dc32fe20b02973a1f22dccf73bdfd30ab04d5d6d67fb46707ac73c289",
+      "readable": true,
+      "map": "de_mirage",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_mirage/player_role.json",
+      "bytes": 28592,
+      "sha256": "d1214698dc149ddd53415ca3f6cc841a8fbfd86171d33b0c0cac5a6372957611",
+      "readable": true,
+      "map": "de_mirage",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_nuke/grid_ml1.json",
+      "bytes": 23094,
+      "sha256": "84126aaffb8bb542a4aab8ee9f8929c2c6336e98aa3beaaa474573d475d8d08f",
+      "readable": true,
+      "map": "de_nuke",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_nuke/coach_model.json",
+      "bytes": 328247,
+      "sha256": "337ee00a7e48c9be56a6e49a014aeb879ea71fd7f5eb98f825f094487f97186b",
+      "readable": true,
+      "map": "de_nuke",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_nuke/player_role.json",
+      "bytes": 28539,
+      "sha256": "d3ae4dc4586510f60f08469a51f0d0cd76bc804d486914be7fa115fec6906d0b",
+      "readable": true,
+      "map": "de_nuke",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    },
+    {
+      "path": "output/models/de_overpass/grid_ml1.json",
+      "bytes": 43156,
+      "sha256": "4bfea48b683a6ddc14d862d91b3a97fafb143db268e1daa924aec20642241ab9",
+      "readable": true,
+      "map": "de_overpass",
+      "version": null,
+      "keys": [
+        "map",
+        "grid_n",
+        "min_kills",
+        "radar",
+        "metrics",
+        "hotspots",
+        "clusters",
+        "cells"
+      ]
+    },
+    {
+      "path": "output/models/de_overpass/coach_model.json",
+      "bytes": 369999,
+      "sha256": "9c97b63294b11a77873d39e808e0b2f62102d5eca3bde8ca2ae86f03f9bc4d50",
+      "readable": true,
+      "map": "de_overpass",
+      "version": "coach-opening-patterns-v1",
+      "keys": [
+        "version",
+        "map",
+        "trained_at",
+        "source",
+        "context_features",
+        "opening_features",
+        "training_match_ids",
+        "sides",
+        "clock_provenance"
+      ]
+    },
+    {
+      "path": "output/models/de_overpass/player_role.json",
+      "bytes": 28548,
+      "sha256": "3c09c68a461d1c37148ed2e60b03b73b8fb8c9888d0cbf1e20f5d11f5653e1ac",
+      "readable": true,
+      "map": "de_overpass",
+      "version": 2,
+      "keys": [
+        "model",
+        "version",
+        "map",
+        "unit",
+        "n_clusters_per_side",
+        "min_rounds_per_profile",
+        "training_source",
+        "source_matches",
+        "source_kills",
+        "interpretation_note",
+        "models"
+      ]
+    }
+  ]
+}

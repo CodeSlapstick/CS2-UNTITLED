@@ -1,0 +1,62 @@
+{
+  "source": "/workspace/data/mirage_kills.csv",
+  "sha256": "4e8be10d7ecf54750f0d0f215f3e2c6830b73c366a2637f2fa0f2fa37ff9b891",
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "grid": {
+    "matches": 50,
+    "duels": 7158,
+    "rows_raw": 7270,
+    "bandwidth": 300,
+    "n_hotspots": 17,
+    "hotspot_coverage": 0.7479742944956691,
+    "hotspot_stability": 0.7941176470588236,
+    "n_boot": 20,
+    "ct_win_overall": 0.5399552947750769
+  },
+  "grid_seed": 0,
+  "grid_min_bin_freq": 15,
+  "role": {
+    "model": "separate-side-player-role-kmeans",
+    "version": 2,
+    "map": "de_mirage",
+    "unit": "player-match-side",
+    "n_clusters_per_side": 6,
+    "min_rounds_per_profile": 5,
+    "training_source": "/workspace/data/mirage_kills.csv",
+    "source_matches": 50,
+    "source_kills": 7270,
+    "interpretation_note": "Role names interpret unsupervised centroids; they are not training labels, performance grades, or permanent identities. CSV-only training has no grenade throws, movement, or planter id. Support uses assist/flash-assist proxies; anchor/rotator use kill-event callout proxies; bomb carrier/site executor uses site and post-plant kill-event proxies. A sixth Hybrid cluster covers mixed patterns when kill events do not support a specific role name."
+  },
+  "role_models": {
+    "t": {
+      "profiles": 470,
+      "metrics": {
+        "silhouette": 0.091216,
+        "bootstrap_ari": 0.404127,
+        "n_bootstraps": 40,
+        "n_clusters": 6
+      }
+    },
+    "ct": {
+      "profiles": 470,
+      "metrics": {
+        "silhouette": 0.113937,
+        "bootstrap_ari": 0.513507,
+        "n_bootstraps": 40,
+        "n_clusters": 6
+      }
+    }
+  },
+  "role_bootstraps": 40,
+  "artifacts": [
+    "/audit/retrained/de_mirage/grid_ml1.json",
+    "/audit/retrained/de_mirage/grid_ml1_hotspots.csv",
+    "/audit/retrained/de_mirage/player_role.json",
+    "/audit/retrained/de_mirage/player_role_profiles.csv"
+  ]
+}

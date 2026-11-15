@@ -1,0 +1,3410 @@
+{
+  "available": true,
+  "map": "de_mirage",
+  "side": "ct",
+  "model": {
+    "version": "coach-opening-patterns-v1",
+    "trained_at": "2026-10-25T04:42:47.898718+00:00",
+    "reference_matches": 49,
+    "validation": {
+      "target": "pattern_used_in_winning_reference_round",
+      "method": "match_disjoint_holdout",
+      "train_matches": [
+        12,
+        13,
+        14,
+        15,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        26,
+        27,
+        28,
+        30,
+        32,
+        33,
+        34,
+        35,
+        36,
+        40,
+        41,
+        42,
+        44,
+        45,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        58,
+        60
+      ],
+      "test_matches": [
+        16,
+        24,
+        25,
+        29,
+        31,
+        37,
+        38,
+        39,
+        43,
+        46,
+        56,
+        57,
+        59
+      ],
+      "test_winning_rounds": 104,
+      "accuracy": 0.5192307692307693,
+      "baseline": 0.4519230769230769,
+      "beats_baseline": true
+    },
+    "clock_provenance": "stored_start_tick_unverified"
+  },
+  "rounds": [
+    {
+      "round_num": 1,
+      "side": "ct",
+      "options": [
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.8871,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 1,
+              "side": "ct"
+            },
+            {
+              "demo_file": "DENDELE-vs-EYEBALLERS-Mirage.dem",
+              "round_num": 1,
+              "side": "ct"
+            },
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 1,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.0949,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 13,
+              "side": "ct"
+            },
+            {
+              "demo_file": "LAG-vs-SportsBetExpert-Mirage.dem",
+              "round_num": 13,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.0179,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 2,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5897,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2171,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Sangal-vs-PURE-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Virtus.pro-vs-Fire-Flux-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1856,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 0
+    },
+    {
+      "round_num": 3,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5738,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-Peladona-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.2826,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.1234,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 4,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5846,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "MIBR-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.2614,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.1358,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 5,
+      "side": "ct",
+      "options": [
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.6126,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 11,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Noir-Verse-vs-Atreides-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            },
+            {
+              "demo_file": "SAW-Youngsters-vs-Noir-Verse-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.3557,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 3,
+              "side": "ct"
+            },
+            {
+              "demo_file": "DENDELE-vs-EYEBALLERS-Mirage.dem",
+              "round_num": 11,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BIG-vs-Nemiga-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.0263,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 6,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5967,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Vitality-vs-Legacy-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            },
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2657,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Sangal-vs-PURE-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1213,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 7,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5967,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Vitality-vs-Legacy-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            },
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2657,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Misa-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1213,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "MIBR-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 0
+    },
+    {
+      "round_num": 8,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.461,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.4385,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Iberian-Soul-vs-9INE-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0938,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 9,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.572,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-Peladona-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.2333,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.1764,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 10,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.461,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.4385,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Iberian-Soul-vs-9INE-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Misa-vs-Mai-Tai-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0938,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 2
+    },
+    {
+      "round_num": 11,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.4916,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 7,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nuclear-TigeRES-vs-1win-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.4089,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-Peladona-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-vs-FUT-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0939,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "DENDELE-vs-EYEBALLERS-Mirage.dem",
+              "round_num": 7,
+              "side": "ct"
+            },
+            {
+              "demo_file": "PCIFIC-vs-Atreides-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-B8-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 12,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.6264,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Virtus.pro-vs-Fire-Flux-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-Peladona-Mirage.dem",
+              "round_num": 22,
+              "side": "ct"
+            },
+            {
+              "demo_file": "SportsBetExpert-vs-For-Fun-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.3278,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Azuolas-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Azuolas-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0398,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 6,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BIG-vs-Nemiga-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 13,
+      "side": "ct",
+      "options": [
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.8871,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 1,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 13,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 1,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.0949,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 13,
+              "side": "ct"
+            },
+            {
+              "demo_file": "LAG-vs-SportsBetExpert-Mirage.dem",
+              "round_num": 13,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.0179,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 14,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.598,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-B8-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2162,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Sangal-vs-PURE-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Virtus.pro-vs-Fire-Flux-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1749,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 15,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5437,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2957,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Vitality-vs-Legacy-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Misa-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1431,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "MIBR-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 16,
+      "side": "ct",
+      "options": [
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.5673,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 3,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Misa-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Noir-Verse-vs-Atreides-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.3934,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BIG-vs-Nemiga-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.031,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 17,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5542,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "OG-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Vitality-vs-Legacy-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HEROIC-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2901,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Misa-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Misa-Mirage.dem",
+              "round_num": 8,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1351,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 2
+    },
+    {
+      "round_num": 18,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.4952,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Rare-Atom-vs-Kaleido-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 7,
+              "side": "ct"
+            },
+            {
+              "demo_file": "SAW-Youngsters-vs-Honvéd-Mirage.dem",
+              "round_num": 6,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.4302,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Iberian-Soul-vs-9INE-Mirage.dem",
+              "round_num": 6,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 3,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0694,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 19,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.5943,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2119,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Sangal-vs-PURE-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Virtus.pro-vs-Fire-Flux-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.1862,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "1win-vs-ex-RUBY-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 20,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.544,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Vitality-vs-Legacy-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HEROIC-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.2144,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Omega-vs-Total-Domination-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.2139,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Entropy-vs-Virtus.pro-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 21,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.4589,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Permitta-vs-Azuolas-Mirage.dem",
+              "round_num": 15,
+              "side": "ct"
+            },
+            {
+              "demo_file": "LAG-vs-SportsBetExpert-Mirage.dem",
+              "round_num": 20,
+              "side": "ct"
+            },
+            {
+              "demo_file": "SportsBetExpert-vs-For-Fun-Mirage.dem",
+              "round_num": 3,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.4314,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Rare-Atom-vs-Kaleido-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "fnatic-vs-Teletubisie-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Color-vs-DENDELE-Mirage.dem",
+              "round_num": 11,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.105,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 14,
+              "side": "ct"
+            },
+            {
+              "demo_file": "TYLOO-vs-DEPO-Mirage.dem",
+              "round_num": 2,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    },
+    {
+      "round_num": 22,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.5946,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Entropy-vs-Azuolas-Mirage.dem",
+              "round_num": 7,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nuclear-TigeRES-vs-1win-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.3597,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "SAW-Youngsters-vs-Noir-Verse-Mirage.dem",
+              "round_num": 23,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0438,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "BIG-vs-Nemiga-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Aurora-vs-DENDELE-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 6,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 2
+    },
+    {
+      "round_num": 23,
+      "side": "ct",
+      "options": [
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.4505,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "paiN-Academy-vs-DAMAJUANA-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Inner-Circle-Academy-vs-Entropy-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.3545,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Total-Domination-vs-Game-Point-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Rare-Atom-vs-Kaleido-Mirage.dem",
+              "round_num": 9,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Nordic-Partners-vs-Bushido-Wildcats-Mirage.dem",
+              "round_num": 16,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.187,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "DENDELE-vs-EYEBALLERS-Mirage.dem",
+              "round_num": 7,
+              "side": "ct"
+            },
+            {
+              "demo_file": "PCIFIC-vs-Atreides-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BORRACHEIROS-vs-ALKA-Mirage.dem",
+              "round_num": 17,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": 2
+    },
+    {
+      "round_num": 24,
+      "side": "ct",
+      "options": [
+        {
+          "id": 1,
+          "name": "Balanced hold · P2",
+          "match_share": 0.5351,
+          "rounds": 165,
+          "matches": 46,
+          "profile": {
+            "a_5": 0.2522,
+            "mid_5": 0.3639,
+            "b_5": 0.3246,
+            "other_5": 0.0593,
+            "a_15": 0.2613,
+            "mid_15": 0.3023,
+            "b_15": 0.2446,
+            "other_15": 0.1918,
+            "a_25": 0.2503,
+            "mid_25": 0.281,
+            "b_25": 0.2283,
+            "other_25": 0.2404,
+            "flash": 0.1938,
+            "smoke": 0.217,
+            "molotov": 0.2467,
+            "he": 0.2115,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "paiN-Academy-vs-Grêmio-Mirage.dem",
+              "round_num": 19,
+              "side": "ct"
+            },
+            {
+              "demo_file": "MIBR-vs-Eternal-Fire-Mirage.dem",
+              "round_num": 4,
+              "side": "ct"
+            },
+            {
+              "demo_file": "SAW-Youngsters-vs-Noir-Verse-Mirage.dem",
+              "round_num": 12,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "A-weighted defense · P3",
+          "match_share": 0.3953,
+          "rounds": 148,
+          "matches": 43,
+          "profile": {
+            "a_5": 0.4193,
+            "mid_5": 0.2599,
+            "b_5": 0.2842,
+            "other_5": 0.0366,
+            "a_15": 0.5058,
+            "mid_15": 0.1403,
+            "b_15": 0.2615,
+            "other_15": 0.0924,
+            "a_25": 0.4546,
+            "mid_25": 0.1348,
+            "b_25": 0.2867,
+            "other_25": 0.1239,
+            "flash": 0.1281,
+            "smoke": 0.2012,
+            "molotov": 0.1713,
+            "he": 0.142,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 11,
+              "side": "ct"
+            },
+            {
+              "demo_file": "HAVU-vs-Endless-Journey-Mirage.dem",
+              "round_num": 5,
+              "side": "ct"
+            },
+            {
+              "demo_file": "Azuolas-vs-BERG-Mirage.dem",
+              "round_num": 11,
+              "side": "ct"
+            }
+          ]
+        },
+        {
+          "id": 0,
+          "name": "Balanced hold · P1",
+          "match_share": 0.0677,
+          "rounds": 70,
+          "matches": 40,
+          "profile": {
+            "a_5": 0.2716,
+            "mid_5": 0.2206,
+            "b_5": 0.3929,
+            "other_5": 0.1149,
+            "a_15": 0.2571,
+            "mid_15": 0.2242,
+            "b_15": 0.315,
+            "other_15": 0.2037,
+            "a_25": 0.1752,
+            "mid_25": 0.2252,
+            "b_25": 0.326,
+            "other_25": 0.2736,
+            "flash": 0.0496,
+            "smoke": 0.0757,
+            "molotov": 0.0416,
+            "he": 0.0402,
+            "decoy": 0.0
+          },
+          "evidence": [
+            {
+              "demo_file": "Color-vs-B8-Mirage.dem",
+              "round_num": 18,
+              "side": "ct"
+            },
+            {
+              "demo_file": "The-Huns-vs-Rare-Atom-Mirage.dem",
+              "round_num": 21,
+              "side": "ct"
+            },
+            {
+              "demo_file": "BIG-vs-Nemiga-Mirage.dem",
+              "round_num": 10,
+              "side": "ct"
+            }
+          ]
+        }
+      ],
+      "available": true,
+      "reason": null,
+      "experimental": false,
+      "observed_pattern": null
+    }
+  ]
+}

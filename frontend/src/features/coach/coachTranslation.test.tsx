@@ -10,11 +10,12 @@ afterEach(cleanup);
 it("updates Coach report controls when switching between Thai and English", () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(<QueryClientProvider client={client}><LangProvider><LangToggle /><AnalysisReportExport /></LangProvider></QueryClientProvider>);
-  fireEvent.click(within(screen.getByTestId("lang-toggle")).getByRole("button", { name: "EN" }));
+  const languageToggle = within(screen.getByTestId("lang-toggle"));
+  fireEvent.click(languageToggle.getByRole("button", { name: "EN" }));
   expect(screen.getByRole("heading", { name: "Download reports" })).toBeTruthy();
   expect(screen.getByText("No match selected")).toBeTruthy();
   expect(screen.getByRole("option", { name: "Both sides" })).toBeTruthy();
-  fireEvent.click(within(screen.getByTestId("lang-toggle")).getByRole("button", { name: "TH" }));
+  fireEvent.click(languageToggle.getByRole("button", { name: "TH" }));
   expect(screen.getByRole("heading", { name: "ดาวน์โหลดรายงาน" })).toBeTruthy();
   expect(screen.getByText("ยังไม่ได้เลือกแมตช์")).toBeTruthy();
 });

@@ -1,0 +1,6510 @@
+{
+  "match": {
+    "id": 9,
+    "demo_file": "match730_003837851867249901660_1125265208_142.dem",
+    "map_name": "de_mirage",
+    "tickrate": 128,
+    "team_a": null,
+    "team_b": null
+  },
+  "round": {
+    "num": 1,
+    "start_tick": 1441,
+    "winner_side": "ct",
+    "end_reason": "bomb_defused",
+    "bomb_planted_t": 21.625,
+    "bomb_resolved_t": 29.945312,
+    "bomb": {
+      "x": -1987.796630859375,
+      "y": 388.1321716308594,
+      "px": [
+        248.440673828125,
+        264.97356567382815
+      ],
+      "site": "B"
+    },
+    "duration": 33.445312,
+    "latest_event_t": 29.945312,
+    "defuses": [
+      {
+        "steamid": "76561199151560761",
+        "start_t": 24.945312,
+        "end_t": 29.945312,
+        "has_kit": false
+      }
+    ]
+  },
+  "radar": {
+    "image": "/assets/maps/de_mirage.png",
+    "size": 1024,
+    "map": "de_mirage"
+  },
+  "grid": {
+    "source": {
+      "matches": 50,
+      "duels": 7158,
+      "map": "de_mirage",
+      "label": "ทั้งดาต้าเซ็ต 50 แมตช์ (7,158 การดวลบน de_mirage)"
+    },
+    "ct_win_overall": 0.5399552947750769,
+    "min_kills": 0
+  },
+  "teams": [
+    {
+      "clan": "Team A",
+      "side_this_round": "ct",
+      "players": [
+        {
+          "name": "anus",
+          "steamid": "76561197987951173",
+          "color": "#22d3ee",
+          "slot": 1,
+          "side": "ct",
+          "survived": false,
+          "died_at_t": 13.429688,
+          "killed_by": "n1ng",
+          "weapon": "glock",
+          "death_order": 2,
+          "kills": 0
+        },
+        {
+          "name": "OctobiQ",
+          "steamid": "76561198866870316",
+          "color": "#34d399",
+          "slot": 2,
+          "side": "ct",
+          "survived": true,
+          "died_at_t": null,
+          "killed_by": null,
+          "weapon": null,
+          "death_order": null,
+          "kills": 3
+        },
+        {
+          "name": "RTX_unclerace",
+          "steamid": "76561198976477932",
+          "color": "#a3e635",
+          "slot": 3,
+          "side": "ct",
+          "survived": false,
+          "died_at_t": 14.648438,
+          "killed_by": "𝜏デ气亠⁠⠀ツ",
+          "weapon": "glock",
+          "death_order": 5,
+          "kills": 0
+        },
+        {
+          "name": "FLEXING SO HARD",
+          "steamid": "76561199132086570",
+          "color": "#60a5fa",
+          "slot": 4,
+          "side": "ct",
+          "survived": false,
+          "died_at_t": 15.070312,
+          "killed_by": "n1ng",
+          "weapon": "glock",
+          "death_order": 6,
+          "kills": 2
+        },
+        {
+          "name": "王守义看了都说十三香",
+          "steamid": "76561199151560761",
+          "color": "#2dd4bf",
+          "slot": 5,
+          "side": "ct",
+          "survived": true,
+          "died_at_t": null,
+          "killed_by": null,
+          "weapon": null,
+          "death_order": null,
+          "kills": 0
+        }
+      ]
+    },
+    {
+      "clan": "Team B",
+      "side_this_round": "t",
+      "players": [
+        {
+          "name": "𝜏デ气亠⁠⠀ツ",
+          "steamid": "76561197992436137",
+          "color": "#f472b6",
+          "slot": 1,
+          "side": "t",
+          "survived": false,
+          "died_at_t": 23.703125,
+          "killed_by": "OctobiQ",
+          "weapon": "usp_silencer",
+          "death_order": 8,
+          "kills": 1
+        },
+        {
+          "name": "ぜつぼうの爱",
+          "steamid": "76561198280546089",
+          "color": "#c084fc",
+          "slot": 2,
+          "side": "t",
+          "survived": false,
+          "died_at_t": 14.265625,
+          "killed_by": "FLEXING SO HARD",
+          "weapon": "elite",
+          "death_order": 4,
+          "kills": 0
+        },
+        {
+          "name": "r1ynnn",
+          "steamid": "76561198360389348",
+          "color": "#fb7185",
+          "slot": 3,
+          "side": "t",
+          "survived": false,
+          "died_at_t": 11.242188,
+          "killed_by": "OctobiQ",
+          "weapon": "usp_silencer",
+          "death_order": 1,
+          "kills": 0
+        },
+        {
+          "name": "奉雨",
+          "steamid": "76561199416501422",
+          "color": "#facc15",
+          "slot": 4,
+          "side": "t",
+          "survived": false,
+          "died_at_t": 13.789062,
+          "killed_by": "FLEXING SO HARD",
+          "weapon": "elite",
+          "death_order": 3,
+          "kills": 0
+        },
+        {
+          "name": "n1ng",
+          "steamid": "76561199549867893",
+          "color": "#fb923c",
+          "slot": 5,
+          "side": "t",
+          "survived": false,
+          "died_at_t": 18.273438,
+          "killed_by": "OctobiQ",
+          "weapon": "usp_silencer",
+          "death_order": 7,
+          "kills": 2
+        }
+      ]
+    }
+  ],
+  "deaths": [
+    {
+      "order": 1,
+      "tick": 2880,
+      "t_round": 11.242188,
+      "victim": {
+        "steamid": "76561198360389348",
+        "name": "r1ynnn",
+        "side": "t",
+        "team": "Team B",
+        "color": "#fb7185",
+        "slot": 3
+      },
+      "attacker": {
+        "steamid": "76561198866870316",
+        "name": "OctobiQ",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#34d399",
+        "slot": 2
+      },
+      "assister": "anus",
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "usp_silencer",
+      "headshot": true,
+      "attacker_blind": true,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 705,
+      "victim_X": -1851.0462646484375,
+      "victim_Y": 745.0331420898438,
+      "attacker_X": -1508.695556640625,
+      "attacker_Y": 128.64710998535156,
+      "victim_px": [
+        275.7907470703125,
+        193.59337158203124
+      ],
+      "attacker_px": [
+        344.260888671875,
+        316.8705780029297
+      ],
+      "place": "Apartments",
+      "attacker_place": "BombsiteB",
+      "cell": null,
+      "hotspot": {
+        "id": 3,
+        "place": "Apartments",
+        "share": 0.068
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 2,
+      "tick": 3160,
+      "t_round": 13.429688,
+      "victim": {
+        "steamid": "76561197987951173",
+        "name": "anus",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#22d3ee",
+        "slot": 1
+      },
+      "attacker": {
+        "steamid": "76561199549867893",
+        "name": "n1ng",
+        "side": "t",
+        "team": "Team B",
+        "color": "#fb923c",
+        "slot": 5
+      },
+      "assister": null,
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "glock",
+      "headshot": false,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 629,
+      "victim_X": -2193.5185546875,
+      "victim_Y": -157.00830078125,
+      "attacker_X": -2008.8095703125,
+      "attacker_Y": 444.0870666503906,
+      "victim_px": [
+        207.2962890625,
+        374.00166015625
+      ],
+      "attacker_px": [
+        244.2380859375,
+        253.78258666992187
+      ],
+      "place": "BombsiteB",
+      "attacker_place": "BombsiteB",
+      "cell": null,
+      "hotspot": {
+        "id": 15,
+        "place": "BombsiteB",
+        "share": 0.025
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 3,
+      "tick": 3206,
+      "t_round": 13.789062,
+      "victim": {
+        "steamid": "76561199416501422",
+        "name": "奉雨",
+        "side": "t",
+        "team": "Team B",
+        "color": "#facc15",
+        "slot": 4
+      },
+      "attacker": {
+        "steamid": "76561199132086570",
+        "name": "FLEXING SO HARD",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#60a5fa",
+        "slot": 4
+      },
+      "assister": null,
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "elite",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 274,
+      "victim_X": -2160.61865234375,
+      "victim_Y": 515.954833984375,
+      "attacker_X": -2423.861328125,
+      "attacker_Y": 441.30828857421875,
+      "victim_px": [
+        213.87626953125,
+        239.409033203125
+      ],
+      "attacker_px": [
+        161.227734375,
+        254.33834228515624
+      ],
+      "place": "BombsiteB",
+      "attacker_place": "BombsiteB",
+      "cell": null,
+      "hotspot": {
+        "id": 13,
+        "place": "BombsiteB",
+        "share": 0.028
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 4,
+      "tick": 3267,
+      "t_round": 14.265625,
+      "victim": {
+        "steamid": "76561198280546089",
+        "name": "ぜつぼうの爱",
+        "side": "t",
+        "team": "Team B",
+        "color": "#c084fc",
+        "slot": 2
+      },
+      "attacker": {
+        "steamid": "76561199132086570",
+        "name": "FLEXING SO HARD",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#60a5fa",
+        "slot": 4
+      },
+      "assister": null,
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "elite",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 313,
+      "victim_X": -2152.452880859375,
+      "victim_Y": 638.2274780273438,
+      "attacker_X": -2395.99951171875,
+      "attacker_Y": 440.9715270996094,
+      "victim_px": [
+        215.509423828125,
+        214.95450439453126
+      ],
+      "attacker_px": [
+        166.80009765625,
+        254.40569458007812
+      ],
+      "place": "Truck",
+      "attacker_place": "BombsiteB",
+      "cell": null,
+      "hotspot": {
+        "id": 3,
+        "place": "Apartments",
+        "share": 0.068
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 5,
+      "tick": 3316,
+      "t_round": 14.648438,
+      "victim": {
+        "steamid": "76561198976477932",
+        "name": "RTX_unclerace",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#a3e635",
+        "slot": 3
+      },
+      "attacker": {
+        "steamid": "76561197992436137",
+        "name": "𝜏デ气亠⁠⠀ツ",
+        "side": "t",
+        "team": "Team B",
+        "color": "#f472b6",
+        "slot": 1
+      },
+      "assister": null,
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "glock",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 770,
+      "victim_X": -1257.643310546875,
+      "victim_Y": 312.2531433105469,
+      "attacker_X": -1906.0880126953125,
+      "attacker_Y": 727.4163818359375,
+      "victim_px": [
+        394.471337890625,
+        280.1493713378906
+      ],
+      "attacker_px": [
+        264.7823974609375,
+        197.1167236328125
+      ],
+      "place": "Catwalk",
+      "attacker_place": "Apartments",
+      "cell": null,
+      "hotspot": {
+        "id": 12,
+        "place": "BombsiteB",
+        "share": 0.029
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 6,
+      "tick": 3370,
+      "t_round": 15.070312,
+      "victim": {
+        "steamid": "76561199132086570",
+        "name": "FLEXING SO HARD",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#60a5fa",
+        "slot": 4
+      },
+      "attacker": {
+        "steamid": "76561199549867893",
+        "name": "n1ng",
+        "side": "t",
+        "team": "Team B",
+        "color": "#fb923c",
+        "slot": 5
+      },
+      "assister": "奉雨",
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "glock",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 221,
+      "victim_X": -2330.061767578125,
+      "victim_Y": 266.25152587890625,
+      "attacker_X": -2110.547119140625,
+      "attacker_Y": 242.37527465820312,
+      "victim_px": [
+        179.987646484375,
+        289.3496948242188
+      ],
+      "attacker_px": [
+        223.890576171875,
+        294.12494506835935
+      ],
+      "place": "BombsiteB",
+      "attacker_place": "BombsiteB",
+      "cell": null,
+      "hotspot": {
+        "id": 13,
+        "place": "BombsiteB",
+        "share": 0.028
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 7,
+      "tick": 3780,
+      "t_round": 18.273438,
+      "victim": {
+        "steamid": "76561199549867893",
+        "name": "n1ng",
+        "side": "t",
+        "team": "Team B",
+        "color": "#fb923c",
+        "slot": 5
+      },
+      "attacker": {
+        "steamid": "76561198866870316",
+        "name": "OctobiQ",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#34d399",
+        "slot": 2
+      },
+      "assister": "anus",
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "usp_silencer",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 748,
+      "victim_X": -1452.8453369140625,
+      "victim_Y": 393.44781494140625,
+      "attacker_X": -783.6983032226562,
+      "attacker_Y": 59.51308059692383,
+      "victim_px": [
+        355.4309326171875,
+        263.9104370117187
+      ],
+      "attacker_px": [
+        489.2603393554688,
+        330.69738388061523
+      ],
+      "place": "BombsiteB",
+      "attacker_place": "Catwalk",
+      "cell": null,
+      "hotspot": null,
+      "reason": "insufficient",
+      "disadvantaged": null,
+      "enemy_win": null
+    },
+    {
+      "order": 8,
+      "tick": 4475,
+      "t_round": 23.703125,
+      "victim": {
+        "steamid": "76561197992436137",
+        "name": "𝜏デ气亠⁠⠀ツ",
+        "side": "t",
+        "team": "Team B",
+        "color": "#f472b6",
+        "slot": 1
+      },
+      "attacker": {
+        "steamid": "76561198866870316",
+        "name": "OctobiQ",
+        "side": "ct",
+        "team": "Team A",
+        "color": "#34d399",
+        "slot": 2
+      },
+      "assister": null,
+      "is_duel": true,
+      "team_kill": false,
+      "weapon": "usp_silencer",
+      "headshot": true,
+      "attacker_blind": false,
+      "thru_smoke": false,
+      "noscope": false,
+      "penetrated": 0,
+      "distance": 1030,
+      "victim_X": -1891.320068359375,
+      "victim_Y": 614.449951171875,
+      "attacker_X": -954.0121459960938,
+      "attacker_Y": 187.23959350585938,
+      "victim_px": [
+        267.735986328125,
+        219.710009765625
+      ],
+      "attacker_px": [
+        455.19757080078125,
+        305.15208129882814
+      ],
+      "place": "BombsiteB",
+      "attacker_place": "Catwalk",
+      "cell": null,
+      "hotspot": {
+        "id": 3,
+        "place": "Apartments",
+        "share": 0.068
+      },
+      "reason": null,
+      "disadvantaged": null,
+      "enemy_win": null
+    }
+  ],
+  "damages": [
+    {
+      "id": 4437,
+      "tick": 2804,
+      "attacker": "76561197987951173",
+      "victim": "76561198360389348",
+      "damage": 26
+    },
+    {
+      "id": 4438,
+      "tick": 2866,
+      "attacker": "76561198866870316",
+      "victim": "76561198360389348",
+      "damage": 20
+    },
+    {
+      "id": 4439,
+      "tick": 2880,
+      "attacker": "76561198866870316",
+      "victim": "76561198360389348",
+      "damage": 54
+    },
+    {
+      "id": 4440,
+      "tick": 2885,
+      "attacker": "76561199549867893",
+      "victim": "76561198866870316",
+      "damage": 18
+    },
+    {
+      "id": 4441,
+      "tick": 2897,
+      "attacker": "76561199549867893",
+      "victim": "76561198866870316",
+      "damage": 14
+    },
+    {
+      "id": 4442,
+      "tick": 2916,
+      "attacker": "76561199549867893",
+      "victim": "76561198866870316",
+      "damage": 11
+    },
+    {
+      "id": 4443,
+      "tick": 3059,
+      "attacker": "76561199132086570",
+      "victim": "76561198280546089",
+      "damage": 17
+    },
+    {
+      "id": 4444,
+      "tick": 3107,
+      "attacker": "76561197987951173",
+      "victim": "76561199549867893",
+      "damage": 40
+    },
+    {
+      "id": 4445,
+      "tick": 3119,
+      "attacker": "76561199549867893",
+      "victim": "76561197987951173",
+      "damage": 24
+    },
+    {
+      "id": 4446,
+      "tick": 3129,
+      "attacker": "76561199549867893",
+      "victim": "76561197987951173",
+      "damage": 31
+    },
+    {
+      "id": 4447,
+      "tick": 3138,
+      "attacker": "76561199416501422",
+      "victim": "76561199132086570",
+      "damage": 27
+    },
+    {
+      "id": 4448,
+      "tick": 3144,
+      "attacker": "76561199132086570",
+      "victim": "76561199416501422",
+      "damage": 19
+    },
+    {
+      "id": 4449,
+      "tick": 3148,
+      "attacker": "76561199549867893",
+      "victim": "76561197987951173",
+      "damage": 30
+    },
+    {
+      "id": 4450,
+      "tick": 3160,
+      "attacker": "76561199132086570",
+      "victim": "76561199416501422",
+      "damage": 19
+    },
+    {
+      "id": 4451,
+      "tick": 3160,
+      "attacker": "76561199549867893",
+      "victim": "76561197987951173",
+      "damage": 15
+    },
+    {
+      "id": 4452,
+      "tick": 3168,
+      "attacker": "76561199416501422",
+      "victim": "76561199132086570",
+      "damage": 27
+    },
+    {
+      "id": 4453,
+      "tick": 3206,
+      "attacker": "76561199132086570",
+      "victim": "76561199416501422",
+      "damage": 62
+    },
+    {
+      "id": 4454,
+      "tick": 3267,
+      "attacker": "76561199132086570",
+      "victim": "76561198280546089",
+      "damage": 83
+    },
+    {
+      "id": 4455,
+      "tick": 3300,
+      "attacker": "76561197992436137",
+      "victim": "76561198976477932",
+      "damage": 10
+    },
+    {
+      "id": 4456,
+      "tick": 3316,
+      "attacker": "76561197992436137",
+      "victim": "76561198976477932",
+      "damage": 90
+    },
+    {
+      "id": 4457,
+      "tick": 3369,
+      "attacker": "76561199132086570",
+      "victim": "76561199549867893",
+      "damage": 19
+    },
+    {
+      "id": 4458,
+      "tick": 3370,
+      "attacker": "76561199549867893",
+      "victim": "76561199132086570",
+      "damage": 46
+    },
+    {
+      "id": 4459,
+      "tick": 3753,
+      "attacker": "76561199549867893",
+      "victim": "76561198866870316",
+      "damage": 11
+    },
+    {
+      "id": 4460,
+      "tick": 3763,
+      "attacker": "76561199549867893",
+      "victim": "76561198866870316",
+      "damage": 11
+    },
+    {
+      "id": 4461,
+      "tick": 3780,
+      "attacker": "76561198866870316",
+      "victim": "76561199549867893",
+      "damage": 41
+    },
+    {
+      "id": 4462,
+      "tick": 4475,
+      "attacker": "76561198866870316",
+      "victim": "76561197992436137",
+      "damage": 100
+    }
+  ],
+  "grenades": [
+    {
+      "type": "smoke",
+      "thrower": {
+        "steamid": "76561197992436137",
+        "name": "𝜏デ气亠⁠⠀ツ",
+        "side": "t",
+        "team": "Team B",
+        "color": "#f472b6",
+        "slot": 1
+      },
+      "t_throw": 6.570312,
+      "t_land": 10.460938,
+      "t_end": 21.492188,
+      "throw_px": [
+        613.9908447265625,
+        165.00625
+      ],
+      "land_px": [
+        250.0005126953125,
+        408.15630493164065
+      ],
+      "trajectory": [
+        {
+          "tick": 2289,
+          "t": 6.625,
+          "px": [
+            611.5,
+            166.7
+          ]
+        },
+        {
+          "tick": 2290,
+          "t": 6.632812,
+          "px": [
+            610.5,
+            167.3
+          ]
+        },
+        {
+          "tick": 2291,
+          "t": 6.640625,
+          "px": [
+            609.5,
+            168.0
+          ]
+        },
+        {
+          "tick": 2292,
+          "t": 6.648438,
+          "px": [
+            608.4,
+            168.7
+          ]
+        },
+        {
+          "tick": 2293,
+          "t": 6.65625,
+          "px": [
+            607.4,
+            169.3
+          ]
+        },
+        {
+          "tick": 2294,
+          "t": 6.664062,
+          "px": [
+            606.4,
+            170.0
+          ]
+        },
+        {
+          "tick": 2295,
+          "t": 6.671875,
+          "px": [
+            605.4,
+            170.6
+          ]
+        },
+        {
+          "tick": 2296,
+          "t": 6.679688,
+          "px": [
+            604.4,
+            171.3
+          ]
+        },
+        {
+          "tick": 2297,
+          "t": 6.6875,
+          "px": [
+            603.4,
+            172.0
+          ]
+        },
+        {
+          "tick": 2298,
+          "t": 6.695312,
+          "px": [
+            602.4,
+            172.6
+          ]
+        },
+        {
+          "tick": 2299,
+          "t": 6.703125,
+          "px": [
+            601.4,
+            173.3
+          ]
+        },
+        {
+          "tick": 2300,
+          "t": 6.710938,
+          "px": [
+            600.4,
+            173.9
+          ]
+        },
+        {
+          "tick": 2301,
+          "t": 6.71875,
+          "px": [
+            599.4,
+            174.6
+          ]
+        },
+        {
+          "tick": 2302,
+          "t": 6.726562,
+          "px": [
+            598.4,
+            175.3
+          ]
+        },
+        {
+          "tick": 2303,
+          "t": 6.734375,
+          "px": [
+            597.4,
+            175.9
+          ]
+        },
+        {
+          "tick": 2304,
+          "t": 6.742188,
+          "px": [
+            596.4,
+            176.6
+          ]
+        },
+        {
+          "tick": 2305,
+          "t": 6.75,
+          "px": [
+            595.4,
+            177.2
+          ]
+        },
+        {
+          "tick": 2306,
+          "t": 6.757812,
+          "px": [
+            594.4,
+            177.9
+          ]
+        },
+        {
+          "tick": 2307,
+          "t": 6.765625,
+          "px": [
+            593.4,
+            178.6
+          ]
+        },
+        {
+          "tick": 2308,
+          "t": 6.773438,
+          "px": [
+            592.4,
+            179.2
+          ]
+        },
+        {
+          "tick": 2309,
+          "t": 6.78125,
+          "px": [
+            591.4,
+            179.9
+          ]
+        },
+        {
+          "tick": 2310,
+          "t": 6.789062,
+          "px": [
+            590.4,
+            180.6
+          ]
+        },
+        {
+          "tick": 2311,
+          "t": 6.796875,
+          "px": [
+            589.4,
+            181.2
+          ]
+        },
+        {
+          "tick": 2312,
+          "t": 6.804688,
+          "px": [
+            588.4,
+            181.9
+          ]
+        },
+        {
+          "tick": 2313,
+          "t": 6.8125,
+          "px": [
+            587.3,
+            182.5
+          ]
+        },
+        {
+          "tick": 2314,
+          "t": 6.820312,
+          "px": [
+            586.3,
+            183.2
+          ]
+        },
+        {
+          "tick": 2315,
+          "t": 6.828125,
+          "px": [
+            585.3,
+            183.9
+          ]
+        },
+        {
+          "tick": 2316,
+          "t": 6.835938,
+          "px": [
+            584.3,
+            184.5
+          ]
+        },
+        {
+          "tick": 2317,
+          "t": 6.84375,
+          "px": [
+            583.3,
+            185.2
+          ]
+        },
+        {
+          "tick": 2318,
+          "t": 6.851562,
+          "px": [
+            582.3,
+            185.8
+          ]
+        },
+        {
+          "tick": 2319,
+          "t": 6.859375,
+          "px": [
+            581.3,
+            186.5
+          ]
+        },
+        {
+          "tick": 2320,
+          "t": 6.867188,
+          "px": [
+            580.3,
+            187.2
+          ]
+        },
+        {
+          "tick": 2321,
+          "t": 6.875,
+          "px": [
+            579.3,
+            187.8
+          ]
+        },
+        {
+          "tick": 2322,
+          "t": 6.882812,
+          "px": [
+            578.3,
+            188.5
+          ]
+        },
+        {
+          "tick": 2323,
+          "t": 6.890625,
+          "px": [
+            577.3,
+            189.2
+          ]
+        },
+        {
+          "tick": 2324,
+          "t": 6.898438,
+          "px": [
+            576.3,
+            189.8
+          ]
+        },
+        {
+          "tick": 2325,
+          "t": 6.90625,
+          "px": [
+            575.3,
+            190.5
+          ]
+        },
+        {
+          "tick": 2326,
+          "t": 6.914062,
+          "px": [
+            574.3,
+            191.1
+          ]
+        },
+        {
+          "tick": 2327,
+          "t": 6.921875,
+          "px": [
+            573.3,
+            191.8
+          ]
+        },
+        {
+          "tick": 2328,
+          "t": 6.929688,
+          "px": [
+            572.3,
+            192.5
+          ]
+        },
+        {
+          "tick": 2329,
+          "t": 6.9375,
+          "px": [
+            571.3,
+            193.1
+          ]
+        },
+        {
+          "tick": 2330,
+          "t": 6.945312,
+          "px": [
+            570.3,
+            193.8
+          ]
+        },
+        {
+          "tick": 2331,
+          "t": 6.953125,
+          "px": [
+            569.2,
+            194.4
+          ]
+        },
+        {
+          "tick": 2332,
+          "t": 6.960938,
+          "px": [
+            568.2,
+            195.1
+          ]
+        },
+        {
+          "tick": 2333,
+          "t": 6.96875,
+          "px": [
+            567.2,
+            195.8
+          ]
+        },
+        {
+          "tick": 2334,
+          "t": 6.976562,
+          "px": [
+            566.2,
+            196.4
+          ]
+        },
+        {
+          "tick": 2335,
+          "t": 6.984375,
+          "px": [
+            565.2,
+            197.1
+          ]
+        },
+        {
+          "tick": 2336,
+          "t": 6.992188,
+          "px": [
+            564.2,
+            197.8
+          ]
+        },
+        {
+          "tick": 2337,
+          "t": 7.0,
+          "px": [
+            563.2,
+            198.4
+          ]
+        },
+        {
+          "tick": 2338,
+          "t": 7.007812,
+          "px": [
+            562.2,
+            199.1
+          ]
+        },
+        {
+          "tick": 2339,
+          "t": 7.015625,
+          "px": [
+            561.2,
+            199.7
+          ]
+        },
+        {
+          "tick": 2340,
+          "t": 7.023438,
+          "px": [
+            560.2,
+            200.4
+          ]
+        },
+        {
+          "tick": 2341,
+          "t": 7.03125,
+          "px": [
+            559.2,
+            201.1
+          ]
+        },
+        {
+          "tick": 2342,
+          "t": 7.039062,
+          "px": [
+            558.2,
+            201.7
+          ]
+        },
+        {
+          "tick": 2343,
+          "t": 7.046875,
+          "px": [
+            557.2,
+            202.4
+          ]
+        },
+        {
+          "tick": 2344,
+          "t": 7.054688,
+          "px": [
+            556.2,
+            203.0
+          ]
+        },
+        {
+          "tick": 2345,
+          "t": 7.0625,
+          "px": [
+            555.2,
+            203.7
+          ]
+        },
+        {
+          "tick": 2346,
+          "t": 7.070312,
+          "px": [
+            554.2,
+            204.4
+          ]
+        },
+        {
+          "tick": 2347,
+          "t": 7.078125,
+          "px": [
+            553.2,
+            205.0
+          ]
+        },
+        {
+          "tick": 2348,
+          "t": 7.085938,
+          "px": [
+            552.2,
+            205.7
+          ]
+        },
+        {
+          "tick": 2349,
+          "t": 7.09375,
+          "px": [
+            551.2,
+            206.3
+          ]
+        },
+        {
+          "tick": 2350,
+          "t": 7.101562,
+          "px": [
+            550.2,
+            207.0
+          ]
+        },
+        {
+          "tick": 2351,
+          "t": 7.109375,
+          "px": [
+            549.2,
+            207.7
+          ]
+        },
+        {
+          "tick": 2352,
+          "t": 7.117188,
+          "px": [
+            548.1,
+            208.3
+          ]
+        },
+        {
+          "tick": 2353,
+          "t": 7.125,
+          "px": [
+            547.1,
+            209.0
+          ]
+        },
+        {
+          "tick": 2354,
+          "t": 7.132812,
+          "px": [
+            546.1,
+            209.7
+          ]
+        },
+        {
+          "tick": 2355,
+          "t": 7.140625,
+          "px": [
+            545.1,
+            210.3
+          ]
+        },
+        {
+          "tick": 2356,
+          "t": 7.148438,
+          "px": [
+            544.1,
+            211.0
+          ]
+        },
+        {
+          "tick": 2357,
+          "t": 7.15625,
+          "px": [
+            543.1,
+            211.6
+          ]
+        },
+        {
+          "tick": 2358,
+          "t": 7.164062,
+          "px": [
+            542.1,
+            212.3
+          ]
+        },
+        {
+          "tick": 2359,
+          "t": 7.171875,
+          "px": [
+            541.1,
+            213.0
+          ]
+        },
+        {
+          "tick": 2360,
+          "t": 7.179688,
+          "px": [
+            540.1,
+            213.6
+          ]
+        },
+        {
+          "tick": 2361,
+          "t": 7.1875,
+          "px": [
+            539.1,
+            214.3
+          ]
+        },
+        {
+          "tick": 2362,
+          "t": 7.195312,
+          "px": [
+            538.1,
+            214.9
+          ]
+        },
+        {
+          "tick": 2363,
+          "t": 7.203125,
+          "px": [
+            537.1,
+            215.6
+          ]
+        },
+        {
+          "tick": 2364,
+          "t": 7.210938,
+          "px": [
+            536.1,
+            216.3
+          ]
+        },
+        {
+          "tick": 2365,
+          "t": 7.21875,
+          "px": [
+            535.1,
+            216.9
+          ]
+        },
+        {
+          "tick": 2366,
+          "t": 7.226562,
+          "px": [
+            534.1,
+            217.6
+          ]
+        },
+        {
+          "tick": 2367,
+          "t": 7.234375,
+          "px": [
+            533.1,
+            218.2
+          ]
+        },
+        {
+          "tick": 2368,
+          "t": 7.242188,
+          "px": [
+            532.1,
+            218.9
+          ]
+        },
+        {
+          "tick": 2369,
+          "t": 7.25,
+          "px": [
+            531.1,
+            219.6
+          ]
+        },
+        {
+          "tick": 2370,
+          "t": 7.257812,
+          "px": [
+            530.1,
+            220.2
+          ]
+        },
+        {
+          "tick": 2371,
+          "t": 7.265625,
+          "px": [
+            529.1,
+            220.9
+          ]
+        },
+        {
+          "tick": 2372,
+          "t": 7.273438,
+          "px": [
+            528.0,
+            221.6
+          ]
+        },
+        {
+          "tick": 2373,
+          "t": 7.28125,
+          "px": [
+            527.0,
+            222.2
+          ]
+        },
+        {
+          "tick": 2374,
+          "t": 7.289062,
+          "px": [
+            526.0,
+            222.9
+          ]
+        },
+        {
+          "tick": 2375,
+          "t": 7.296875,
+          "px": [
+            525.0,
+            223.5
+          ]
+        },
+        {
+          "tick": 2376,
+          "t": 7.304688,
+          "px": [
+            524.0,
+            224.2
+          ]
+        },
+        {
+          "tick": 2377,
+          "t": 7.3125,
+          "px": [
+            523.0,
+            224.9
+          ]
+        },
+        {
+          "tick": 2378,
+          "t": 7.320312,
+          "px": [
+            522.0,
+            225.5
+          ]
+        },
+        {
+          "tick": 2379,
+          "t": 7.328125,
+          "px": [
+            521.0,
+            226.2
+          ]
+        },
+        {
+          "tick": 2380,
+          "t": 7.335938,
+          "px": [
+            520.0,
+            226.8
+          ]
+        },
+        {
+          "tick": 2381,
+          "t": 7.34375,
+          "px": [
+            519.0,
+            227.5
+          ]
+        },
+        {
+          "tick": 2382,
+          "t": 7.351562,
+          "px": [
+            518.0,
+            228.2
+          ]
+        },
+        {
+          "tick": 2383,
+          "t": 7.359375,
+          "px": [
+            517.0,
+            228.8
+          ]
+        },
+        {
+          "tick": 2384,
+          "t": 7.367188,
+          "px": [
+            516.0,
+            229.5
+          ]
+        },
+        {
+          "tick": 2385,
+          "t": 7.375,
+          "px": [
+            515.0,
+            230.2
+          ]
+        },
+        {
+          "tick": 2386,
+          "t": 7.382812,
+          "px": [
+            514.0,
+            230.8
+          ]
+        },
+        {
+          "tick": 2387,
+          "t": 7.390625,
+          "px": [
+            513.0,
+            231.5
+          ]
+        },
+        {
+          "tick": 2388,
+          "t": 7.398438,
+          "px": [
+            512.0,
+            232.1
+          ]
+        },
+        {
+          "tick": 2389,
+          "t": 7.40625,
+          "px": [
+            511.0,
+            232.8
+          ]
+        },
+        {
+          "tick": 2390,
+          "t": 7.414062,
+          "px": [
+            510.0,
+            233.5
+          ]
+        },
+        {
+          "tick": 2391,
+          "t": 7.421875,
+          "px": [
+            509.0,
+            234.1
+          ]
+        },
+        {
+          "tick": 2392,
+          "t": 7.429688,
+          "px": [
+            507.9,
+            234.8
+          ]
+        },
+        {
+          "tick": 2393,
+          "t": 7.4375,
+          "px": [
+            506.9,
+            235.4
+          ]
+        },
+        {
+          "tick": 2394,
+          "t": 7.445312,
+          "px": [
+            505.9,
+            236.1
+          ]
+        },
+        {
+          "tick": 2395,
+          "t": 7.453125,
+          "px": [
+            504.9,
+            236.8
+          ]
+        },
+        {
+          "tick": 2396,
+          "t": 7.460938,
+          "px": [
+            503.9,
+            237.4
+          ]
+        },
+        {
+          "tick": 2397,
+          "t": 7.46875,
+          "px": [
+            502.9,
+            238.1
+          ]
+        },
+        {
+          "tick": 2398,
+          "t": 7.476562,
+          "px": [
+            501.9,
+            238.8
+          ]
+        },
+        {
+          "tick": 2399,
+          "t": 7.484375,
+          "px": [
+            500.9,
+            239.4
+          ]
+        },
+        {
+          "tick": 2400,
+          "t": 7.492188,
+          "px": [
+            499.9,
+            240.1
+          ]
+        },
+        {
+          "tick": 2401,
+          "t": 7.5,
+          "px": [
+            498.9,
+            240.7
+          ]
+        },
+        {
+          "tick": 2402,
+          "t": 7.507812,
+          "px": [
+            497.9,
+            241.4
+          ]
+        },
+        {
+          "tick": 2403,
+          "t": 7.515625,
+          "px": [
+            496.9,
+            242.1
+          ]
+        },
+        {
+          "tick": 2404,
+          "t": 7.523438,
+          "px": [
+            495.9,
+            242.7
+          ]
+        },
+        {
+          "tick": 2405,
+          "t": 7.53125,
+          "px": [
+            494.9,
+            243.4
+          ]
+        },
+        {
+          "tick": 2406,
+          "t": 7.539062,
+          "px": [
+            493.9,
+            244.0
+          ]
+        },
+        {
+          "tick": 2407,
+          "t": 7.546875,
+          "px": [
+            492.9,
+            244.7
+          ]
+        },
+        {
+          "tick": 2408,
+          "t": 7.554688,
+          "px": [
+            491.9,
+            245.4
+          ]
+        },
+        {
+          "tick": 2409,
+          "t": 7.5625,
+          "px": [
+            490.9,
+            246.0
+          ]
+        },
+        {
+          "tick": 2410,
+          "t": 7.570312,
+          "px": [
+            489.9,
+            246.7
+          ]
+        },
+        {
+          "tick": 2411,
+          "t": 7.578125,
+          "px": [
+            488.9,
+            247.3
+          ]
+        },
+        {
+          "tick": 2412,
+          "t": 7.585938,
+          "px": [
+            487.9,
+            248.0
+          ]
+        },
+        {
+          "tick": 2413,
+          "t": 7.59375,
+          "px": [
+            486.8,
+            248.7
+          ]
+        },
+        {
+          "tick": 2414,
+          "t": 7.601562,
+          "px": [
+            485.8,
+            249.3
+          ]
+        },
+        {
+          "tick": 2415,
+          "t": 7.609375,
+          "px": [
+            484.8,
+            250.0
+          ]
+        },
+        {
+          "tick": 2416,
+          "t": 7.617188,
+          "px": [
+            483.8,
+            250.7
+          ]
+        },
+        {
+          "tick": 2417,
+          "t": 7.625,
+          "px": [
+            482.8,
+            251.3
+          ]
+        },
+        {
+          "tick": 2418,
+          "t": 7.632812,
+          "px": [
+            481.8,
+            252.0
+          ]
+        },
+        {
+          "tick": 2419,
+          "t": 7.640625,
+          "px": [
+            480.8,
+            252.6
+          ]
+        },
+        {
+          "tick": 2420,
+          "t": 7.648438,
+          "px": [
+            479.8,
+            253.3
+          ]
+        },
+        {
+          "tick": 2421,
+          "t": 7.65625,
+          "px": [
+            478.8,
+            254.0
+          ]
+        },
+        {
+          "tick": 2422,
+          "t": 7.664062,
+          "px": [
+            477.8,
+            254.6
+          ]
+        },
+        {
+          "tick": 2423,
+          "t": 7.671875,
+          "px": [
+            476.8,
+            255.3
+          ]
+        },
+        {
+          "tick": 2424,
+          "t": 7.679688,
+          "px": [
+            475.8,
+            255.9
+          ]
+        },
+        {
+          "tick": 2425,
+          "t": 7.6875,
+          "px": [
+            474.8,
+            256.6
+          ]
+        },
+        {
+          "tick": 2426,
+          "t": 7.695312,
+          "px": [
+            473.8,
+            257.3
+          ]
+        },
+        {
+          "tick": 2427,
+          "t": 7.703125,
+          "px": [
+            472.8,
+            257.9
+          ]
+        },
+        {
+          "tick": 2428,
+          "t": 7.710938,
+          "px": [
+            471.8,
+            258.6
+          ]
+        },
+        {
+          "tick": 2429,
+          "t": 7.71875,
+          "px": [
+            470.8,
+            259.2
+          ]
+        },
+        {
+          "tick": 2430,
+          "t": 7.726562,
+          "px": [
+            469.8,
+            259.9
+          ]
+        },
+        {
+          "tick": 2431,
+          "t": 7.734375,
+          "px": [
+            468.8,
+            260.6
+          ]
+        },
+        {
+          "tick": 2432,
+          "t": 7.742188,
+          "px": [
+            467.8,
+            261.2
+          ]
+        },
+        {
+          "tick": 2433,
+          "t": 7.75,
+          "px": [
+            466.7,
+            261.9
+          ]
+        },
+        {
+          "tick": 2434,
+          "t": 7.757812,
+          "px": [
+            465.7,
+            262.6
+          ]
+        },
+        {
+          "tick": 2435,
+          "t": 7.765625,
+          "px": [
+            464.7,
+            263.2
+          ]
+        },
+        {
+          "tick": 2436,
+          "t": 7.773438,
+          "px": [
+            463.7,
+            263.9
+          ]
+        },
+        {
+          "tick": 2437,
+          "t": 7.78125,
+          "px": [
+            462.7,
+            264.5
+          ]
+        },
+        {
+          "tick": 2438,
+          "t": 7.789062,
+          "px": [
+            461.7,
+            265.2
+          ]
+        },
+        {
+          "tick": 2439,
+          "t": 7.796875,
+          "px": [
+            460.7,
+            265.9
+          ]
+        },
+        {
+          "tick": 2440,
+          "t": 7.804688,
+          "px": [
+            459.7,
+            266.5
+          ]
+        },
+        {
+          "tick": 2441,
+          "t": 7.8125,
+          "px": [
+            458.7,
+            267.2
+          ]
+        },
+        {
+          "tick": 2442,
+          "t": 7.820312,
+          "px": [
+            457.7,
+            267.8
+          ]
+        },
+        {
+          "tick": 2443,
+          "t": 7.828125,
+          "px": [
+            456.7,
+            268.5
+          ]
+        },
+        {
+          "tick": 2444,
+          "t": 7.835938,
+          "px": [
+            455.7,
+            269.2
+          ]
+        },
+        {
+          "tick": 2445,
+          "t": 7.84375,
+          "px": [
+            454.7,
+            269.8
+          ]
+        },
+        {
+          "tick": 2446,
+          "t": 7.851562,
+          "px": [
+            453.7,
+            270.5
+          ]
+        },
+        {
+          "tick": 2447,
+          "t": 7.859375,
+          "px": [
+            452.7,
+            271.1
+          ]
+        },
+        {
+          "tick": 2448,
+          "t": 7.867188,
+          "px": [
+            451.7,
+            271.8
+          ]
+        },
+        {
+          "tick": 2449,
+          "t": 7.875,
+          "px": [
+            450.7,
+            272.5
+          ]
+        },
+        {
+          "tick": 2450,
+          "t": 7.882812,
+          "px": [
+            449.7,
+            273.1
+          ]
+        },
+        {
+          "tick": 2451,
+          "t": 7.890625,
+          "px": [
+            448.7,
+            273.8
+          ]
+        },
+        {
+          "tick": 2452,
+          "t": 7.898438,
+          "px": [
+            447.6,
+            274.5
+          ]
+        },
+        {
+          "tick": 2453,
+          "t": 7.90625,
+          "px": [
+            446.6,
+            275.1
+          ]
+        },
+        {
+          "tick": 2454,
+          "t": 7.914062,
+          "px": [
+            445.6,
+            275.8
+          ]
+        },
+        {
+          "tick": 2455,
+          "t": 7.921875,
+          "px": [
+            444.6,
+            276.4
+          ]
+        },
+        {
+          "tick": 2456,
+          "t": 7.929688,
+          "px": [
+            443.6,
+            277.1
+          ]
+        },
+        {
+          "tick": 2457,
+          "t": 7.9375,
+          "px": [
+            442.6,
+            277.8
+          ]
+        },
+        {
+          "tick": 2458,
+          "t": 7.945312,
+          "px": [
+            441.6,
+            278.4
+          ]
+        },
+        {
+          "tick": 2459,
+          "t": 7.953125,
+          "px": [
+            440.6,
+            279.1
+          ]
+        },
+        {
+          "tick": 2460,
+          "t": 7.960938,
+          "px": [
+            439.6,
+            279.7
+          ]
+        },
+        {
+          "tick": 2461,
+          "t": 7.96875,
+          "px": [
+            438.6,
+            280.4
+          ]
+        },
+        {
+          "tick": 2462,
+          "t": 7.976562,
+          "px": [
+            437.6,
+            281.1
+          ]
+        },
+        {
+          "tick": 2463,
+          "t": 7.984375,
+          "px": [
+            436.6,
+            281.7
+          ]
+        },
+        {
+          "tick": 2464,
+          "t": 7.992188,
+          "px": [
+            435.6,
+            282.4
+          ]
+        },
+        {
+          "tick": 2465,
+          "t": 8.0,
+          "px": [
+            434.6,
+            283.1
+          ]
+        },
+        {
+          "tick": 2466,
+          "t": 8.007812,
+          "px": [
+            433.6,
+            283.7
+          ]
+        },
+        {
+          "tick": 2467,
+          "t": 8.015625,
+          "px": [
+            432.6,
+            284.4
+          ]
+        },
+        {
+          "tick": 2468,
+          "t": 8.023438,
+          "px": [
+            431.6,
+            285.0
+          ]
+        },
+        {
+          "tick": 2469,
+          "t": 8.03125,
+          "px": [
+            430.6,
+            285.7
+          ]
+        },
+        {
+          "tick": 2470,
+          "t": 8.039062,
+          "px": [
+            429.6,
+            286.4
+          ]
+        },
+        {
+          "tick": 2471,
+          "t": 8.046875,
+          "px": [
+            428.6,
+            287.0
+          ]
+        },
+        {
+          "tick": 2472,
+          "t": 8.054688,
+          "px": [
+            427.6,
+            287.7
+          ]
+        },
+        {
+          "tick": 2473,
+          "t": 8.0625,
+          "px": [
+            426.6,
+            288.3
+          ]
+        },
+        {
+          "tick": 2474,
+          "t": 8.070312,
+          "px": [
+            425.5,
+            289.0
+          ]
+        },
+        {
+          "tick": 2475,
+          "t": 8.078125,
+          "px": [
+            424.5,
+            289.7
+          ]
+        },
+        {
+          "tick": 2476,
+          "t": 8.085938,
+          "px": [
+            423.5,
+            290.3
+          ]
+        },
+        {
+          "tick": 2477,
+          "t": 8.09375,
+          "px": [
+            422.5,
+            291.0
+          ]
+        },
+        {
+          "tick": 2478,
+          "t": 8.101562,
+          "px": [
+            421.5,
+            291.6
+          ]
+        },
+        {
+          "tick": 2479,
+          "t": 8.109375,
+          "px": [
+            420.5,
+            292.3
+          ]
+        },
+        {
+          "tick": 2480,
+          "t": 8.117188,
+          "px": [
+            419.5,
+            293.0
+          ]
+        },
+        {
+          "tick": 2481,
+          "t": 8.125,
+          "px": [
+            418.5,
+            293.6
+          ]
+        },
+        {
+          "tick": 2482,
+          "t": 8.132812,
+          "px": [
+            417.5,
+            294.3
+          ]
+        },
+        {
+          "tick": 2483,
+          "t": 8.140625,
+          "px": [
+            416.5,
+            294.9
+          ]
+        },
+        {
+          "tick": 2484,
+          "t": 8.148438,
+          "px": [
+            415.5,
+            295.6
+          ]
+        },
+        {
+          "tick": 2485,
+          "t": 8.15625,
+          "px": [
+            414.5,
+            296.3
+          ]
+        },
+        {
+          "tick": 2486,
+          "t": 8.164062,
+          "px": [
+            413.5,
+            296.9
+          ]
+        },
+        {
+          "tick": 2487,
+          "t": 8.171875,
+          "px": [
+            412.5,
+            297.6
+          ]
+        },
+        {
+          "tick": 2488,
+          "t": 8.179688,
+          "px": [
+            411.5,
+            298.3
+          ]
+        },
+        {
+          "tick": 2489,
+          "t": 8.1875,
+          "px": [
+            410.5,
+            298.9
+          ]
+        },
+        {
+          "tick": 2490,
+          "t": 8.195312,
+          "px": [
+            409.5,
+            299.6
+          ]
+        },
+        {
+          "tick": 2491,
+          "t": 8.203125,
+          "px": [
+            408.5,
+            300.2
+          ]
+        },
+        {
+          "tick": 2492,
+          "t": 8.210938,
+          "px": [
+            407.5,
+            300.9
+          ]
+        },
+        {
+          "tick": 2493,
+          "t": 8.21875,
+          "px": [
+            406.4,
+            301.6
+          ]
+        },
+        {
+          "tick": 2494,
+          "t": 8.226562,
+          "px": [
+            405.4,
+            302.2
+          ]
+        },
+        {
+          "tick": 2495,
+          "t": 8.234375,
+          "px": [
+            404.4,
+            302.9
+          ]
+        },
+        {
+          "tick": 2496,
+          "t": 8.242188,
+          "px": [
+            403.4,
+            303.6
+          ]
+        },
+        {
+          "tick": 2497,
+          "t": 8.25,
+          "px": [
+            402.4,
+            304.2
+          ]
+        },
+        {
+          "tick": 2498,
+          "t": 8.257812,
+          "px": [
+            401.4,
+            304.9
+          ]
+        },
+        {
+          "tick": 2499,
+          "t": 8.265625,
+          "px": [
+            400.4,
+            305.5
+          ]
+        },
+        {
+          "tick": 2500,
+          "t": 8.273438,
+          "px": [
+            399.4,
+            306.2
+          ]
+        },
+        {
+          "tick": 2501,
+          "t": 8.28125,
+          "px": [
+            398.4,
+            306.9
+          ]
+        },
+        {
+          "tick": 2502,
+          "t": 8.289062,
+          "px": [
+            397.4,
+            307.5
+          ]
+        },
+        {
+          "tick": 2503,
+          "t": 8.296875,
+          "px": [
+            396.4,
+            308.2
+          ]
+        },
+        {
+          "tick": 2504,
+          "t": 8.304688,
+          "px": [
+            395.4,
+            308.8
+          ]
+        },
+        {
+          "tick": 2505,
+          "t": 8.3125,
+          "px": [
+            394.4,
+            309.5
+          ]
+        },
+        {
+          "tick": 2506,
+          "t": 8.320312,
+          "px": [
+            393.4,
+            310.2
+          ]
+        },
+        {
+          "tick": 2507,
+          "t": 8.328125,
+          "px": [
+            392.4,
+            310.8
+          ]
+        },
+        {
+          "tick": 2508,
+          "t": 8.335938,
+          "px": [
+            391.4,
+            311.5
+          ]
+        },
+        {
+          "tick": 2509,
+          "t": 8.34375,
+          "px": [
+            390.4,
+            312.1
+          ]
+        },
+        {
+          "tick": 2510,
+          "t": 8.351562,
+          "px": [
+            389.4,
+            312.8
+          ]
+        },
+        {
+          "tick": 2511,
+          "t": 8.359375,
+          "px": [
+            388.4,
+            313.5
+          ]
+        },
+        {
+          "tick": 2512,
+          "t": 8.367188,
+          "px": [
+            387.4,
+            314.1
+          ]
+        },
+        {
+          "tick": 2513,
+          "t": 8.375,
+          "px": [
+            386.4,
+            314.8
+          ]
+        },
+        {
+          "tick": 2514,
+          "t": 8.382812,
+          "px": [
+            385.3,
+            315.5
+          ]
+        },
+        {
+          "tick": 2515,
+          "t": 8.390625,
+          "px": [
+            384.3,
+            316.1
+          ]
+        },
+        {
+          "tick": 2516,
+          "t": 8.398438,
+          "px": [
+            383.3,
+            316.8
+          ]
+        },
+        {
+          "tick": 2517,
+          "t": 8.40625,
+          "px": [
+            382.3,
+            317.4
+          ]
+        },
+        {
+          "tick": 2518,
+          "t": 8.414062,
+          "px": [
+            381.3,
+            318.1
+          ]
+        },
+        {
+          "tick": 2519,
+          "t": 8.421875,
+          "px": [
+            380.3,
+            318.8
+          ]
+        },
+        {
+          "tick": 2520,
+          "t": 8.429688,
+          "px": [
+            379.3,
+            319.4
+          ]
+        },
+        {
+          "tick": 2521,
+          "t": 8.4375,
+          "px": [
+            378.3,
+            320.1
+          ]
+        },
+        {
+          "tick": 2522,
+          "t": 8.445312,
+          "px": [
+            377.3,
+            320.7
+          ]
+        },
+        {
+          "tick": 2523,
+          "t": 8.453125,
+          "px": [
+            376.3,
+            321.4
+          ]
+        },
+        {
+          "tick": 2524,
+          "t": 8.460938,
+          "px": [
+            375.3,
+            322.1
+          ]
+        },
+        {
+          "tick": 2525,
+          "t": 8.46875,
+          "px": [
+            374.3,
+            322.7
+          ]
+        },
+        {
+          "tick": 2526,
+          "t": 8.476562,
+          "px": [
+            373.3,
+            323.4
+          ]
+        },
+        {
+          "tick": 2527,
+          "t": 8.484375,
+          "px": [
+            372.3,
+            324.1
+          ]
+        },
+        {
+          "tick": 2528,
+          "t": 8.492188,
+          "px": [
+            371.3,
+            324.7
+          ]
+        },
+        {
+          "tick": 2529,
+          "t": 8.5,
+          "px": [
+            370.3,
+            325.4
+          ]
+        },
+        {
+          "tick": 2530,
+          "t": 8.507812,
+          "px": [
+            369.3,
+            326.0
+          ]
+        },
+        {
+          "tick": 2531,
+          "t": 8.515625,
+          "px": [
+            368.3,
+            326.7
+          ]
+        },
+        {
+          "tick": 2532,
+          "t": 8.523438,
+          "px": [
+            367.3,
+            327.4
+          ]
+        },
+        {
+          "tick": 2533,
+          "t": 8.53125,
+          "px": [
+            366.2,
+            328.0
+          ]
+        },
+        {
+          "tick": 2534,
+          "t": 8.539062,
+          "px": [
+            365.2,
+            328.7
+          ]
+        },
+        {
+          "tick": 2535,
+          "t": 8.546875,
+          "px": [
+            364.2,
+            329.3
+          ]
+        },
+        {
+          "tick": 2536,
+          "t": 8.554688,
+          "px": [
+            363.2,
+            330.0
+          ]
+        },
+        {
+          "tick": 2537,
+          "t": 8.5625,
+          "px": [
+            362.2,
+            330.7
+          ]
+        },
+        {
+          "tick": 2538,
+          "t": 8.570312,
+          "px": [
+            361.2,
+            331.3
+          ]
+        },
+        {
+          "tick": 2539,
+          "t": 8.578125,
+          "px": [
+            360.2,
+            332.0
+          ]
+        },
+        {
+          "tick": 2540,
+          "t": 8.585938,
+          "px": [
+            359.2,
+            332.6
+          ]
+        },
+        {
+          "tick": 2541,
+          "t": 8.59375,
+          "px": [
+            358.2,
+            333.3
+          ]
+        },
+        {
+          "tick": 2542,
+          "t": 8.601562,
+          "px": [
+            357.2,
+            334.0
+          ]
+        },
+        {
+          "tick": 2543,
+          "t": 8.609375,
+          "px": [
+            356.2,
+            334.6
+          ]
+        },
+        {
+          "tick": 2544,
+          "t": 8.617188,
+          "px": [
+            355.2,
+            335.3
+          ]
+        },
+        {
+          "tick": 2545,
+          "t": 8.625,
+          "px": [
+            354.2,
+            335.9
+          ]
+        },
+        {
+          "tick": 2546,
+          "t": 8.632812,
+          "px": [
+            353.2,
+            336.6
+          ]
+        },
+        {
+          "tick": 2547,
+          "t": 8.640625,
+          "px": [
+            352.2,
+            337.3
+          ]
+        },
+        {
+          "tick": 2548,
+          "t": 8.648438,
+          "px": [
+            351.2,
+            337.9
+          ]
+        },
+        {
+          "tick": 2549,
+          "t": 8.65625,
+          "px": [
+            350.2,
+            338.6
+          ]
+        },
+        {
+          "tick": 2550,
+          "t": 8.664062,
+          "px": [
+            349.2,
+            339.3
+          ]
+        },
+        {
+          "tick": 2551,
+          "t": 8.671875,
+          "px": [
+            348.2,
+            339.9
+          ]
+        },
+        {
+          "tick": 2552,
+          "t": 8.679688,
+          "px": [
+            347.2,
+            340.6
+          ]
+        },
+        {
+          "tick": 2553,
+          "t": 8.6875,
+          "px": [
+            346.1,
+            341.2
+          ]
+        },
+        {
+          "tick": 2554,
+          "t": 8.695312,
+          "px": [
+            345.1,
+            341.9
+          ]
+        },
+        {
+          "tick": 2555,
+          "t": 8.703125,
+          "px": [
+            344.1,
+            342.6
+          ]
+        },
+        {
+          "tick": 2556,
+          "t": 8.710938,
+          "px": [
+            343.1,
+            343.2
+          ]
+        },
+        {
+          "tick": 2557,
+          "t": 8.71875,
+          "px": [
+            342.1,
+            343.9
+          ]
+        },
+        {
+          "tick": 2558,
+          "t": 8.726562,
+          "px": [
+            341.1,
+            344.5
+          ]
+        },
+        {
+          "tick": 2559,
+          "t": 8.734375,
+          "px": [
+            340.1,
+            345.2
+          ]
+        },
+        {
+          "tick": 2560,
+          "t": 8.742188,
+          "px": [
+            339.1,
+            345.9
+          ]
+        },
+        {
+          "tick": 2561,
+          "t": 8.75,
+          "px": [
+            338.1,
+            346.5
+          ]
+        },
+        {
+          "tick": 2562,
+          "t": 8.757812,
+          "px": [
+            337.1,
+            347.2
+          ]
+        },
+        {
+          "tick": 2563,
+          "t": 8.765625,
+          "px": [
+            336.1,
+            347.9
+          ]
+        },
+        {
+          "tick": 2564,
+          "t": 8.773438,
+          "px": [
+            335.1,
+            348.5
+          ]
+        },
+        {
+          "tick": 2565,
+          "t": 8.78125,
+          "px": [
+            334.1,
+            349.2
+          ]
+        },
+        {
+          "tick": 2566,
+          "t": 8.789062,
+          "px": [
+            333.1,
+            349.8
+          ]
+        },
+        {
+          "tick": 2567,
+          "t": 8.796875,
+          "px": [
+            332.1,
+            350.5
+          ]
+        },
+        {
+          "tick": 2568,
+          "t": 8.804688,
+          "px": [
+            331.1,
+            351.2
+          ]
+        },
+        {
+          "tick": 2569,
+          "t": 8.8125,
+          "px": [
+            330.1,
+            351.8
+          ]
+        },
+        {
+          "tick": 2570,
+          "t": 8.820312,
+          "px": [
+            329.1,
+            352.5
+          ]
+        },
+        {
+          "tick": 2571,
+          "t": 8.828125,
+          "px": [
+            328.1,
+            353.1
+          ]
+        },
+        {
+          "tick": 2572,
+          "t": 8.835938,
+          "px": [
+            327.1,
+            353.8
+          ]
+        },
+        {
+          "tick": 2573,
+          "t": 8.84375,
+          "px": [
+            326.1,
+            354.5
+          ]
+        },
+        {
+          "tick": 2574,
+          "t": 8.851562,
+          "px": [
+            325.0,
+            355.1
+          ]
+        },
+        {
+          "tick": 2575,
+          "t": 8.859375,
+          "px": [
+            324.0,
+            355.8
+          ]
+        },
+        {
+          "tick": 2576,
+          "t": 8.867188,
+          "px": [
+            323.0,
+            356.4
+          ]
+        },
+        {
+          "tick": 2577,
+          "t": 8.875,
+          "px": [
+            322.0,
+            357.1
+          ]
+        },
+        {
+          "tick": 2578,
+          "t": 8.882812,
+          "px": [
+            321.0,
+            357.8
+          ]
+        },
+        {
+          "tick": 2579,
+          "t": 8.890625,
+          "px": [
+            320.0,
+            358.4
+          ]
+        },
+        {
+          "tick": 2580,
+          "t": 8.898438,
+          "px": [
+            319.0,
+            359.1
+          ]
+        },
+        {
+          "tick": 2581,
+          "t": 8.90625,
+          "px": [
+            318.0,
+            359.8
+          ]
+        },
+        {
+          "tick": 2582,
+          "t": 8.914062,
+          "px": [
+            317.0,
+            360.4
+          ]
+        },
+        {
+          "tick": 2583,
+          "t": 8.921875,
+          "px": [
+            316.0,
+            361.1
+          ]
+        },
+        {
+          "tick": 2584,
+          "t": 8.929688,
+          "px": [
+            315.0,
+            361.7
+          ]
+        },
+        {
+          "tick": 2585,
+          "t": 8.9375,
+          "px": [
+            314.0,
+            362.4
+          ]
+        },
+        {
+          "tick": 2586,
+          "t": 8.945312,
+          "px": [
+            313.0,
+            363.1
+          ]
+        },
+        {
+          "tick": 2587,
+          "t": 8.953125,
+          "px": [
+            312.0,
+            363.7
+          ]
+        },
+        {
+          "tick": 2588,
+          "t": 8.960938,
+          "px": [
+            311.0,
+            364.4
+          ]
+        },
+        {
+          "tick": 2589,
+          "t": 8.96875,
+          "px": [
+            310.0,
+            365.0
+          ]
+        },
+        {
+          "tick": 2590,
+          "t": 8.976562,
+          "px": [
+            309.0,
+            365.7
+          ]
+        },
+        {
+          "tick": 2591,
+          "t": 8.984375,
+          "px": [
+            308.0,
+            366.4
+          ]
+        },
+        {
+          "tick": 2592,
+          "t": 8.992188,
+          "px": [
+            307.0,
+            367.0
+          ]
+        },
+        {
+          "tick": 2593,
+          "t": 9.0,
+          "px": [
+            305.9,
+            367.7
+          ]
+        },
+        {
+          "tick": 2594,
+          "t": 9.007812,
+          "px": [
+            304.9,
+            368.4
+          ]
+        },
+        {
+          "tick": 2595,
+          "t": 9.015625,
+          "px": [
+            303.9,
+            369.0
+          ]
+        },
+        {
+          "tick": 2596,
+          "t": 9.023438,
+          "px": [
+            302.9,
+            369.7
+          ]
+        },
+        {
+          "tick": 2597,
+          "t": 9.03125,
+          "px": [
+            301.9,
+            370.3
+          ]
+        },
+        {
+          "tick": 2598,
+          "t": 9.039062,
+          "px": [
+            300.9,
+            371.0
+          ]
+        },
+        {
+          "tick": 2599,
+          "t": 9.046875,
+          "px": [
+            299.9,
+            371.7
+          ]
+        },
+        {
+          "tick": 2600,
+          "t": 9.054688,
+          "px": [
+            298.9,
+            372.3
+          ]
+        },
+        {
+          "tick": 2601,
+          "t": 9.0625,
+          "px": [
+            297.9,
+            373.0
+          ]
+        },
+        {
+          "tick": 2602,
+          "t": 9.070312,
+          "px": [
+            296.9,
+            373.6
+          ]
+        },
+        {
+          "tick": 2603,
+          "t": 9.078125,
+          "px": [
+            295.9,
+            374.3
+          ]
+        },
+        {
+          "tick": 2604,
+          "t": 9.085938,
+          "px": [
+            294.9,
+            375.0
+          ]
+        },
+        {
+          "tick": 2605,
+          "t": 9.09375,
+          "px": [
+            293.9,
+            375.6
+          ]
+        },
+        {
+          "tick": 2606,
+          "t": 9.101562,
+          "px": [
+            292.9,
+            376.3
+          ]
+        },
+        {
+          "tick": 2607,
+          "t": 9.109375,
+          "px": [
+            291.9,
+            376.9
+          ]
+        },
+        {
+          "tick": 2608,
+          "t": 9.117188,
+          "px": [
+            290.9,
+            377.6
+          ]
+        },
+        {
+          "tick": 2609,
+          "t": 9.125,
+          "px": [
+            289.9,
+            378.3
+          ]
+        },
+        {
+          "tick": 2610,
+          "t": 9.132812,
+          "px": [
+            288.9,
+            378.9
+          ]
+        },
+        {
+          "tick": 2611,
+          "t": 9.140625,
+          "px": [
+            287.9,
+            379.6
+          ]
+        },
+        {
+          "tick": 2612,
+          "t": 9.148438,
+          "px": [
+            286.9,
+            380.3
+          ]
+        },
+        {
+          "tick": 2613,
+          "t": 9.15625,
+          "px": [
+            285.9,
+            380.9
+          ]
+        },
+        {
+          "tick": 2614,
+          "t": 9.164062,
+          "px": [
+            284.8,
+            381.6
+          ]
+        },
+        {
+          "tick": 2615,
+          "t": 9.171875,
+          "px": [
+            283.8,
+            382.2
+          ]
+        },
+        {
+          "tick": 2616,
+          "t": 9.179688,
+          "px": [
+            282.8,
+            382.9
+          ]
+        },
+        {
+          "tick": 2617,
+          "t": 9.1875,
+          "px": [
+            281.8,
+            383.6
+          ]
+        },
+        {
+          "tick": 2618,
+          "t": 9.195312,
+          "px": [
+            280.8,
+            384.2
+          ]
+        },
+        {
+          "tick": 2619,
+          "t": 9.203125,
+          "px": [
+            279.8,
+            384.9
+          ]
+        },
+        {
+          "tick": 2620,
+          "t": 9.210938,
+          "px": [
+            278.8,
+            385.5
+          ]
+        },
+        {
+          "tick": 2621,
+          "t": 9.21875,
+          "px": [
+            277.8,
+            386.2
+          ]
+        },
+        {
+          "tick": 2622,
+          "t": 9.226562,
+          "px": [
+            276.8,
+            386.9
+          ]
+        },
+        {
+          "tick": 2623,
+          "t": 9.234375,
+          "px": [
+            275.8,
+            387.5
+          ]
+        },
+        {
+          "tick": 2624,
+          "t": 9.242188,
+          "px": [
+            274.8,
+            388.2
+          ]
+        },
+        {
+          "tick": 2625,
+          "t": 9.25,
+          "px": [
+            273.8,
+            388.9
+          ]
+        },
+        {
+          "tick": 2626,
+          "t": 9.257812,
+          "px": [
+            272.8,
+            389.5
+          ]
+        },
+        {
+          "tick": 2627,
+          "t": 9.265625,
+          "px": [
+            271.8,
+            390.2
+          ]
+        },
+        {
+          "tick": 2628,
+          "t": 9.273438,
+          "px": [
+            270.8,
+            390.8
+          ]
+        },
+        {
+          "tick": 2629,
+          "t": 9.28125,
+          "px": [
+            269.8,
+            391.5
+          ]
+        },
+        {
+          "tick": 2630,
+          "t": 9.289062,
+          "px": [
+            269.4,
+            391.8
+          ]
+        },
+        {
+          "tick": 2631,
+          "t": 9.296875,
+          "px": [
+            269.2,
+            391.9
+          ]
+        },
+        {
+          "tick": 2632,
+          "t": 9.304688,
+          "px": [
+            269.0,
+            392.1
+          ]
+        },
+        {
+          "tick": 2633,
+          "t": 9.3125,
+          "px": [
+            268.8,
+            392.2
+          ]
+        },
+        {
+          "tick": 2634,
+          "t": 9.320312,
+          "px": [
+            268.6,
+            392.4
+          ]
+        },
+        {
+          "tick": 2635,
+          "t": 9.328125,
+          "px": [
+            268.4,
+            392.6
+          ]
+        },
+        {
+          "tick": 2636,
+          "t": 9.335938,
+          "px": [
+            268.3,
+            392.7
+          ]
+        },
+        {
+          "tick": 2637,
+          "t": 9.34375,
+          "px": [
+            268.1,
+            392.9
+          ]
+        },
+        {
+          "tick": 2638,
+          "t": 9.351562,
+          "px": [
+            267.9,
+            393.0
+          ]
+        },
+        {
+          "tick": 2639,
+          "t": 9.359375,
+          "px": [
+            267.7,
+            393.2
+          ]
+        },
+        {
+          "tick": 2640,
+          "t": 9.367188,
+          "px": [
+            267.5,
+            393.4
+          ]
+        },
+        {
+          "tick": 2641,
+          "t": 9.375,
+          "px": [
+            267.3,
+            393.5
+          ]
+        },
+        {
+          "tick": 2642,
+          "t": 9.382812,
+          "px": [
+            267.1,
+            393.7
+          ]
+        },
+        {
+          "tick": 2643,
+          "t": 9.390625,
+          "px": [
+            267.0,
+            393.8
+          ]
+        },
+        {
+          "tick": 2644,
+          "t": 9.398438,
+          "px": [
+            266.8,
+            394.0
+          ]
+        },
+        {
+          "tick": 2645,
+          "t": 9.40625,
+          "px": [
+            266.6,
+            394.1
+          ]
+        },
+        {
+          "tick": 2646,
+          "t": 9.414062,
+          "px": [
+            266.4,
+            394.3
+          ]
+        },
+        {
+          "tick": 2647,
+          "t": 9.421875,
+          "px": [
+            266.2,
+            394.5
+          ]
+        },
+        {
+          "tick": 2648,
+          "t": 9.429688,
+          "px": [
+            266.0,
+            394.6
+          ]
+        },
+        {
+          "tick": 2649,
+          "t": 9.4375,
+          "px": [
+            265.8,
+            394.8
+          ]
+        },
+        {
+          "tick": 2650,
+          "t": 9.445312,
+          "px": [
+            265.6,
+            394.9
+          ]
+        },
+        {
+          "tick": 2651,
+          "t": 9.453125,
+          "px": [
+            265.5,
+            395.1
+          ]
+        },
+        {
+          "tick": 2652,
+          "t": 9.460938,
+          "px": [
+            265.3,
+            395.3
+          ]
+        },
+        {
+          "tick": 2653,
+          "t": 9.46875,
+          "px": [
+            265.1,
+            395.4
+          ]
+        },
+        {
+          "tick": 2654,
+          "t": 9.476562,
+          "px": [
+            264.9,
+            395.6
+          ]
+        },
+        {
+          "tick": 2655,
+          "t": 9.484375,
+          "px": [
+            264.7,
+            395.7
+          ]
+        },
+        {
+          "tick": 2656,
+          "t": 9.492188,
+          "px": [
+            264.5,
+            395.9
+          ]
+        },
+        {
+          "tick": 2657,
+          "t": 9.5,
+          "px": [
+            264.3,
+            396.0
+          ]
+        },
+        {
+          "tick": 2658,
+          "t": 9.507812,
+          "px": [
+            264.1,
+            396.2
+          ]
+        },
+        {
+          "tick": 2659,
+          "t": 9.515625,
+          "px": [
+            264.0,
+            396.4
+          ]
+        },
+        {
+          "tick": 2660,
+          "t": 9.523438,
+          "px": [
+            263.8,
+            396.5
+          ]
+        },
+        {
+          "tick": 2661,
+          "t": 9.53125,
+          "px": [
+            263.6,
+            396.7
+          ]
+        },
+        {
+          "tick": 2662,
+          "t": 9.539062,
+          "px": [
+            263.4,
+            396.8
+          ]
+        },
+        {
+          "tick": 2663,
+          "t": 9.546875,
+          "px": [
+            263.2,
+            397.0
+          ]
+        },
+        {
+          "tick": 2664,
+          "t": 9.554688,
+          "px": [
+            263.0,
+            397.1
+          ]
+        },
+        {
+          "tick": 2665,
+          "t": 9.5625,
+          "px": [
+            262.8,
+            397.3
+          ]
+        },
+        {
+          "tick": 2666,
+          "t": 9.570312,
+          "px": [
+            262.6,
+            397.5
+          ]
+        },
+        {
+          "tick": 2667,
+          "t": 9.578125,
+          "px": [
+            262.5,
+            397.6
+          ]
+        },
+        {
+          "tick": 2668,
+          "t": 9.585938,
+          "px": [
+            262.3,
+            397.8
+          ]
+        },
+        {
+          "tick": 2669,
+          "t": 9.59375,
+          "px": [
+            262.1,
+            397.9
+          ]
+        },
+        {
+          "tick": 2670,
+          "t": 9.601562,
+          "px": [
+            261.9,
+            398.1
+          ]
+        },
+        {
+          "tick": 2671,
+          "t": 9.609375,
+          "px": [
+            261.7,
+            398.3
+          ]
+        },
+        {
+          "tick": 2672,
+          "t": 9.617188,
+          "px": [
+            261.5,
+            398.4
+          ]
+        },
+        {
+          "tick": 2673,
+          "t": 9.625,
+          "px": [
+            261.3,
+            398.6
+          ]
+        },
+        {
+          "tick": 2674,
+          "t": 9.632812,
+          "px": [
+            261.1,
+            398.7
+          ]
+        },
+        {
+          "tick": 2675,
+          "t": 9.640625,
+          "px": [
+            261.0,
+            398.9
+          ]
+        },
+        {
+          "tick": 2676,
+          "t": 9.648438,
+          "px": [
+            260.8,
+            399.1
+          ]
+        },
+        {
+          "tick": 2677,
+          "t": 9.65625,
+          "px": [
+            260.6,
+            399.2
+          ]
+        },
+        {
+          "tick": 2678,
+          "t": 9.664062,
+          "px": [
+            260.4,
+            399.4
+          ]
+        },
+        {
+          "tick": 2679,
+          "t": 9.671875,
+          "px": [
+            260.2,
+            399.5
+          ]
+        },
+        {
+          "tick": 2680,
+          "t": 9.679688,
+          "px": [
+            260.0,
+            399.7
+          ]
+        },
+        {
+          "tick": 2681,
+          "t": 9.6875,
+          "px": [
+            259.8,
+            399.8
+          ]
+        },
+        {
+          "tick": 2682,
+          "t": 9.695312,
+          "px": [
+            259.7,
+            400.0
+          ]
+        },
+        {
+          "tick": 2683,
+          "t": 9.703125,
+          "px": [
+            259.5,
+            400.2
+          ]
+        },
+        {
+          "tick": 2684,
+          "t": 9.710938,
+          "px": [
+            259.3,
+            400.3
+          ]
+        },
+        {
+          "tick": 2685,
+          "t": 9.71875,
+          "px": [
+            259.1,
+            400.5
+          ]
+        },
+        {
+          "tick": 2686,
+          "t": 9.726562,
+          "px": [
+            258.9,
+            400.6
+          ]
+        },
+        {
+          "tick": 2687,
+          "t": 9.734375,
+          "px": [
+            258.7,
+            400.8
+          ]
+        },
+        {
+          "tick": 2688,
+          "t": 9.742188,
+          "px": [
+            258.5,
+            400.9
+          ]
+        },
+        {
+          "tick": 2689,
+          "t": 9.75,
+          "px": [
+            258.3,
+            401.1
+          ]
+        },
+        {
+          "tick": 2690,
+          "t": 9.757812,
+          "px": [
+            258.2,
+            401.3
+          ]
+        },
+        {
+          "tick": 2691,
+          "t": 9.765625,
+          "px": [
+            258.0,
+            401.4
+          ]
+        },
+        {
+          "tick": 2692,
+          "t": 9.773438,
+          "px": [
+            257.8,
+            401.6
+          ]
+        },
+        {
+          "tick": 2693,
+          "t": 9.78125,
+          "px": [
+            257.6,
+            401.7
+          ]
+        },
+        {
+          "tick": 2694,
+          "t": 9.789062,
+          "px": [
+            257.4,
+            401.9
+          ]
+        },
+        {
+          "tick": 2695,
+          "t": 9.796875,
+          "px": [
+            257.2,
+            402.1
+          ]
+        },
+        {
+          "tick": 2696,
+          "t": 9.804688,
+          "px": [
+            257.0,
+            402.2
+          ]
+        },
+        {
+          "tick": 2697,
+          "t": 9.8125,
+          "px": [
+            256.8,
+            402.4
+          ]
+        },
+        {
+          "tick": 2698,
+          "t": 9.820312,
+          "px": [
+            256.7,
+            402.5
+          ]
+        },
+        {
+          "tick": 2699,
+          "t": 9.828125,
+          "px": [
+            256.5,
+            402.7
+          ]
+        },
+        {
+          "tick": 2700,
+          "t": 9.835938,
+          "px": [
+            256.3,
+            402.8
+          ]
+        },
+        {
+          "tick": 2701,
+          "t": 9.84375,
+          "px": [
+            256.1,
+            403.0
+          ]
+        },
+        {
+          "tick": 2702,
+          "t": 9.851562,
+          "px": [
+            255.9,
+            403.2
+          ]
+        },
+        {
+          "tick": 2703,
+          "t": 9.859375,
+          "px": [
+            255.7,
+            403.3
+          ]
+        },
+        {
+          "tick": 2704,
+          "t": 9.867188,
+          "px": [
+            255.5,
+            403.5
+          ]
+        },
+        {
+          "tick": 2705,
+          "t": 9.875,
+          "px": [
+            255.3,
+            403.6
+          ]
+        },
+        {
+          "tick": 2706,
+          "t": 9.882812,
+          "px": [
+            255.2,
+            403.8
+          ]
+        },
+        {
+          "tick": 2707,
+          "t": 9.890625,
+          "px": [
+            255.0,
+            404.0
+          ]
+        },
+        {
+          "tick": 2708,
+          "t": 9.898438,
+          "px": [
+            254.8,
+            404.1
+          ]
+        },
+        {
+          "tick": 2709,
+          "t": 9.90625,
+          "px": [
+            254.6,
+            404.3
+          ]
+        },
+        {
+          "tick": 2710,
+          "t": 9.914062,
+          "px": [
+            254.4,
+            404.4
+          ]
+        },
+        {
+          "tick": 2711,
+          "t": 9.921875,
+          "px": [
+            254.2,
+            404.6
+          ]
+        },
+        {
+          "tick": 2712,
+          "t": 9.929688,
+          "px": [
+            254.0,
+            404.7
+          ]
+        },
+        {
+          "tick": 2713,
+          "t": 9.9375,
+          "px": [
+            253.8,
+            404.9
+          ]
+        },
+        {
+          "tick": 2714,
+          "t": 9.945312,
+          "px": [
+            253.7,
+            405.1
+          ]
+        },
+        {
+          "tick": 2715,
+          "t": 9.953125,
+          "px": [
+            253.5,
+            405.2
+          ]
+        },
+        {
+          "tick": 2716,
+          "t": 9.960938,
+          "px": [
+            253.3,
+            405.4
+          ]
+        },
+        {
+          "tick": 2717,
+          "t": 9.96875,
+          "px": [
+            253.1,
+            405.5
+          ]
+        },
+        {
+          "tick": 2718,
+          "t": 9.976562,
+          "px": [
+            252.9,
+            405.7
+          ]
+        },
+        {
+          "tick": 2719,
+          "t": 9.984375,
+          "px": [
+            252.7,
+            405.9
+          ]
+        },
+        {
+          "tick": 2720,
+          "t": 9.992188,
+          "px": [
+            252.5,
+            406.0
+          ]
+        },
+        {
+          "tick": 2721,
+          "t": 10.0,
+          "px": [
+            252.3,
+            406.2
+          ]
+        },
+        {
+          "tick": 2722,
+          "t": 10.007812,
+          "px": [
+            252.2,
+            406.3
+          ]
+        },
+        {
+          "tick": 2723,
+          "t": 10.015625,
+          "px": [
+            252.0,
+            406.5
+          ]
+        },
+        {
+          "tick": 2724,
+          "t": 10.023438,
+          "px": [
+            251.9,
+            406.5
+          ]
+        },
+        {
+          "tick": 2725,
+          "t": 10.03125,
+          "px": [
+            251.8,
+            406.6
+          ]
+        },
+        {
+          "tick": 2726,
+          "t": 10.039062,
+          "px": [
+            251.8,
+            406.7
+          ]
+        },
+        {
+          "tick": 2727,
+          "t": 10.046875,
+          "px": [
+            251.7,
+            406.7
+          ]
+        },
+        {
+          "tick": 2728,
+          "t": 10.054688,
+          "px": [
+            251.6,
+            406.8
+          ]
+        },
+        {
+          "tick": 2729,
+          "t": 10.0625,
+          "px": [
+            251.5,
+            406.9
+          ]
+        },
+        {
+          "tick": 2730,
+          "t": 10.070312,
+          "px": [
+            251.4,
+            406.9
+          ]
+        },
+        {
+          "tick": 2731,
+          "t": 10.078125,
+          "px": [
+            251.3,
+            407.0
+          ]
+        },
+        {
+          "tick": 2732,
+          "t": 10.085938,
+          "px": [
+            251.3,
+            407.1
+          ]
+        },
+        {
+          "tick": 2733,
+          "t": 10.09375,
+          "px": [
+            251.2,
+            407.2
+          ]
+        },
+        {
+          "tick": 2734,
+          "t": 10.101562,
+          "px": [
+            251.1,
+            407.2
+          ]
+        },
+        {
+          "tick": 2735,
+          "t": 10.109375,
+          "px": [
+            251.0,
+            407.3
+          ]
+        },
+        {
+          "tick": 2736,
+          "t": 10.117188,
+          "px": [
+            251.0,
+            407.4
+          ]
+        },
+        {
+          "tick": 2737,
+          "t": 10.125,
+          "px": [
+            250.9,
+            407.4
+          ]
+        },
+        {
+          "tick": 2738,
+          "t": 10.132812,
+          "px": [
+            250.9,
+            407.4
+          ]
+        },
+        {
+          "tick": 2739,
+          "t": 10.140625,
+          "px": [
+            250.8,
+            407.4
+          ]
+        },
+        {
+          "tick": 2740,
+          "t": 10.148438,
+          "px": [
+            250.8,
+            407.5
+          ]
+        },
+        {
+          "tick": 2741,
+          "t": 10.15625,
+          "px": [
+            250.8,
+            407.5
+          ]
+        },
+        {
+          "tick": 2742,
+          "t": 10.164062,
+          "px": [
+            250.7,
+            407.5
+          ]
+        },
+        {
+          "tick": 2743,
+          "t": 10.171875,
+          "px": [
+            250.7,
+            407.6
+          ]
+        },
+        {
+          "tick": 2744,
+          "t": 10.179688,
+          "px": [
+            250.7,
+            407.6
+          ]
+        },
+        {
+          "tick": 2745,
+          "t": 10.1875,
+          "px": [
+            250.6,
+            407.6
+          ]
+        },
+        {
+          "tick": 2746,
+          "t": 10.195312,
+          "px": [
+            250.6,
+            407.7
+          ]
+        },
+        {
+          "tick": 2747,
+          "t": 10.203125,
+          "px": [
+            250.5,
+            407.7
+          ]
+        },
+        {
+          "tick": 2748,
+          "t": 10.210938,
+          "px": [
+            250.5,
+            407.7
+          ]
+        },
+        {
+          "tick": 2749,
+          "t": 10.21875,
+          "px": [
+            250.5,
+            407.8
+          ]
+        },
+        {
+          "tick": 2750,
+          "t": 10.226562,
+          "px": [
+            250.4,
+            407.8
+          ]
+        },
+        {
+          "tick": 2751,
+          "t": 10.234375,
+          "px": [
+            250.4,
+            407.8
+          ]
+        },
+        {
+          "tick": 2752,
+          "t": 10.242188,
+          "px": [
+            250.4,
+            407.9
+          ]
+        },
+        {
+          "tick": 2753,
+          "t": 10.25,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2754,
+          "t": 10.257812,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2755,
+          "t": 10.265625,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2756,
+          "t": 10.273438,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2757,
+          "t": 10.28125,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2758,
+          "t": 10.289062,
+          "px": [
+            250.3,
+            407.9
+          ]
+        },
+        {
+          "tick": 2759,
+          "t": 10.296875,
+          "px": [
+            250.2,
+            407.9
+          ]
+        },
+        {
+          "tick": 2760,
+          "t": 10.304688,
+          "px": [
+            250.2,
+            408.0
+          ]
+        },
+        {
+          "tick": 2761,
+          "t": 10.3125,
+          "px": [
+            250.2,
+            408.0
+          ]
+        },
+        {
+          "tick": 2762,
+          "t": 10.320312,
+          "px": [
+            250.2,
+            408.0
+          ]
+        },
+        {
+          "tick": 2763,
+          "t": 10.328125,
+          "px": [
+            250.2,
+            408.0
+          ]
+        },
+        {
+          "tick": 2764,
+          "t": 10.335938,
+          "px": [
+            250.2,
+            408.0
+          ]
+        },
+        {
+          "tick": 2765,
+          "t": 10.34375,
+          "px": [
+            250.1,
+            408.0
+          ]
+        },
+        {
+          "tick": 2766,
+          "t": 10.351562,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2767,
+          "t": 10.359375,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2768,
+          "t": 10.367188,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2769,
+          "t": 10.375,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2770,
+          "t": 10.382812,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2771,
+          "t": 10.390625,
+          "px": [
+            250.1,
+            408.1
+          ]
+        },
+        {
+          "tick": 2772,
+          "t": 10.398438,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2773,
+          "t": 10.40625,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2774,
+          "t": 10.414062,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2775,
+          "t": 10.421875,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2776,
+          "t": 10.429688,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2777,
+          "t": 10.4375,
+          "px": [
+            250.0,
+            408.1
+          ]
+        },
+        {
+          "tick": 2778,
+          "t": 10.445312,
+          "px": [
+            250.0,
+            408.2
+          ]
+        },
+        {
+          "tick": 2779,
+          "t": 10.453125,
+          "px": [
+            250.0,
+            408.2
+          ]
+        },
+        {
+          "tick": 2780,
+          "t": 10.460938,
+          "px": [
+            250.0,
+            408.2
+          ]
+        }
+      ],
+      "trajectory_source": "demo",
+      "r_px": 28.8,
+      "radius_is_estimate": true
+    },
+    {
+      "type": "flash",
+      "thrower": {
+        "steamid": "76561197992436137",
+        "name": "𝜏デ气亠⁠⠀ツ",
+        "side": "t",
+        "team": "Team B",
+        "color": "#f472b6",
+        "slot": 1
+      },
+      "t_throw": 10.296875,
+      "t_land": 11.15625,
+      "t_end": 11.15625,
+      "throw_px": [
+        544.1152954101562,
+        223.6758056640625
+      ],
+      "land_px": [
+        300.8543701171875,
+        256.6270751953125
+      ],
+      "trajectory": [
+        {
+          "tick": 2765,
+          "t": 10.34375,
+          "px": [
+            537.5,
+            224.6
+          ]
+        },
+        {
+          "tick": 2766,
+          "t": 10.351562,
+          "px": [
+            535.2,
+            224.9
+          ]
+        },
+        {
+          "tick": 2767,
+          "t": 10.359375,
+          "px": [
+            532.9,
+            225.2
+          ]
+        },
+        {
+          "tick": 2768,
+          "t": 10.367188,
+          "px": [
+            530.6,
+            225.5
+          ]
+        },
+        {
+          "tick": 2769,
+          "t": 10.375,
+          "px": [
+            528.3,
+            225.8
+          ]
+        },
+        {
+          "tick": 2770,
+          "t": 10.382812,
+          "px": [
+            526.0,
+            226.1
+          ]
+        },
+        {
+          "tick": 2771,
+          "t": 10.390625,
+          "px": [
+            523.7,
+            226.4
+          ]
+        },
+        {
+          "tick": 2772,
+          "t": 10.398438,
+          "px": [
+            521.4,
+            226.8
+          ]
+        },
+        {
+          "tick": 2773,
+          "t": 10.40625,
+          "px": [
+            519.1,
+            227.1
+          ]
+        },
+        {
+          "tick": 2774,
+          "t": 10.414062,
+          "px": [
+            516.8,
+            227.4
+          ]
+        },
+        {
+          "tick": 2775,
+          "t": 10.421875,
+          "px": [
+            514.5,
+            227.7
+          ]
+        },
+        {
+          "tick": 2776,
+          "t": 10.429688,
+          "px": [
+            512.2,
+            228.0
+          ]
+        },
+        {
+          "tick": 2777,
+          "t": 10.4375,
+          "px": [
+            509.9,
+            228.3
+          ]
+        },
+        {
+          "tick": 2778,
+          "t": 10.445312,
+          "px": [
+            507.6,
+            228.6
+          ]
+        },
+        {
+          "tick": 2779,
+          "t": 10.453125,
+          "px": [
+            505.3,
+            228.9
+          ]
+        },
+        {
+          "tick": 2780,
+          "t": 10.460938,
+          "px": [
+            503.0,
+            229.2
+          ]
+        },
+        {
+          "tick": 2781,
+          "t": 10.46875,
+          "px": [
+            500.7,
+            229.6
+          ]
+        },
+        {
+          "tick": 2782,
+          "t": 10.476562,
+          "px": [
+            498.4,
+            229.9
+          ]
+        },
+        {
+          "tick": 2783,
+          "t": 10.484375,
+          "px": [
+            496.1,
+            230.2
+          ]
+        },
+        {
+          "tick": 2784,
+          "t": 10.492188,
+          "px": [
+            493.8,
+            230.5
+          ]
+        },
+        {
+          "tick": 2785,
+          "t": 10.5,
+          "px": [
+            491.5,
+            230.8
+          ]
+        },
+        {
+          "tick": 2786,
+          "t": 10.507812,
+          "px": [
+            489.2,
+            231.1
+          ]
+        },
+        {
+          "tick": 2787,
+          "t": 10.515625,
+          "px": [
+            486.9,
+            231.4
+          ]
+        },
+        {
+          "tick": 2788,
+          "t": 10.523438,
+          "px": [
+            484.6,
+            231.7
+          ]
+        },
+        {
+          "tick": 2789,
+          "t": 10.53125,
+          "px": [
+            482.3,
+            232.1
+          ]
+        },
+        {
+          "tick": 2790,
+          "t": 10.539062,
+          "px": [
+            480.0,
+            232.4
+          ]
+        },
+        {
+          "tick": 2791,
+          "t": 10.546875,
+          "px": [
+            477.7,
+            232.7
+          ]
+        },
+        {
+          "tick": 2792,
+          "t": 10.554688,
+          "px": [
+            475.4,
+            233.0
+          ]
+        },
+        {
+          "tick": 2793,
+          "t": 10.5625,
+          "px": [
+            473.1,
+            233.3
+          ]
+        },
+        {
+          "tick": 2794,
+          "t": 10.570312,
+          "px": [
+            470.8,
+            233.6
+          ]
+        },
+        {
+          "tick": 2795,
+          "t": 10.578125,
+          "px": [
+            468.5,
+            233.9
+          ]
+        },
+        {
+          "tick": 2796,
+          "t": 10.585938,
+          "px": [
+            466.2,
+            234.2
+          ]
+        },
+        {
+          "tick": 2797,
+          "t": 10.59375,
+          "px": [
+            463.9,
+            234.5
+          ]
+        },
+        {
+          "tick": 2798,
+          "t": 10.601562,
+          "px": [
+            461.6,
+            234.8
+          ]
+        },
+        {
+          "tick": 2799,
+          "t": 10.609375,
+          "px": [
+            459.4,
+            235.2
+          ]
+        },
+        {
+          "tick": 2800,
+          "t": 10.617188,
+          "px": [
+            457.1,
+            235.5
+          ]
+        },
+        {
+          "tick": 2801,
+          "t": 10.625,
+          "px": [
+            454.8,
+            235.8
+          ]
+        },
+        {
+          "tick": 2802,
+          "t": 10.632812,
+          "px": [
+            452.5,
+            236.1
+          ]
+        },
+        {
+          "tick": 2803,
+          "t": 10.640625,
+          "px": [
+            450.2,
+            236.4
+          ]
+        },
+        {
+          "tick": 2804,
+          "t": 10.648438,
+          "px": [
+            447.9,
+            236.7
+          ]
+        },
+        {
+          "tick": 2805,
+          "t": 10.65625,
+          "px": [
+            445.6,
+            237.0
+          ]
+        },
+        {
+          "tick": 2806,
+          "t": 10.664062,
+          "px": [
+            443.3,
+            237.3
+          ]
+        },
+        {
+          "tick": 2807,
+          "t": 10.671875,
+          "px": [
+            441.0,
+            237.7
+          ]
+        },
+        {
+          "tick": 2808,
+          "t": 10.679688,
+          "px": [
+            438.7,
+            238.0
+          ]
+        },
+        {
+          "tick": 2809,
+          "t": 10.6875,
+          "px": [
+            436.4,
+            238.3
+          ]
+        },
+        {
+          "tick": 2810,
+          "t": 10.695312,
+          "px": [
+            434.1,
+            238.6
+          ]
+        },
+        {
+          "tick": 2811,
+          "t": 10.703125,
+          "px": [
+            431.8,
+            238.9
+          ]
+        },
+        {
+          "tick": 2812,
+          "t": 10.710938,
+          "px": [
+            429.5,
+            239.2
+          ]
+        },
+        {
+          "tick": 2813,
+          "t": 10.71875,
+          "px": [
+            427.2,
+            239.5
+          ]
+        },
+        {
+          "tick": 2814,
+          "t": 10.726562,
+          "px": [
+            424.9,
+            239.8
+          ]
+        },
+        {
+          "tick": 2815,
+          "t": 10.734375,
+          "px": [
+            422.6,
+            240.1
+          ]
+        },
+        {
+          "tick": 2816,
+          "t": 10.742188,
+          "px": [
+            420.3,
+            240.4
+          ]
+        },
+        {
+          "tick": 2817,
+          "t": 10.75,
+          "px": [
+            418.0,
+            240.8
+          ]
+        },
+        {
+          "tick": 2818,
+          "t": 10.757812,
+          "px": [
+            415.7,
+            241.1
+          ]
+        },
+        {
+          "tick": 2819,
+          "t": 10.765625,
+          "px": [
+            413.4,
+            241.4
+          ]
+        },
+        {
+          "tick": 2820,
+          "t": 10.773438,
+          "px": [
+            411.1,
+            241.7
+          ]
+        },
+        {
+          "tick": 2821,
+          "t": 10.78125,
+          "px": [
+            408.8,
+            242.0
+          ]
+        },
+        {
+          "tick": 2822,
+          "t": 10.789062,
+          "px": [
+            406.5,
+            242.3
+          ]
+        },
+        {
+          "tick": 2823,
+          "t": 10.796875,
+          "px": [
+            404.2,
+            242.6
+          ]
+        },
+        {
+          "tick": 2824,
+          "t": 10.804688,
+          "px": [
+            401.9,
+            242.9
+          ]
+        },
+        {
+          "tick": 2825,
+          "t": 10.8125,
+          "px": [
+            399.6,
+            243.2
+          ]
+        },
+        {
+          "tick": 2826,
+          "t": 10.820312,
+          "px": [
+            397.3,
+            243.6
+          ]
+        },
+        {
+          "tick": 2827,
+          "t": 10.828125,
+          "px": [
+            395.0,
+            243.9
+          ]
+        },
+        {
+          "tick": 2828,
+          "t": 10.835938,
+          "px": [
+            392.7,
+            244.2
+          ]
+        },
+        {
+          "tick": 2829,
+          "t": 10.84375,
+          "px": [
+            390.4,
+            244.5
+          ]
+        },
+        {
+          "tick": 2830,
+          "t": 10.851562,
+          "px": [
+            388.1,
+            244.8
+          ]
+        },
+        {
+          "tick": 2831,
+          "t": 10.859375,
+          "px": [
+            385.9,
+            245.1
+          ]
+        },
+        {
+          "tick": 2832,
+          "t": 10.867188,
+          "px": [
+            383.6,
+            245.4
+          ]
+        },
+        {
+          "tick": 2833,
+          "t": 10.875,
+          "px": [
+            381.3,
+            245.7
+          ]
+        },
+        {
+          "tick": 2834,
+          "t": 10.882812,
+          "px": [
+            379.0,
+            246.1
+          ]
+        },
+        {
+          "tick": 2835,
+          "t": 10.890625,
+          "px": [
+            376.7,
+            246.4
+          ]
+        },
+        {
+          "tick": 2836,
+          "t": 10.898438,
+          "px": [
+            374.4,
+            246.7
+          ]
+        },
+        {
+          "tick": 2837,
+          "t": 10.90625,
+          "px": [
+            372.1,
+            247.0
+          ]
+        },
+        {
+          "tick": 2838,
+          "t": 10.914062,
+          "px": [
+            369.8,
+            247.3
+          ]
+        },
+        {
+          "tick": 2839,
+          "t": 10.921875,
+          "px": [
+            367.5,
+            247.6
+          ]
+        },
+        {
+          "tick": 2840,
+          "t": 10.929688,
+          "px": [
+            365.2,
+            247.9
+          ]
+        },
+        {
+          "tick": 2841,
+          "t": 10.9375,
+          "px": [
+            362.9,
+            248.2
+          ]
+        },
+        {
+          "tick": 2842,
+          "t": 10.945312,
+          "px": [
+            360.6,
+            248.5
+          ]
+        },
+        {
+          "tick": 2843,
+          "t": 10.953125,
+          "px": [
+            358.3,
+            248.8
+          ]
+        },
+        {
+          "tick": 2844,
+          "t": 10.960938,
+          "px": [
+            356.0,
+            249.2
+          ]
+        },
+        {
+          "tick": 2845,
+          "t": 10.96875,
+          "px": [
+            353.7,
+            249.5
+          ]
+        },
+        {
+          "tick": 2846,
+          "t": 10.976562,
+          "px": [
+            351.4,
+            249.8
+          ]
+        },
+        {
+          "tick": 2847,
+          "t": 10.984375,
+          "px": [
+            349.1,
+            250.1
+          ]
+        },
+        {
+          "tick": 2848,
+          "t": 10.992188,
+          "px": [
+            346.8,
+            250.4
+          ]
+        },
+        {
+          "tick": 2849,
+          "t": 11.0,
+          "px": [
+            344.5,
+            250.7
+          ]
+        },
+        {
+          "tick": 2850,
+          "t": 11.007812,
+          "px": [
+            342.2,
+            251.0
+          ]
+        },
+        {
+          "tick": 2851,
+          "t": 11.015625,
+          "px": [
+            339.9,
+            251.3
+          ]
+        },
+        {
+          "tick": 2852,
+          "t": 11.023438,
+          "px": [
+            337.6,
+            251.7
+          ]
+        },
+        {
+          "tick": 2853,
+          "t": 11.03125,
+          "px": [
+            335.3,
+            252.0
+          ]
+        },
+        {
+          "tick": 2854,
+          "t": 11.039062,
+          "px": [
+            333.0,
+            252.3
+          ]
+        },
+        {
+          "tick": 2855,
+          "t": 11.046875,
+          "px": [
+            330.7,
+            252.6
+          ]
+        },
+        {
+          "tick": 2856,
+          "t": 11.054688,
+          "px": [
+            328.4,
+            252.9
+          ]
+        },
+        {
+          "tick": 2857,
+          "t": 11.0625,
+          "px": [
+            326.1,
+            253.2
+          ]
+        },
+        {
+          "tick": 2858,
+          "t": 11.070312,
+          "px": [
+            323.8,
+            253.5
+          ]
+        },
+        {
+          "tick": 2859,
+          "t": 11.078125,
+          "px": [
+            321.5,
+            253.8
+          ]
+        },
+        {
+          "tick": 2860,
+          "t": 11.085938,
+          "px": [
+            319.2,
+            254.1
+          ]
+        },
+        {
+          "tick": 2861,
+          "t": 11.09375,
+          "px": [
+            316.9,
+            254.4
+          ]
+        },
+        {
+          "tick": 2862,
+          "t": 11.101562,
+          "px": [
+            314.6,
+            254.8
+          ]
+        },
+        {
+          "tick": 2863,
+          "t": 11.109375,
+          "px": [
+            312.3,
+            255.1
+          ]
+        },
+        {
+          "tick": 2864,
+          "t": 11.117188,
+          "px": [
+            310.0,
+            255.4
+          ]
+        },
+        {
+          "tick": 2865,
+          "t": 11.125,
+          "px": [
+            307.7,
+            255.7
+          ]
+        },
+        {
+          "tick": 2866,
+          "t": 11.132812,
+          "px": [
+            305.4,
+            256.0
+          ]
+        },
+        {
+          "tick": 2867,
+          "t": 11.140625,
+          "px": [
+            303.1,
+            256.3
+          ]
+        },
+        {
+          "tick": 2868,
+          "t": 11.148438,
+          "px": [
+            300.9,
+            256.6
+          ]
+        }
+      ],
+      "trajectory_source": "demo",
+      "r_px": 0.0,
+      "radius_is_estimate": false
+    },
+    {
+      "type": "flash",
+      "thrower": {
+        "steamid": "76561197992436137",
+        "name": "𝜏デ气亠⁠⠀ツ",
+        "side": "t",
+        "team": "Team B",
+        "color": "#f472b6",
+        "slot": 1
+      },
+      "t_throw": 11.375,
+      "t_land": 12.234375,
+      "t_end": 12.234375,
+      "throw_px": [
+        540.0148315429688,
+        226.92572021484375
+      ],
+      "land_px": [
+        262.1720703125,
+        260.29710693359374
+      ],
+      "trajectory": [
+        {
+          "tick": 2903,
+          "t": 11.421875,
+          "px": [
+            532.8,
+            227.8
+          ]
+        },
+        {
+          "tick": 2904,
+          "t": 11.429688,
+          "px": [
+            530.2,
+            228.1
+          ]
+        },
+        {
+          "tick": 2905,
+          "t": 11.4375,
+          "px": [
+            527.6,
+            228.4
+          ]
+        },
+        {
+          "tick": 2906,
+          "t": 11.445312,
+          "px": [
+            524.9,
+            228.7
+          ]
+        },
+        {
+          "tick": 2907,
+          "t": 11.453125,
+          "px": [
+            522.3,
+            229.1
+          ]
+        },
+        {
+          "tick": 2908,
+          "t": 11.460938,
+          "px": [
+            519.7,
+            229.4
+          ]
+        },
+        {
+          "tick": 2909,
+          "t": 11.46875,
+          "px": [
+            517.0,
+            229.7
+          ]
+        },
+        {
+          "tick": 2910,
+          "t": 11.476562,
+          "px": [
+            514.4,
+            230.0
+          ]
+        },
+        {
+          "tick": 2911,
+          "t": 11.484375,
+          "px": [
+            511.8,
+            230.3
+          ]
+        },
+        {
+          "tick": 2912,
+          "t": 11.492188,
+          "px": [
+            509.2,
+            230.6
+          ]
+        },
+        {
+          "tick": 2913,
+          "t": 11.5,
+          "px": [
+            506.5,
+            230.9
+          ]
+        },
+        {
+          "tick": 2914,
+          "t": 11.507812,
+          "px": [
+            503.9,
+            231.3
+          ]
+        },
+        {
+          "tick": 2915,
+          "t": 11.515625,
+          "px": [
+            501.3,
+            231.6
+          ]
+        },
+        {
+          "tick": 2916,
+          "t": 11.523438,
+          "px": [
+            498.7,
+            231.9
+          ]
+        },
+        {
+          "tick": 2917,
+          "t": 11.53125,
+          "px": [
+            496.0,
+            232.2
+          ]
+        },
+        {
+          "tick": 2918,
+          "t": 11.539062,
+          "px": [
+            493.4,
+            232.5
+          ]
+        },
+        {
+          "tick": 2919,
+          "t": 11.546875,
+          "px": [
+            490.8,
+            232.8
+          ]
+        },
+        {
+          "tick": 2920,
+          "t": 11.554688,
+          "px": [
+            488.1,
+            233.2
+          ]
+        },
+        {
+          "tick": 2921,
+          "t": 11.5625,
+          "px": [
+            485.5,
+            233.5
+          ]
+        },
+        {
+          "tick": 2922,
+          "t": 11.570312,
+          "px": [
+            482.9,
+            233.8
+          ]
+        },
+        {
+          "tick": 2923,
+          "t": 11.578125,
+          "px": [
+            480.3,
+            234.1
+          ]
+        },
+        {
+          "tick": 2924,
+          "t": 11.585938,
+          "px": [
+            477.6,
+            234.4
+          ]
+        },
+        {
+          "tick": 2925,
+          "t": 11.59375,
+          "px": [
+            475.0,
+            234.7
+          ]
+        },
+        {
+          "tick": 2926,
+          "t": 11.601562,
+          "px": [
+            472.4,
+            235.1
+          ]
+        },
+        {
+          "tick": 2927,
+          "t": 11.609375,
+          "px": [
+            469.8,
+            235.4
+          ]
+        },
+        {
+          "tick": 2928,
+          "t": 11.617188,
+          "px": [
+            467.1,
+            235.7
+          ]
+        },
+        {
+          "tick": 2929,
+          "t": 11.625,
+          "px": [
+            464.5,
+            236.0
+          ]
+        },
+        {
+          "tick": 2930,
+          "t": 11.632812,
+          "px": [
+            461.9,
+            236.3
+          ]
+        },
+        {
+          "tick": 2931,
+          "t": 11.640625,
+          "px": [
+            459.2,
+            236.6
+          ]
+        },
+        {
+          "tick": 2932,
+          "t": 11.648438,
+          "px": [
+            456.6,
+            236.9
+          ]
+        },
+        {
+          "tick": 2933,
+          "t": 11.65625,
+          "px": [
+            454.0,
+            237.3
+          ]
+        },
+        {
+          "tick": 2934,
+          "t": 11.664062,
+          "px": [
+            451.4,
+            237.6
+          ]
+        },
+        {
+          "tick": 2935,
+          "t": 11.671875,
+          "px": [
+            448.7,
+            237.9
+          ]
+        },
+        {
+          "tick": 2936,
+          "t": 11.679688,
+          "px": [
+            446.1,
+            238.2
+          ]
+        },
+        {
+          "tick": 2937,
+          "t": 11.6875,
+          "px": [
+            443.5,
+            238.5
+          ]
+        },
+        {
+          "tick": 2938,
+          "t": 11.695312,
+          "px": [
+            440.9,
+            238.8
+          ]
+        },
+        {
+          "tick": 2939,
+          "t": 11.703125,
+          "px": [
+            438.2,
+            239.2
+          ]
+        },
+        {
+          "tick": 2940,
+          "t": 11.710938,
+          "px": [
+            435.6,
+            239.5
+          ]
+        },
+        {
+          "tick": 2941,
+          "t": 11.71875,
+          "px": [
+            433.0,
+            239.8
+          ]
+        },
+        {
+          "tick": 2942,
+          "t": 11.726562,
+          "px": [
+            430.3,
+            240.1
+          ]
+        },
+        {
+          "tick": 2943,
+          "t": 11.734375,
+          "px": [
+            427.7,
+            240.4
+          ]
+        },
+        {
+          "tick": 2944,
+          "t": 11.742188,
+          "px": [
+            425.1,
+            240.7
+          ]
+        },
+        {
+          "tick": 2945,
+          "t": 11.75,
+          "px": [
+            422.5,
+            241.1
+          ]
+        },
+        {
+          "tick": 2946,
+          "t": 11.757812,
+          "px": [
+            419.8,
+            241.4
+          ]
+        },
+        {
+          "tick": 2947,
+          "t": 11.765625,
+          "px": [
+            417.2,
+            241.7
+          ]
+        },
+        {
+          "tick": 2948,
+          "t": 11.773438,
+          "px": [
+            414.6,
+            242.0
+          ]
+        },
+        {
+          "tick": 2949,
+          "t": 11.78125,
+          "px": [
+            411.9,
+            242.3
+          ]
+        },
+        {
+          "tick": 2950,
+          "t": 11.789062,
+          "px": [
+            409.3,
+            242.6
+          ]
+        },
+        {
+          "tick": 2951,
+          "t": 11.796875,
+          "px": [
+            406.7,
+            242.9
+          ]
+        },
+        {
+          "tick": 2952,
+          "t": 11.804688,
+          "px": [
+            404.1,
+            243.3
+          ]
+        },
+        {
+          "tick": 2953,
+          "t": 11.8125,
+          "px": [
+            401.4,
+            243.6
+          ]
+        },
+        {
+          "tick": 2954,
+          "t": 11.820312,
+          "px": [
+            398.8,
+            243.9
+          ]
+        },
+        {
+          "tick": 2955,
+          "t": 11.828125,
+          "px": [
+            396.2,
+            244.2
+          ]
+        },
+        {
+          "tick": 2956,
+          "t": 11.835938,
+          "px": [
+            393.6,
+            244.5
+          ]
+        },
+        {
+          "tick": 2957,
+          "t": 11.84375,
+          "px": [
+            390.9,
+            244.8
+          ]
+        },
+        {
+          "tick": 2958,
+          "t": 11.851562,
+          "px": [
+            388.3,
+            245.2
+          ]
+        },
+        {
+          "tick": 2959,
+          "t": 11.859375,
+          "px": [
+            385.7,
+            245.5
+          ]
+        },
+        {
+          "tick": 2960,
+          "t": 11.867188,
+          "px": [
+            383.0,
+            245.8
+          ]
+        },
+        {
+          "tick": 2961,
+          "t": 11.875,
+          "px": [
+            380.4,
+            246.1
+          ]
+        },
+        {
+          "tick": 2962,
+          "t": 11.882812,
+          "px": [
+            377.8,
+            246.4
+          ]
+        },
+        {
+          "tick": 2963,
+          "t": 11.890625,
+          "px": [
+            375.2,
+            246.7
+          ]
+        },
+        {
+          "tick": 2964,
+          "t": 11.898438,
+          "px": [
+            372.5,
+            247.0
+          ]
+        },
+        {
+          "tick": 2965,
+          "t": 11.90625,
+          "px": [
+            369.9,
+            247.4
+          ]
+        },
+        {
+          "tick": 2966,
+          "t": 11.914062,
+          "px": [
+            367.3,
+            247.7
+          ]
+        },
+        {
+          "tick": 2967,
+          "t": 11.921875,
+          "px": [
+            364.6,
+            248.0
+          ]
+        },
+        {
+          "tick": 2968,
+          "t": 11.929688,
+          "px": [
+            362.0,
+            248.3
+          ]
+        },
+        {
+          "tick": 2969,
+          "t": 11.9375,
+          "px": [
+            359.4,
+            248.6
+          ]
+        },
+        {
+          "tick": 2970,
+          "t": 11.945312,
+          "px": [
+            356.8,
+            248.9
+          ]
+        },
+        {
+          "tick": 2971,
+          "t": 11.953125,
+          "px": [
+            354.1,
+            249.2
+          ]
+        },
+        {
+          "tick": 2972,
+          "t": 11.960938,
+          "px": [
+            351.5,
+            249.6
+          ]
+        },
+        {
+          "tick": 2973,
+          "t": 11.96875,
+          "px": [
+            348.9,
+            249.9
+          ]
+        },
+        {
+          "tick": 2974,
+          "t": 11.976562,
+          "px": [
+            346.3,
+            250.2
+          ]
+        },
+        {
+          "tick": 2975,
+          "t": 11.984375,
+          "px": [
+            343.6,
+            250.5
+          ]
+        },
+        {
+          "tick": 2976,
+          "t": 11.992188,
+          "px": [
+            341.0,
+            250.8
+          ]
+        },
+        {
+          "tick": 2977,
+          "t": 12.0,
+          "px": [
+            338.4,
+            251.1
+          ]
+        },
+        {
+          "tick": 2978,
+          "t": 12.007812,
+          "px": [
+            335.7,
+            251.5
+          ]
+        },
+        {
+          "tick": 2979,
+          "t": 12.015625,
+          "px": [
+            333.1,
+            251.8
+          ]
+        },
+        {
+          "tick": 2980,
+          "t": 12.023438,
+          "px": [
+            330.5,
+            252.1
+          ]
+        },
+        {
+          "tick": 2981,
+          "t": 12.03125,
+          "px": [
+            327.9,
+            252.4
+          ]
+        },
+        {
+          "tick": 2982,
+          "t": 12.039062,
+          "px": [
+            325.2,
+            252.7
+          ]
+        },
+        {
+          "tick": 2983,
+          "t": 12.046875,
+          "px": [
+            322.6,
+            253.0
+          ]
+        },
+        {
+          "tick": 2984,
+          "t": 12.054688,
+          "px": [
+            320.0,
+            253.4
+          ]
+        },
+        {
+          "tick": 2985,
+          "t": 12.0625,
+          "px": [
+            317.4,
+            253.7
+          ]
+        },
+        {
+          "tick": 2986,
+          "t": 12.070312,
+          "px": [
+            314.7,
+            254.0
+          ]
+        },
+        {
+          "tick": 2987,
+          "t": 12.078125,
+          "px": [
+            312.1,
+            254.3
+          ]
+        },
+        {
+          "tick": 2988,
+          "t": 12.085938,
+          "px": [
+            309.5,
+            254.6
+          ]
+        },
+        {
+          "tick": 2989,
+          "t": 12.09375,
+          "px": [
+            306.8,
+            254.9
+          ]
+        },
+        {
+          "tick": 2990,
+          "t": 12.101562,
+          "px": [
+            304.2,
+            255.2
+          ]
+        },
+        {
+          "tick": 2991,
+          "t": 12.109375,
+          "px": [
+            301.6,
+            255.6
+          ]
+        },
+        {
+          "tick": 2992,
+          "t": 12.117188,
+          "px": [
+            299.0,
+            255.9
+          ]
+        },
+        {
+          "tick": 2993,
+          "t": 12.125,
+          "px": [
+            296.3,
+            256.2
+          ]
+        },
+        {
+          "tick": 2994,
+          "t": 12.132812,
+          "px": [
+            293.7,
+            256.5
+          ]
+        },
+        {
+          "tick": 2995,
+          "t": 12.140625,
+          "px": [
+            291.1,
+            256.8
+          ]
+        },
+        {
+          "tick": 2996,
+          "t": 12.148438,
+          "px": [
+            288.4,
+            257.1
+          ]
+        },
+        {
+          "tick": 2997,
+          "t": 12.15625,
+          "px": [
+            285.8,
+            257.5
+          ]
+        },
+        {
+          "tick": 2998,
+          "t": 12.164062,
+          "px": [
+            283.2,
+            257.8
+          ]
+        },
+        {
+          "tick": 2999,
+          "t": 12.171875,
+          "px": [
+            280.6,
+            258.1
+          ]
+        },
+        {
+          "tick": 3000,
+          "t": 12.179688,
+          "px": [
+            277.9,
+            258.4
+          ]
+        },
+        {
+          "tick": 3001,
+          "t": 12.1875,
+          "px": [
+            275.3,
+            258.7
+          ]
+        },
+        {
+          "tick": 3002,
+          "t": 12.195312,
+          "px": [
+            272.7,
+            259.0
+          ]
+        },
+        {
+          "tick": 3003,
+          "t": 12.203125,
+          "px": [
+            270.1,
+            259.4
+          ]
+        },
+        {
+          "tick": 3004,
+          "t": 12.210938,
+          "px": [
+            267.4,
+            259.7
+          ]
+        },
+        {
+          "tick": 3005,
+          "t": 12.21875,
+          "px": [
+            264.8,
+            260.0
+          ]
+        },
+        {
+          "tick": 3006,
+          "t": 12.226562,
+          "px": [
+            262.2,
+            260.3
+          ]
+        }
+      ],
+      "trajectory_source": "demo",
+      "r_px": 0.0,
+      "radius_is_estimate": false
+    }
+  ],
+  "summary": {
+    "first_death": {
+      "order": 1,
+      "name": "r1ynnn",
+      "side": "t",
+      "place": "Apartments",
+      "t_round": 11.242188,
+      "by": "OctobiQ"
+    },
+    "first_death_side_lost": true,
+    "disadvantaged_deaths": {
+      "ct": 0,
+      "t": 0
+    },
+    "duel_deaths": 8,
+    "deaths_with_context": 0
+  }
+}

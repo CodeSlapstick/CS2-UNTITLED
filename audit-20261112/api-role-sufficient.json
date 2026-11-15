@@ -1,0 +1,931 @@
+{
+  "available": true,
+  "demo": "match730_003837851867249901660_1125265208_142.dem",
+  "map": "de_mirage",
+  "unit": "player-match-side",
+  "minimum_rounds": 5,
+  "players": [
+    {
+      "steamid": "76561197987951173",
+      "name": "anus",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Aggressive Defender",
+      "cluster": 1,
+      "distance": 2.3034,
+      "margin": 0.4868,
+      "metrics": {
+        "assists_per_round": 0.3333,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.1667,
+        "early_engagement_rate": 1.4167,
+        "trade_kills_per_round": 0.1667,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.6667,
+        "avg_kill_time": 19.2578,
+        "place_diversity": 8.0,
+        "place_concentration": 0.3
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 2.533,
+          "value": 1.4167
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.049,
+          "value": 19.2578
+        },
+        {
+          "feature": "postplant_kills_per_round",
+          "direction": "lower",
+          "z": -0.878,
+          "value": 0.0
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561197987951173",
+      "name": "anus",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Entry",
+      "cluster": 1,
+      "distance": 3.611,
+      "margin": 0.2295,
+      "metrics": {
+        "assists_per_round": 0.5,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.3333,
+        "opening_kill_rate": 0.0833,
+        "early_engagement_rate": 1.0833,
+        "trade_kills_per_round": 0.4167,
+        "traded_death_rate": 0.3333,
+        "postplant_kills_per_round": 0.3333,
+        "site_engagement_rate": 0.8333,
+        "avg_kill_time": 24.572,
+        "place_diversity": 7.0,
+        "place_concentration": 0.3684
+      },
+      "signals": [
+        {
+          "feature": "assists_per_round",
+          "direction": "higher",
+          "z": 2.267,
+          "value": 0.5
+        },
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.599,
+          "value": 1.0833
+        },
+        {
+          "feature": "postplant_kills_per_round",
+          "direction": "higher",
+          "z": 1.445,
+          "value": 0.3333
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199132086570",
+      "name": "FLEXING SO HARD",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Aggressive Defender",
+      "cluster": 1,
+      "distance": 3.3499,
+      "margin": 0.7345,
+      "metrics": {
+        "assists_per_round": 0.0833,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0,
+        "early_engagement_rate": 1.25,
+        "trade_kills_per_round": 0.1667,
+        "traded_death_rate": 0.5,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.9167,
+        "avg_kill_time": 16.3741,
+        "place_diversity": 7.0,
+        "place_concentration": 0.3333
+      },
+      "signals": [
+        {
+          "feature": "traded_death_rate",
+          "direction": "higher",
+          "z": 2.662,
+          "value": 0.5
+        },
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.992,
+          "value": 1.25
+        },
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "lower",
+          "z": -1.493,
+          "value": 0.0
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199132086570",
+      "name": "FLEXING SO HARD",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 2,
+      "distance": 2.2131,
+      "margin": 1.0671,
+      "metrics": {
+        "assists_per_round": 0.3333,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.25,
+        "opening_kill_rate": 0.0833,
+        "early_engagement_rate": 0.9167,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.1667,
+        "site_engagement_rate": 0.5833,
+        "avg_kill_time": 19.584,
+        "place_diversity": 11.0,
+        "place_concentration": 0.2105
+      },
+      "signals": [
+        {
+          "feature": "place_diversity",
+          "direction": "higher",
+          "z": 1.727,
+          "value": 11.0
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.156,
+          "value": 19.584
+        },
+        {
+          "feature": "assists_per_round",
+          "direction": "higher",
+          "z": 1.03,
+          "value": 0.3333
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199549867893",
+      "name": "n1ng",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Retake Player",
+      "cluster": 4,
+      "distance": 4.1803,
+      "margin": 0.0814,
+      "metrics": {
+        "assists_per_round": 0.0833,
+        "flash_assists_per_round": 0.0833,
+        "opening_attempt_rate": 0.25,
+        "early_engagement_rate": 1.0,
+        "trade_kills_per_round": 0.5833,
+        "traded_death_rate": 0.3333,
+        "postplant_kills_per_round": 0.3333,
+        "site_engagement_rate": 0.8333,
+        "avg_kill_time": 22.4308,
+        "place_diversity": 10.0,
+        "place_concentration": 0.2727
+      },
+      "signals": [
+        {
+          "feature": "trade_kills_per_round",
+          "direction": "higher",
+          "z": 2.702,
+          "value": 0.5833
+        },
+        {
+          "feature": "postplant_kills_per_round",
+          "direction": "higher",
+          "z": 1.635,
+          "value": 0.3333
+        },
+        {
+          "feature": "place_diversity",
+          "direction": "higher",
+          "z": 1.548,
+          "value": 10.0
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199549867893",
+      "name": "n1ng",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 4,
+      "distance": 3.3107,
+      "margin": 0.5444,
+      "metrics": {
+        "assists_per_round": 0.4167,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0833,
+        "opening_kill_rate": 0.0,
+        "early_engagement_rate": 1.1667,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.75,
+        "avg_kill_time": 15.9576,
+        "place_diversity": 6.0,
+        "place_concentration": 0.2941
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.897,
+          "value": 1.1667
+        },
+        {
+          "feature": "assists_per_round",
+          "direction": "higher",
+          "z": 1.648,
+          "value": 0.4167
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.614,
+          "value": 15.9576
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198866870316",
+      "name": "OctobiQ",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Site Anchor",
+      "cluster": 5,
+      "distance": 2.2264,
+      "margin": 0.6257,
+      "metrics": {
+        "assists_per_round": 0.0833,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.1667,
+        "early_engagement_rate": 0.9167,
+        "trade_kills_per_round": 0.3333,
+        "traded_death_rate": 0.0833,
+        "postplant_kills_per_round": 0.1667,
+        "site_engagement_rate": 0.5833,
+        "avg_kill_time": 19.7648,
+        "place_diversity": 6.0,
+        "place_concentration": 0.4667
+      },
+      "signals": [
+        {
+          "feature": "place_concentration",
+          "direction": "higher",
+          "z": 1.071,
+          "value": 0.4667
+        },
+        {
+          "feature": "trade_kills_per_round",
+          "direction": "higher",
+          "z": 1.037,
+          "value": 0.3333
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -0.983,
+          "value": 19.7648
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198866870316",
+      "name": "OctobiQ",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Entry",
+      "cluster": 1,
+      "distance": 4.4968,
+      "margin": 0.8232,
+      "metrics": {
+        "assists_per_round": 0.4167,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.1667,
+        "opening_kill_rate": 0.0833,
+        "early_engagement_rate": 1.5,
+        "trade_kills_per_round": 0.1667,
+        "traded_death_rate": 0.5,
+        "postplant_kills_per_round": 0.0833,
+        "site_engagement_rate": 1.4167,
+        "avg_kill_time": 16.1182,
+        "place_diversity": 7.0,
+        "place_concentration": 0.2632
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 3.09,
+          "value": 1.5
+        },
+        {
+          "feature": "site_engagement_rate",
+          "direction": "higher",
+          "z": 2.692,
+          "value": 1.4167
+        },
+        {
+          "feature": "traded_death_rate",
+          "direction": "higher",
+          "z": 2.079,
+          "value": 0.5
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198360389348",
+      "name": "r1ynnn",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Aggressive Defender",
+      "cluster": 1,
+      "distance": 2.7846,
+      "margin": 1.2042,
+      "metrics": {
+        "assists_per_round": 0.4167,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.25,
+        "early_engagement_rate": 1.3333,
+        "trade_kills_per_round": 0.3333,
+        "traded_death_rate": 0.4167,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.75,
+        "avg_kill_time": 17.9991,
+        "place_diversity": 10.0,
+        "place_concentration": 0.25
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 2.263,
+          "value": 1.3333
+        },
+        {
+          "feature": "traded_death_rate",
+          "direction": "higher",
+          "z": 1.974,
+          "value": 0.4167
+        },
+        {
+          "feature": "place_diversity",
+          "direction": "higher",
+          "z": 1.548,
+          "value": 10.0
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198360389348",
+      "name": "r1ynnn",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Entry",
+      "cluster": 1,
+      "distance": 3.6641,
+      "margin": 1.849,
+      "metrics": {
+        "assists_per_round": 0.1667,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.5833,
+        "opening_kill_rate": 0.25,
+        "early_engagement_rate": 1.6667,
+        "trade_kills_per_round": 0.4167,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 1.0,
+        "avg_kill_time": 15.6959,
+        "place_diversity": 9.0,
+        "place_concentration": 0.375
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 3.687,
+          "value": 1.6667
+        },
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "higher",
+          "z": 2.862,
+          "value": 0.5833
+        },
+        {
+          "feature": "opening_kill_rate",
+          "direction": "higher",
+          "z": 1.819,
+          "value": 0.25
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198976477932",
+      "name": "RTX_unclerace",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Rotator",
+      "cluster": 2,
+      "distance": 2.8195,
+      "margin": 0.3466,
+      "metrics": {
+        "assists_per_round": 0.1667,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.4167,
+        "early_engagement_rate": 1.3333,
+        "trade_kills_per_round": 0.3333,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0833,
+        "site_engagement_rate": 0.3333,
+        "avg_kill_time": 15.4153,
+        "place_diversity": 7.0,
+        "place_concentration": 0.3
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 2.263,
+          "value": 1.3333
+        },
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "higher",
+          "z": 1.62,
+          "value": 0.4167
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.55,
+          "value": 15.4153
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198976477932",
+      "name": "RTX_unclerace",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 2,
+      "distance": 1.782,
+      "margin": 0.7327,
+      "metrics": {
+        "assists_per_round": 0.0833,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.1667,
+        "opening_kill_rate": 0.0833,
+        "early_engagement_rate": 0.9167,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.5,
+        "avg_kill_time": 25.4453,
+        "place_diversity": 10.0,
+        "place_concentration": 0.2778
+      },
+      "signals": [
+        {
+          "feature": "place_diversity",
+          "direction": "higher",
+          "z": 1.226,
+          "value": 10.0
+        },
+        {
+          "feature": "postplant_kills_per_round",
+          "direction": "lower",
+          "z": -1.054,
+          "value": 0.0
+        },
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.002,
+          "value": 0.9167
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198280546089",
+      "name": "ぜつぼうの爱",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 6,
+      "distance": 2.2256,
+      "margin": 0.4407,
+      "metrics": {
+        "assists_per_round": 0.1667,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.1667,
+        "early_engagement_rate": 0.5,
+        "trade_kills_per_round": 0.0,
+        "traded_death_rate": 0.3333,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.3333,
+        "avg_kill_time": 26.8118,
+        "place_diversity": 7.0,
+        "place_concentration": 0.2222
+      },
+      "signals": [
+        {
+          "feature": "site_engagement_rate",
+          "direction": "lower",
+          "z": -1.292,
+          "value": 0.3333
+        },
+        {
+          "feature": "traded_death_rate",
+          "direction": "higher",
+          "z": 1.285,
+          "value": 0.3333
+        },
+        {
+          "feature": "trade_kills_per_round",
+          "direction": "lower",
+          "z": -1.184,
+          "value": 0.0
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198280546089",
+      "name": "ぜつぼうの爱",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 4,
+      "distance": 3.1201,
+      "margin": 0.6728,
+      "metrics": {
+        "assists_per_round": 0.0,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0,
+        "opening_kill_rate": 0.0,
+        "early_engagement_rate": 0.8333,
+        "trade_kills_per_round": 0.0,
+        "traded_death_rate": 0.25,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.3333,
+        "avg_kill_time": 13.8906,
+        "place_diversity": 7.0,
+        "place_concentration": 0.2727
+      },
+      "signals": [
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.875,
+          "value": 13.8906
+        },
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "lower",
+          "z": -1.493,
+          "value": 0.0
+        },
+        {
+          "feature": "assists_per_round",
+          "direction": "lower",
+          "z": -1.443,
+          "value": 0.0
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199416501422",
+      "name": "奉雨",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Rotator",
+      "cluster": 2,
+      "distance": 4.3431,
+      "margin": 0.1067,
+      "metrics": {
+        "assists_per_round": 0.0833,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0,
+        "early_engagement_rate": 1.4167,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.0833,
+        "postplant_kills_per_round": 0.4167,
+        "site_engagement_rate": 1.0833,
+        "avg_kill_time": 19.6975,
+        "place_diversity": 8.0,
+        "place_concentration": 0.2083
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 2.533,
+          "value": 1.4167
+        },
+        {
+          "feature": "postplant_kills_per_round",
+          "direction": "higher",
+          "z": 2.263,
+          "value": 0.4167
+        },
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "lower",
+          "z": -1.493,
+          "value": 0.0
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199416501422",
+      "name": "奉雨",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Support",
+      "cluster": 3,
+      "distance": 4.03,
+      "margin": 0.0213,
+      "metrics": {
+        "assists_per_round": 0.6667,
+        "flash_assists_per_round": 0.0833,
+        "opening_attempt_rate": 0.3333,
+        "opening_kill_rate": 0.1667,
+        "early_engagement_rate": 1.0,
+        "trade_kills_per_round": 0.1667,
+        "traded_death_rate": 0.3333,
+        "postplant_kills_per_round": 0.0833,
+        "site_engagement_rate": 0.6667,
+        "avg_kill_time": 18.2031,
+        "place_diversity": 8.0,
+        "place_concentration": 0.4444
+      },
+      "signals": [
+        {
+          "feature": "assists_per_round",
+          "direction": "higher",
+          "z": 3.504,
+          "value": 0.6667
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.33,
+          "value": 18.2031
+        },
+        {
+          "feature": "place_concentration",
+          "direction": "higher",
+          "z": 1.314,
+          "value": 0.4444
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199151560761",
+      "name": "王守义看了都说十三香",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Site Anchor",
+      "cluster": 5,
+      "distance": 2.3667,
+      "margin": 0.1622,
+      "metrics": {
+        "assists_per_round": 0.1667,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.25,
+        "early_engagement_rate": 0.75,
+        "trade_kills_per_round": 0.0,
+        "traded_death_rate": 0.0833,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.75,
+        "avg_kill_time": 20.1578,
+        "place_diversity": 5.0,
+        "place_concentration": 0.4167
+      },
+      "signals": [
+        {
+          "feature": "trade_kills_per_round",
+          "direction": "lower",
+          "z": -1.184,
+          "value": 0.0
+        },
+        {
+          "feature": "place_diversity",
+          "direction": "lower",
+          "z": -1.008,
+          "value": 5.0
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -0.932,
+          "value": 20.1578
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199151560761",
+      "name": "王守义看了都说十三香",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 4,
+      "distance": 2.4642,
+      "margin": 0.3724,
+      "metrics": {
+        "assists_per_round": 0.3333,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0833,
+        "opening_kill_rate": 0.0833,
+        "early_engagement_rate": 0.9167,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.1667,
+        "site_engagement_rate": 0.5,
+        "avg_kill_time": 23.9234,
+        "place_diversity": 8.0,
+        "place_concentration": 0.4211
+      },
+      "signals": [
+        {
+          "feature": "place_concentration",
+          "direction": "higher",
+          "z": 1.083,
+          "value": 0.4211
+        },
+        {
+          "feature": "assists_per_round",
+          "direction": "higher",
+          "z": 1.03,
+          "value": 0.3333
+        },
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.002,
+          "value": 0.9167
+        }
+      ],
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561197992436137",
+      "name": "𝜏デ气亠⁠⠀ツ",
+      "side": "ct",
+      "rounds": 12,
+      "available": true,
+      "role": "Aggressive Defender",
+      "cluster": 1,
+      "distance": 2.203,
+      "margin": 0.3242,
+      "metrics": {
+        "assists_per_round": 0.25,
+        "flash_assists_per_round": 0.0833,
+        "opening_attempt_rate": 0.3333,
+        "early_engagement_rate": 1.0833,
+        "trade_kills_per_round": 0.1667,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.0,
+        "site_engagement_rate": 0.8333,
+        "avg_kill_time": 18.4462,
+        "place_diversity": 7.0,
+        "place_concentration": 0.3684
+      },
+      "signals": [
+        {
+          "feature": "early_engagement_rate",
+          "direction": "higher",
+          "z": 1.451,
+          "value": 1.0833
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.155,
+          "value": 18.4462
+        },
+        {
+          "feature": "flash_assists_per_round",
+          "direction": "higher",
+          "z": 1.067,
+          "value": 0.0833
+        }
+      ],
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561197992436137",
+      "name": "𝜏デ气亠⁠⠀ツ",
+      "side": "t",
+      "rounds": 12,
+      "available": true,
+      "role": "Hybrid",
+      "cluster": 2,
+      "distance": 2.8173,
+      "margin": 0.9683,
+      "metrics": {
+        "assists_per_round": 0.0,
+        "flash_assists_per_round": 0.0,
+        "opening_attempt_rate": 0.0,
+        "opening_kill_rate": 0.0,
+        "early_engagement_rate": 1.0,
+        "trade_kills_per_round": 0.25,
+        "traded_death_rate": 0.1667,
+        "postplant_kills_per_round": 0.1667,
+        "site_engagement_rate": 0.5,
+        "avg_kill_time": 17.2031,
+        "place_diversity": 10.0,
+        "place_concentration": 0.2
+      },
+      "signals": [
+        {
+          "feature": "opening_attempt_rate",
+          "direction": "lower",
+          "z": -1.493,
+          "value": 0.0
+        },
+        {
+          "feature": "avg_kill_time",
+          "direction": "lower",
+          "z": -1.457,
+          "value": 17.2031
+        },
+        {
+          "feature": "assists_per_round",
+          "direction": "lower",
+          "z": -1.443,
+          "value": 0.0
+        }
+      ],
+      "team": "Team B"
+    }
+  ],
+  "teams": [
+    "Team A",
+    "Team B"
+  ],
+  "own_team": null,
+  "source": {
+    "kind": "reference_only",
+    "matches": 50,
+    "version": 2,
+    "model": "separate-side-player-role-kmeans"
+  },
+  "note": "Role names interpret unsupervised centroids; they are not training labels, performance grades, or permanent identities. CSV-only training has no grenade throws, movement, or planter id. Support uses assist/flash-assist proxies; anchor/rotator use kill-event callout proxies; bomb carrier/site executor uses site and post-plant kill-event proxies. A sixth Hybrid cluster covers mixed patterns when kill events do not support a specific role name."
+}

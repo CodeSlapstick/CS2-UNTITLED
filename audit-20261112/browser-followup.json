@@ -1,0 +1,61 @@
+{
+  "cases": [
+    {
+      "name": "replay",
+      "status": "passed",
+      "detail": {
+        "before": "0",
+        "after": "1.2",
+        "url": "http://127.0.0.1:13000/matches/match730_003837851867249901660_1125265208_142.dem/rounds/2?t=0.0",
+        "rosterRows": 10
+      }
+    },
+    {
+      "name": "heatmap-wheel",
+      "status": "passed",
+      "detail": {
+        "initialCount": 179,
+        "deathsCount": 179,
+        "style": "transform: translate(-10%, -9.99231%) scale(1.2);",
+        "zoomButtonBlocked": true
+      }
+    },
+    {
+      "name": "economy",
+      "status": "passed",
+      "detail": {
+        "rounds": 24,
+        "ctSelected": "true",
+        "expanded": "true"
+      }
+    },
+    {
+      "name": "analysis-filters",
+      "status": "passed",
+      "detail": {
+        "side": "ct",
+        "deaths": 81,
+        "cells": 61
+      }
+    },
+    {
+      "name": "pdf-all-sides",
+      "status": "passed",
+      "detail": {
+        "filename": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\match_mirage_id9_all.pdf",
+        "bytes": 903754
+      }
+    }
+  ],
+  "errors": [],
+  "networkErrors": [
+    {
+      "url": "http://127.0.0.1:13000/auth/me",
+      "status": 401
+    },
+    {
+      "url": "http://127.0.0.1:13000/auth/me",
+      "status": 401
+    }
+  ]
+}

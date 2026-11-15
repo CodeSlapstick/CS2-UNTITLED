@@ -1,0 +1,20 @@
+[
+  {
+    "endpoint": "/api/analysis/player-behavior?demo=match730_003837851867249901660_1125265208_142.dem",
+    "status": 200,
+    "players": 10,
+    "rounds": 0,
+    "reasons": [
+      "insufficient_rounds"
+    ]
+  },
+  {
+    "endpoint": "/api/coach/match730_003837851867249901660_1125265208_142.dem",
+    "status": 200,
+    "players": 0,
+    "rounds": 1,
+    "reasons": [
+      "missing_economy"
+    ]
+  }
+]

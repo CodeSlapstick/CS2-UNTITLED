@@ -1,0 +1,121 @@
+{
+  "available": true,
+  "demo": "match730_003837851867249901660_1125265208_142.dem",
+  "map": "de_mirage",
+  "unit": "player-match-side",
+  "minimum_rounds": 5,
+  "players": [
+    {
+      "steamid": "76561197987951173",
+      "name": "anus",
+      "side": "ct",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199132086570",
+      "name": "FLEXING SO HARD",
+      "side": "ct",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561199549867893",
+      "name": "n1ng",
+      "side": "t",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198866870316",
+      "name": "OctobiQ",
+      "side": "ct",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198360389348",
+      "name": "r1ynnn",
+      "side": "t",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561198976477932",
+      "name": "RTX_unclerace",
+      "side": "ct",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561198280546089",
+      "name": "ぜつぼうの爱",
+      "side": "t",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199416501422",
+      "name": "奉雨",
+      "side": "t",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team B"
+    },
+    {
+      "steamid": "76561199151560761",
+      "name": "王守义看了都说十三香",
+      "side": "ct",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team A"
+    },
+    {
+      "steamid": "76561197992436137",
+      "name": "𝜏デ气亠⁠⠀ツ",
+      "side": "t",
+      "rounds": 1,
+      "available": false,
+      "reason": "insufficient_rounds",
+      "minimum_rounds": 5,
+      "team": "Team B"
+    }
+  ],
+  "teams": [
+    "Team A",
+    "Team B"
+  ],
+  "own_team": null,
+  "source": {
+    "kind": "reference_only",
+    "matches": 50,
+    "version": 2,
+    "model": "separate-side-player-role-kmeans"
+  },
+  "note": "Role names interpret unsupervised centroids; they are not training labels, performance grades, or permanent identities. CSV-only training has no grenade throws, movement, or planter id. Support uses assist/flash-assist proxies; anchor/rotator use kill-event callout proxies; bomb carrier/site executor uses site and post-plant kill-event proxies. A sixth Hybrid cluster covers mixed patterns when kill events do not support a specific role name."
+}

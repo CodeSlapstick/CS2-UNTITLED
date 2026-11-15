@@ -1,0 +1,497 @@
+{
+  "demo": "match730_003837851867249901660_1125265208_142.dem",
+  "map": "de_mirage",
+  "teams": [
+    "Team A",
+    "Team B"
+  ],
+  "rounds": [
+    {
+      "round_num": 1,
+      "winner_side": "ct",
+      "end_reason": "bomb_defused",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 3450,
+          "buy_type": "pistol",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 3650,
+          "buy_type": "pistol",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 2,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 16900,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 2500,
+          "buy_type": "eco",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 3,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 20800,
+          "buy_type": "full",
+          "won": false
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 22100,
+          "buy_type": "full",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 4,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 19950,
+          "buy_type": "semi_buy",
+          "won": false
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 21950,
+          "buy_type": "full",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 5,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 5950,
+          "buy_type": "semi_eco",
+          "won": false
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 25200,
+          "buy_type": "full",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 6,
+      "winner_side": "ct",
+      "end_reason": "bomb_defused",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 18250,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 25100,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 7,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 18200,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 24100,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 8,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 24100,
+          "buy_type": "full",
+          "won": false
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 16550,
+          "buy_type": "semi_buy",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 9,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 19200,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 17900,
+          "buy_type": "semi_buy",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 10,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 23950,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 11550,
+          "buy_type": "semi_buy",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 11,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 27750,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 7250,
+          "buy_type": "semi_eco",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 12,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team A": {
+          "side": "ct",
+          "equip": 30450,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team B": {
+          "side": "t",
+          "equip": 20650,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 13,
+      "winner_side": "ct",
+      "end_reason": "bomb_defused",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 3750,
+          "buy_type": "pistol",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 3950,
+          "buy_type": "pistol",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 14,
+      "winner_side": "t",
+      "end_reason": "bomb_exploded",
+      "winner_team": "Team A",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 17050,
+          "buy_type": "semi_buy",
+          "won": false
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 10600,
+          "buy_type": "semi_buy",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 15,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 14400,
+          "buy_type": "semi_buy",
+          "won": false
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 17800,
+          "buy_type": "semi_buy",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 16,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 10250,
+          "buy_type": "semi_buy",
+          "won": false
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 23550,
+          "buy_type": "full",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 17,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 16050,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 25750,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 18,
+      "winner_side": "t",
+      "end_reason": "ct_killed",
+      "winner_team": "Team A",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 27500,
+          "buy_type": "full",
+          "won": false
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 23950,
+          "buy_type": "full",
+          "won": true
+        }
+      }
+    },
+    {
+      "round_num": 19,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 17400,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 25950,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 20,
+      "winner_side": "ct",
+      "end_reason": "bomb_defused",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 20000,
+          "buy_type": "semi_buy",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 10000,
+          "buy_type": "semi_eco",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 21,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 25550,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 19500,
+          "buy_type": "semi_buy",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 22,
+      "winner_side": "ct",
+      "end_reason": "time_ran_out",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 30550,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 6400,
+          "buy_type": "semi_eco",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 23,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 25550,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 22150,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    },
+    {
+      "round_num": 24,
+      "winner_side": "ct",
+      "end_reason": "t_killed",
+      "winner_team": "Team B",
+      "teams": {
+        "Team B": {
+          "side": "ct",
+          "equip": 29550,
+          "buy_type": "full",
+          "won": true
+        },
+        "Team A": {
+          "side": "t",
+          "equip": 21150,
+          "buy_type": "full",
+          "won": false
+        }
+      }
+    }
+  ],
+  "buy_types": [
+    "pistol",
+    "eco",
+    "semi_eco",
+    "semi_buy",
+    "full"
+  ]
+}

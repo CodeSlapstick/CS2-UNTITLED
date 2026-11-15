@@ -1,0 +1,104 @@
+[
+  {
+    "name": "health",
+    "url": "/api/health",
+    "status": 200,
+    "response": "api-health.json"
+  },
+  {
+    "name": "guest",
+    "url": "/auth/guest",
+    "status": 200,
+    "response": "api-guest.json"
+  },
+  {
+    "name": "matches",
+    "url": "/api/matches",
+    "status": 200,
+    "response": "api-matches.json"
+  },
+  {
+    "name": "round-review",
+    "url": "/api/review/match730_003837851867249901660_1125265208_142.dem/rounds/1",
+    "status": 200,
+    "response": "api-round-review.json"
+  },
+  {
+    "name": "round-no-data",
+    "url": "/api/review/match730_003837851867249901660_1125265208_142.dem/rounds/999",
+    "status": 404,
+    "response": "api-round-no-data.json"
+  },
+  {
+    "name": "role-sufficient",
+    "url": "/api/analysis/player-behavior?demo=match730_003837851867249901660_1125265208_142.dem",
+    "status": 200,
+    "response": "api-role-sufficient.json"
+  },
+  {
+    "name": "role-empty",
+    "url": "/api/analysis/player-behavior?demo=match730_003837851867249901660_1125265208_142.dem&players=1",
+    "status": 200,
+    "response": "api-role-empty.json"
+  },
+  {
+    "name": "coach-t",
+    "url": "/api/coach/match730_003837851867249901660_1125265208_142.dem?side=t",
+    "status": 200,
+    "response": "api-coach-t.json"
+  },
+  {
+    "name": "coach-ct",
+    "url": "/api/coach/match730_003837851867249901660_1125265208_142.dem?side=ct",
+    "status": 200,
+    "response": "api-coach-ct.json"
+  },
+  {
+    "name": "coach-invalid",
+    "url": "/api/coach/match730_003837851867249901660_1125265208_142.dem?side=invalid",
+    "status": 422,
+    "response": "api-coach-invalid.json"
+  },
+  {
+    "name": "analysis-data",
+    "url": "/api/analysis/deaths?map=de_mirage&scope=upload&demo=match730_003837851867249901660_1125265208_142.dem",
+    "status": 200,
+    "response": "api-analysis-data.json"
+  },
+  {
+    "name": "analysis-empty",
+    "url": "/api/analysis/deaths?map=de_mirage&scope=upload&demo=match730_003837851867249901660_1125265208_142.dem&players=1",
+    "status": 200,
+    "response": "api-analysis-empty.json"
+  },
+  {
+    "name": "guest-reference-forbidden",
+    "url": "/api/analysis/deaths?map=de_mirage&scope=reference",
+    "status": 403,
+    "response": "api-guest-reference-forbidden.json"
+  },
+  {
+    "name": "report",
+    "url": "/api/reports/coach/9",
+    "status": 200,
+    "response": "api-report.json"
+  },
+  {
+    "name": "opening-catalog",
+    "url": "/api/opening-route/catalog",
+    "status": 200,
+    "response": "api-opening-catalog.json"
+  },
+  {
+    "name": "opening-data",
+    "url": "/api/opening-route?steamid=76561199132086570&map=de_mirage&side=t",
+    "status": 200,
+    "response": "api-opening-data.json"
+  },
+  {
+    "name": "opening-empty",
+    "url": "/api/opening-route?steamid=1&map=de_mirage&side=t",
+    "status": 200,
+    "response": "api-opening-empty.json"
+  }
+]

@@ -1,0 +1,146 @@
+[
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_ancient\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_ancient\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "338e7d74a8ce0d55b0b2f74dbab7c4416ae8f70b1f4bbf0abb006751e61d3f95"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_ancient\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_ancient\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "faa854f200bf6947cbcbed988c5ad27e88528ca1a46818ad6326fbe3757af1f2"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_ancient\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_ancient\\player_role.json",
+    "newly_trained": false,
+    "sha256": "73f4581c80dcdc4a78eb7fa221905d721392ce8a74b87c5918e0a5388bcd96ab"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_anubis\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_anubis\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "4c810751db3b35a1a9d466008a56339f4c3cc2c6cb53af36d0d59bc8220dbc27"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_anubis\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_anubis\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "38bd48d5de3d45362b0adda2acb8f250fa3b996f54256953e46de01b9476e671"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_anubis\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_anubis\\player_role.json",
+    "newly_trained": false,
+    "sha256": "43293e81ae8540af5858352118b8618a61d3b4ae80665a645fdde114e6e84c8c"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_cache\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_cache\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "2f5adae8ca4c2c87f520aa8b617cd38199492ae7ca546dc7be836310527c2019"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_cache\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_cache\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "67e13e9c22ad12331b21328d5660a79648c84afc96d029e5665a3b73a6bd6bde"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_cache\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_cache\\player_role.json",
+    "newly_trained": false,
+    "sha256": "79eb5224d3e535223cba3a51a332369afb6f0a6703c58ad035f6c2b6e53034f4"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_dust2\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_dust2\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "eeda78c59804067db035992c7465443e51effdc9038f2c7863a68fcf23279654"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_dust2\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_dust2\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "390adf86a3d95ae2f6dd7d265f42286faac15f195f65bc96fb49e04cb9e5a808"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_dust2\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_dust2\\player_role.json",
+    "newly_trained": false,
+    "sha256": "8a0c67ce4e59300b253dc5b4d8f19b1b92025861ea6b070d754c41632cc6cdae"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_inferno\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_inferno\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "456c8618093abdbc1146e09a85266c8fcefa564f974983c32d51a04ff6f9ea71"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_inferno\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_inferno\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "7a8cecc383cd6c5851e0faabaee66c44b76657d16c99c4d126bc98a14300f53d"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_inferno\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_inferno\\player_role.json",
+    "newly_trained": false,
+    "sha256": "d3dd10d093e70f9519932bb75b22fdbcc28aabaf8eeb14a23c44d8c2f6daa6f5"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_mirage\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_mirage\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "7f6fed5dc32fe20b02973a1f22dccf73bdfd30ab04d5d6d67fb46707ac73c289"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\retrained\\de_mirage\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_mirage\\grid_ml1.json",
+    "newly_trained": true,
+    "sha256": "65c660002e49f2d56c11385e2875fd6491d25b58597244955733e19deed14037"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\retrained\\de_mirage\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_mirage\\player_role.json",
+    "newly_trained": true,
+    "sha256": "f191663f41233fa2f8a7f76e792741e00aa83cf60e3ad6bb8398e3327ddbe87f"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_nuke\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_nuke\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "337ee00a7e48c9be56a6e49a014aeb879ea71fd7f5eb98f825f094487f97186b"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_nuke\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_nuke\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "84126aaffb8bb542a4aab8ee9f8929c2c6336e98aa3beaaa474573d475d8d08f"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_nuke\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_nuke\\player_role.json",
+    "newly_trained": false,
+    "sha256": "d3ae4dc4586510f60f08469a51f0d0cd76bc804d486914be7fa115fec6906d0b"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_overpass\\coach_model.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_overpass\\coach_model.json",
+    "newly_trained": false,
+    "sha256": "9c97b63294b11a77873d39e808e0b2f62102d5eca3bde8ca2ae86f03f9bc4d50"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_overpass\\grid_ml1.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_overpass\\grid_ml1.json",
+    "newly_trained": false,
+    "sha256": "4bfea48b683a6ddc14d862d91b3a97fafb143db268e1daa924aec20642241ab9"
+  },
+  {
+    "source": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\output\\models\\de_overpass\\player_role.json",
+    "target": "C:\\Users\\Juk\\Downloads\\CS2-UNTITLED\\CS2-UNTITLED\\audit-20261112\\active-models\\de_overpass\\player_role.json",
+    "newly_trained": false,
+    "sha256": "3c09c68a461d1c37148ed2e60b03b73b8fb8c9888d0cbf1e20f5d11f5653e1ac"
+  }
+]

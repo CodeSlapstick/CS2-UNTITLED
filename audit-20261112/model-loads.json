@@ -1,0 +1,178 @@
+[
+  {
+    "map": "de_ancient",
+    "grid_loaded": true,
+    "grid_hotspots": 15,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_ancient/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_ancient/coach_model.json",
+      "player_role": "/workspace/output/models/de_ancient/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "faa854f200bf6947cbcbed988c5ad27e88528ca1a46818ad6326fbe3757af1f2",
+      "coach_model": "338e7d74a8ce0d55b0b2f74dbab7c4416ae8f70b1f4bbf0abb006751e61d3f95",
+      "player_role": "73f4581c80dcdc4a78eb7fa221905d721392ce8a74b87c5918e0a5388bcd96ab"
+    }
+  },
+  {
+    "map": "de_anubis",
+    "grid_loaded": true,
+    "grid_hotspots": 13,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_anubis/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_anubis/coach_model.json",
+      "player_role": "/workspace/output/models/de_anubis/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "38bd48d5de3d45362b0adda2acb8f250fa3b996f54256953e46de01b9476e671",
+      "coach_model": "4c810751db3b35a1a9d466008a56339f4c3cc2c6cb53af36d0d59bc8220dbc27",
+      "player_role": "43293e81ae8540af5858352118b8618a61d3b4ae80665a645fdde114e6e84c8c"
+    }
+  },
+  {
+    "map": "de_cache",
+    "grid_loaded": true,
+    "grid_hotspots": 15,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_cache/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_cache/coach_model.json",
+      "player_role": "/workspace/output/models/de_cache/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "67e13e9c22ad12331b21328d5660a79648c84afc96d029e5665a3b73a6bd6bde",
+      "coach_model": "2f5adae8ca4c2c87f520aa8b617cd38199492ae7ca546dc7be836310527c2019",
+      "player_role": "79eb5224d3e535223cba3a51a332369afb6f0a6703c58ad035f6c2b6e53034f4"
+    }
+  },
+  {
+    "map": "de_dust2",
+    "grid_loaded": true,
+    "grid_hotspots": 17,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_dust2/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_dust2/coach_model.json",
+      "player_role": "/workspace/output/models/de_dust2/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "390adf86a3d95ae2f6dd7d265f42286faac15f195f65bc96fb49e04cb9e5a808",
+      "coach_model": "eeda78c59804067db035992c7465443e51effdc9038f2c7863a68fcf23279654",
+      "player_role": "8a0c67ce4e59300b253dc5b4d8f19b1b92025861ea6b070d754c41632cc6cdae"
+    }
+  },
+  {
+    "map": "de_inferno",
+    "grid_loaded": true,
+    "grid_hotspots": 11,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_inferno/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_inferno/coach_model.json",
+      "player_role": "/workspace/output/models/de_inferno/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "7a8cecc383cd6c5851e0faabaee66c44b76657d16c99c4d126bc98a14300f53d",
+      "coach_model": "456c8618093abdbc1146e09a85266c8fcefa564f974983c32d51a04ff6f9ea71",
+      "player_role": "d3dd10d093e70f9519932bb75b22fdbcc28aabaf8eeb14a23c44d8c2f6daa6f5"
+    }
+  },
+  {
+    "map": "de_mirage",
+    "grid_loaded": true,
+    "grid_hotspots": 17,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_mirage/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_mirage/coach_model.json",
+      "player_role": "/workspace/output/models/de_mirage/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "65c660002e49f2d56c11385e2875fd6491d25b58597244955733e19deed14037",
+      "coach_model": "7f6fed5dc32fe20b02973a1f22dccf73bdfd30ab04d5d6d67fb46707ac73c289",
+      "player_role": "d1214698dc149ddd53415ca3f6cc841a8fbfd86171d33b0c0cac5a6372957611"
+    }
+  },
+  {
+    "map": "de_nuke",
+    "grid_loaded": true,
+    "grid_hotspots": 12,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_nuke/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_nuke/coach_model.json",
+      "player_role": "/workspace/output/models/de_nuke/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "84126aaffb8bb542a4aab8ee9f8929c2c6336e98aa3beaaa474573d475d8d08f",
+      "coach_model": "337ee00a7e48c9be56a6e49a014aeb879ea71fd7f5eb98f825f094487f97186b",
+      "player_role": "d3ae4dc4586510f60f08469a51f0d0cd76bc804d486914be7fa115fec6906d0b"
+    }
+  },
+  {
+    "map": "de_overpass",
+    "grid_loaded": true,
+    "grid_hotspots": 16,
+    "coach_loaded": true,
+    "coach_features_valid": true,
+    "role_loaded": true,
+    "role_sides": [
+      "t",
+      "ct"
+    ],
+    "paths": {
+      "grid_ml1": "/workspace/output/models/de_overpass/grid_ml1.json",
+      "coach_model": "/workspace/output/models/de_overpass/coach_model.json",
+      "player_role": "/workspace/output/models/de_overpass/player_role.json"
+    },
+    "sha256": {
+      "grid_ml1": "4bfea48b683a6ddc14d862d91b3a97fafb143db268e1daa924aec20642241ab9",
+      "coach_model": "9c97b63294b11a77873d39e808e0b2f62102d5eca3bde8ca2ae86f03f9bc4d50",
+      "player_role": "3c09c68a461d1c37148ed2e60b03b73b8fb8c9888d0cbf1e20f5d11f5653e1ac"
+    }
+  }
+]
