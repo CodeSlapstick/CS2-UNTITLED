@@ -637,7 +637,7 @@ async def api_upload_demo(
     if not DEMO_NAME_RE.match(name):  # ตรวจว่าชื่อใช้รูปแบบที่ยอมรับ เช่น ลงท้าย .dem
         raise HTTPException(400, "รับเฉพาะไฟล์ .dem และชื่อไฟล์ใช้ได้แค่ตัวอักษร ตัวเลข . _ - ( )")
 
-    # ห้ามทับไฟล์เก่า โดยเช็คแบบไม่สนตัวพิมพ์เล็ก-ใหญ่
+    # เช็ตว่าเคยมีไฟล์นี้อยู่ไหม
     existing = await conn.fetchrow("""
         SELECT id FROM matches WHERE lower(demo_file) = lower($1)
     """, name)
@@ -646,62 +646,79 @@ async def api_upload_demo(
 
     await check_upload_quota(conn, viewer)  # ตรวจจำนวนครั้งในหนึ่งชั่วโมง ถ้าเกินตอบ 429
 
-    # 1. รับไฟล์ลงดิส และเปลี่ยนนามสกุลไฟล์ชั่วคราว
+    # 1. เตรียมโฟลเดอร์ก่อนรับไฟล์ลงดิส และเปลี่ยนนามสกุลไฟล์ชั่วคราว
     DEMOS_DIR.mkdir(parents=True, exist_ok=True)  # สร้างโฟลเดอร์ถ้ายังไม่มี
-    dem_path = DEMOS_DIR / name  # ชื่อ .dem ที่ worker จะเปิดอ่าน
+    dem_path = DEMOS_DIR / name  # เอาที่อยู่โฟลเดอร์ DEMOS_DIR มาต่อเข้ากับชื่อไฟล์
     staged_path = DEMOS_DIR / f".{name}.{secrets.token_hex(8)}.upload"
     size = await run_in_threadpool(save_upload, file, staged_path)  # เขียนและตรวจไฟล์ใหม่ ได้ขนาดกลับมา
 
     # 2. สร้างแถวใหม่ในฐานข้อมูล และเช็คไฟล์ซํ้าด้วย Advisory Lock
-    published = False
-    orphan_path = None
+    published = False # ยังไม่ได้เปลี่ยนไฟล์ชั่วคราวให้เป็นไฟล์ .dem
+    orphan_path = None # ไฟล์ที่หลงเหลืออยู่
     locked = False
-    lock_name = f"demo-upload:{name.lower()}"
+    lock_name = f"demo-upload:{name.lower()}" # สร้างชื่อกุญแจlock
+
+    # ก่อนที่จะสร้างข้อมูลmatch ระบบล็อกกันคนอัปโหลดไฟล์ชื่อเดียวกันพร้อมกันเสี้ยววินาที
     try:
-        await conn.execute("SELECT pg_advisory_lock(hashtextextended($1, 0))", lock_name)
+        # ถ้าใครมาก่อนให้ล็อค
+        await conn.execute("SELECT pg_advisory_lock(hashtextextended($1, 0))", lock_name) 
         locked = True
+
         async with conn.transaction():
+            # ค้นในตาราง match ว่าเคยมีแมทซ์นี้หรือยัง
             existing = await conn.fetchrow("SELECT id FROM matches WHERE lower(demo_file) = lower($1)", name)
-            if existing:
+            if existing: # ในกรณีมีคนอัพโหลดไฟล์ชื่อเดียวพร้อมกัน จะไม่สร้างแถวใหม่ แต่จะคืน None
                 raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
-            # ในกรณีมีคนอัพโหลดไฟล์ชื่อเดียวพร้อมกัน จะไม่สร้างแถวใหม่
+
+                # สั่งเพิ่มข้อมูล match_id ใหม่เข้าไปในตาราง matches
             match_id = await conn.fetchval("""
                 INSERT INTO matches (demo_file, status, uploaded_by, uploader_type, uploader_guest)
                 VALUES ($1, 'queued', $2, $3, $4)
                 ON CONFLICT (demo_file) DO NOTHING RETURNING id
             """, name, viewer["id"], viewer["type"], viewer["guest_id"])
-            if match_id is None:
+
+            if match_id is None: # ดักหลังบ้าน
                 raise HTTPException(409, f"แมตช์ {name} มีอยู่ในระบบแล้ว — ลบแมตช์เดิมก่อนอัปโหลดใหม่")
-            if dem_path.exists():
-                orphan_dir = DEMOS_DIR / ".orphaned"
-                orphan_dir.mkdir(exist_ok=True)
-                orphan_path = orphan_dir / f"{name}.{secrets.token_hex(8)}.bak"
-                dem_path.replace(orphan_path)
-            staged_path.replace(dem_path)  # เปลี่ยนกลับมาใช้ชื่อจริง
+
+            if dem_path.exists(): # ตามหาในดิสว่ามีไฟล์ซํ้าไหม  # เกิดจากการลบใน db แล้วแต่ลืมลบในโฟลเดอร์
+                orphan_dir = DEMOS_DIR / ".orphaned" # สร้าง path
+                orphan_dir.mkdir(exist_ok=True) # สร้างโฟลเดอร์ .orphaned
+                orphan_path = orphan_dir / f"{name}.{secrets.token_hex(8)}.bak" # เปลี่นนชื่อ .orphaned
+                dem_path.replace(orphan_path) # ย้ายไฟล์ตกค้างตัวเก่าเข้าไปหลบในโฟลเดอร์
+
+            staged_path.replace(dem_path)  # ไฟล์พร้อมให้แกะแล้ว เปลี่ยนกลับมาใช้ชื่อจริง
             published = True              # เปลี่ยนกลับมาใช้ชื่อจริงแล้ว
-    except Exception:
+
+    except Exception: # ทำงานเฉพาะตอนเกิดความผิดพลาด
         if published:
             dem_path.unlink(missing_ok=True)  # ลบไฟล์ทิ้งถ้ามีการ error ในภายหลัง
+
+            # เช็กเงื่อนไข 3ข้อ  # แล้วกู้ไฟล์เก่ากลับมา
         if orphan_path is not None and orphan_path.exists() and not dem_path.exists():
             orphan_path.replace(dem_path)
         raise
+
+    # เก็บกวาด
     finally:
         try:
             staged_path.unlink(missing_ok=True)  # เก็บกวาดไฟล์ .upload ที่ยังเหลือ
         finally:
-            if locked:
+            if locked: # การปลดล็อกฐานข้อมูล
                 await conn.execute("SELECT pg_advisory_unlock(hashtextextended($1, 0))", lock_name)
+
 
     ### เมื่อได้ match_id แล้ว API ส่งเลขนี้ไปให้ระบบคิว ###
     # 3. ส่ง match_id ให้คิวเพื่อให้ worker ทำงานต่อ
     try:
-        job_id = await run_in_threadpool(enqueue_parse, match_id)  # เรียก enqueue_parse(match_id)
-    except QueueUnavailable as e:
+        job_id = await run_in_threadpool(enqueue_parse, match_id)  # เรียก enqueue_parse และส่ง(match_id)
+
+    # เชื่อม redis ไม่ได้   # เข้าไปเปลี่ยนสถานะเป็น error
+    except QueueUnavailable as e:  
         await conn.execute("UPDATE matches SET status = 'error', error_message = $2 WHERE id = $1", match_id, str(e))
         log(f"[UPLOAD] {name}: {e}")
         raise HTTPException(503, "ส่งงานเข้าคิวไม่ได้ — ลบแมตช์ที่มีสถานะผิดพลาด แล้วลองอัปโหลดใหม่เมื่อระบบพร้อม")
 
-    # คิวรับงานได้ บันทึก job_id
+    # คิวรับงานได้ บันทึก job_id. # เอา job_id ไปแปะเพิ่มลงในแถวของ match
     await conn.execute("UPDATE matches SET job_id = $2 WHERE id = $1;", match_id, job_id)
     log(f"[UPLOAD] {name} ({size / 1024 / 1024:.1f} MB) -> match {match_id} เข้าคิว job {job_id}")
 

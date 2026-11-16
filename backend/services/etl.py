@@ -10,9 +10,9 @@ import asyncpg
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))      # ให้รัน python backend/etl_loader.py จากรากโปรเจกต์ได้
 
-from backend.config.database import DATABASE_URL as DB_URL  # noqa: E402  (โหลด .env ตอน import)
-from backend.config.database import apply_schema  # noqa: E402
-from backend.services.features import assign_teams, compute_features  # noqa: E402
+from backend.config.database import DATABASE_URL as DB_URL  (โหลด .env ตอน import)
+from backend.config.database import apply_schema 
+from backend.services.features import assign_teams, compute_features 
 
 
 # _int: ฟังก์ชันแปลงค่าเป็นจำนวนเต็ม
@@ -32,17 +32,17 @@ def _player_id(value) -> int | None:
     if isinstance(value, bool) or (isinstance(value, float) and not value.is_integer()):
         return None
     try:
-        steam_id = int(value)
+        steam_id = int(value) # แปลงเป็นจำนวนเต็ม
     except (TypeError, ValueError, OverflowError):
         return None
     return steam_id if 0 < steam_id <= 2**63 - 1 else None
 
 
-# _upsert_players: ฟังก์ชันบันทึกหรืออัปเดตชื่อผู้เล่นหลักลงตาราง players
+# นำรายชื่อผู้เล่นจาก doc ไปเพิ่มหรืออัปเดตในตาราง players
 # 1. แปลงรายชื่อเป็นคู่ (steam_id, name) -> 2. กรองเฉพาะคนที่มี steam_id ถูกต้อง -> 3. สั่งรันคำสั่ง SQL แบบ UPSERT
 async def _upsert_players(conn, players: list[dict]) -> None:
     rows = [(_player_id(p.get("steam_id")), str(p.get("name") or "Unknown player")) for p in players]
-    rows = [(steam_id, name) for steam_id, name in rows if steam_id is not None]
+    rows = [(steam_id, name) for steam_id, name in rows if steam_id is not None] # กรอง ID ที่ใช้ไม่ได้
     if rows:
         await conn.executemany("""
             INSERT INTO players (steam_id, name) VALUES ($1, $2)
@@ -79,7 +79,7 @@ def _known_player_id(value, known_ids: set[int] | None) -> int | None:
     return steam_id if steam_id is not None and (known_ids is None or steam_id in known_ids) else None
 
 
-# SQL ของตารางลูกแต่ละตัว — วางไว้ระดับโมดูลเพื่อให้ฟังก์ชันสร้างแถวอ่านสั้นลง
+# SQL ของตารางลูกแต่ละตัว
 # บันทึกเหตุการณ์การฆ่าอย่างละเอียด ทั้งคนฆ่าและคนโดนฆ่า
 SQL_KILLS = """
     INSERT INTO kills (
@@ -171,7 +171,7 @@ def _kill_rows(kills: list[dict], rid_of, known_ids: set[int] | None = None) -> 
 # คัดกรองและแปลงข้อมูลการทำดาเมจให้พร้อมลงตาราง damages (7 คอลัมน์) #คนโดนยิงห้ามปล่อยว่าง
 # 1. รับรายการดาเมจ ฟังก์ชันหารหัสรอบ และชุดผู้เล่นที่ยืนยันแล้ว -> 2. กรองทิ้งแถวที่ไม่มีรหัสรอบหรือคนโดนยิงไม่มีตัวตน -> 3. แพ็กข้อมูล 7 รายการเป็น tuple แล้วคืนกลับเป็น list
 def _damage_rows(damages: list[dict], rid_of, known_ids: set[int] | None = None) -> list[tuple]:
-    return [
+    return [ # วนดูดาเมจทีละรายการ เก็บเฉพาะรายการที่หารอบเจอและมี ID คนโดนยิงที่ใช้ได้ แล้วจัดข้อมูลเป็นแถว
         (rid_of(d), int(d["tick"]), _known_player_id(d.get("attacker_id"), known_ids),
          _known_player_id(d.get("victim_id"), known_ids),
          d.get("weapon"), int(d.get("damage", 0)), d.get("hitgroup"))
@@ -247,14 +247,16 @@ async def _replace_children(conn, match_id: int, doc: dict, known_ids: set[int])
     await conn.execute("DELETE FROM match_players WHERE match_id = $1;", match_id)     # สองตารางนี้ผูกกับ match ตรง ๆ
     await conn.execute("DELETE FROM player_positions WHERE match_id = $1;", match_id)
 
+    # บันทึกรอบ
     round_id_map = await _insert_rounds(conn, match_id, doc.get("rounds", []))
-
+    
+     # แปลงเลขรอบในเกม ให้กลายเป็น ID ประจำรอบในฐานข้อมูล
     def rid_of(row) -> int | None:
         return round_id_map.get(int(row.get("round_num", 1)))
 
-    # แปลงเลขรอบในเกม ให้กลายเป็น ID ประจำรอบในฐานข้อมูล
-    feats = compute_features(doc)
-
+    feats = compute_features(doc) # นำข้อมูลดิบทุกหมวดใน doc ไปคำนวณเป็นสถิติของผู้เล่นแต่ละคน แยกตามแต่ละรอบ แล้วเก็บผลลัพธ์ไว้ใน feats
+ 
+    # return dictionary ที่สรุปจำนวนแถวที่บันทึกลงฐานข้อมูลในแต่ละตาราง
     return {
         "rounds": len(round_id_map),
         "kills": await _insert_many(conn, SQL_KILLS, _kill_rows(doc.get("kills", []), rid_of, known_ids)),
@@ -278,19 +280,25 @@ async def load_match_doc(conn, doc: dict, *, match_id: int | None = None, force:
     # หยิบข้อมูลหมวดหมู่ที่ทำไว้
     info = doc.get("match", {})
     demo_file = info.get("demo_file")
+
     # ถ้าไม่มีชื่อไฟล์ให้หยุด
     if not demo_file:
         raise ValueError("doc ไม่มี match.demo_file")
-    # รวบรวมข้อมูลเพื่อส่งเข้า sql
+
+    # รวบรวมข้อมูลแมตช์ 4 ค่า ไปใส่ใน sql
     meta = (info.get("map_name", "unknown"), int(info.get("tickrate", 128)), info.get("team_a"), info.get("team_b"))
 
-    # ทำงานต่อเมื่อคนเรียกไม่ได้ส่ง match_id มา
+    # สำหรับนักพัฒนานำ ไฟล์ JSON เข้า ETL โดยตรง  # ทำงานต่อเมื่อคนเรียกไม่ได้ส่ง match_id มา
     if match_id is None:
+        # ค้นหาแถวที่มีชื่อไฟล์ตรงกัน
         existing = await conn.fetchrow("SELECT id FROM matches WHERE demo_file = $1;", demo_file)
+        # พบแมตช์เดิม แต่ไม่ได้สั่งเขียนทับ
         if existing and not force:
             print(f"[SKIP] แมตช์ {demo_file} มีอยู่ในระบบแล้ว (ID: {existing['id']})")
             return existing["id"]
+        # เตรียมเขียนทับข้อมูลเดิม
         match_id = existing["id"] if existing else None
+        # ถ้าผ่านมาถึงตรงนี้ เขียนข้อมูลทับแถวเดิม
         if existing:
             print(f"[REPLACE] โหลด {demo_file} ทับของเดิม (ID: {match_id})")
 
@@ -298,21 +306,23 @@ async def load_match_doc(conn, doc: dict, *, match_id: int | None = None, force:
     async with conn.transaction():
         # หยิบ players จาก doc แล้วให้ _upsert_players บันทึกลงตาราง players
         await _upsert_players(conn, doc.get("players", []))
-        # ถ้าไม่มี match_id ให้สร้างแถวใหม่
+        
+        # ถ้าไม่มี match_id ให้สร้างแถวใหม่ กรณีjson
         if match_id is None:
             match_id = await conn.fetchval("""
                 INSERT INTO matches (demo_file, map_name, tickrate, team_a, team_b, status, uploader_type)
                 VALUES ($1, $2, $3, $4, $5, 'done', 'legacy') RETURNING id;
             """, demo_file, *meta)
         else:
-            # เติมชื่อไฟล์ แผนที่ tickrate และชื่อทีมจาก doc
+            # ถ้ามี match อยู่แล้ว    # เติมชื่อไฟล์ แผนที่ tickrate และชื่อทีมจาก doc
             await conn.execute("""
                 UPDATE matches SET demo_file = $2, map_name = $3, tickrate = $4, team_a = $5, team_b = $6
                 WHERE id = $1;
             """, match_id, demo_file, *meta)
+
         # เข้าไปดู id ผู้เล่นในเหตุการณ์ต่าง ๆ ใน doc เผื่อมีการตกหล่น
         known_ids = await _upsert_referenced_players(conn, doc)
-        # เขียนตารางรายละเอียด เช่น รอบ คิล ดาเมจ
+        # ลบรายละเอียดเก่าของแมตช์ และเขียนตารางรายละเอียด เช่น รอบ คิล ดาเมจ ใหม่
         counts = await _replace_children(conn, match_id, doc, known_ids)
 
     print(f"[SUCCESS] โหลดแมตช์ {demo_file} สำเร็จ (Match ID: {match_id}, " +

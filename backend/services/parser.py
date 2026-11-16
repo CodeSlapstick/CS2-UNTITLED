@@ -91,21 +91,20 @@ for _s in (sys.stdout, sys.stderr):     # ให้คอนโซล Windows �
         pass
 
 
+# แยกชื่อสองทีมจากชื่อไฟล์เดโม
 def teams_from_filename(demo_file: str) -> tuple[str | None, str | None]:
     m = TEAMS_RE.match(demo_file)
     return (m["a"], m["b"]) if m else (None, None)  # ตรวจชื่อทีมจากชื่อไฟล์
 
-
+# รับตารางเข้ามาหนึ่งตาราง ทำความสะอาด แล้วคืนตารางกลับออกไป
 def _clean(df: pl.DataFrame) -> pl.DataFrame:
     """NaN ของ float -> null เพื่อให้ออกมาเป็น null ใน JSON (json ไม่มี NaN)"""
     return df.with_columns([pl.col(c).fill_nan(None) for c, t in df.schema.items() if t in (pl.Float32, pl.Float64)])
 
-
+# จุดเริ่มและจบรอบ ผู้ชนะ สาเหตุจบรอบ และข้อมูลการวางบอมบ์
 def _round_table(dem) -> pl.DataFrame:
     """ตารางรอบ + จุดที่วางบอมบ์ — เอาจากตารางรอบโดยตรง จะได้ครบแม้รอบที่ไม่มีคิลเลย"""
-    # awpy's generated round schema varies by parser/demo. Short or
-    # abandoned matches can legitimately omit bomb_plant entirely.
-    # ป้องกันการจบแมทช์แบบผิด ๆ (short match/abandoned match)
+    # ป้องกันการจบแมทช์แบบผิดๆ
     bomb_plant = (pl.col("bomb_plant").cast(pl.Int32)
                   if "bomb_plant" in dem.rounds.columns else pl.lit(None, pl.Int32))
     rounds = _clean(dem.rounds.select(
@@ -138,6 +137,7 @@ def _round_table(dem) -> pl.DataFrame:
           .alias("bomb_site"))
 
 
+# ช่วงเวลาที่ผู้เล่นเริ่มกู้บอมบ์จนหยุดหรือกู้สำเร็จ แยกตามรอบ
 def _defuse_intervals(events: dict[str, pl.DataFrame], rounds: list[dict]) -> dict[int, list[dict]]:
     """Pair real begin/abort/completion events; never guess a missing start time."""
     # ตรวจว่ามีคีมกู้ระเบิดหรือไม่
@@ -176,6 +176,7 @@ def _defuse_intervals(events: dict[str, pl.DataFrame], rounds: list[dict]) -> di
     return intervals
 
 
+# หา tick ที่บอมบ์ถูกกู้สำเร็จหรือระเบิดในแต่ละรอบ
 def _bomb_resolution_ticks(events: dict[str, pl.DataFrame], rounds: list[dict]) -> dict[int, int]:
     """Use the recorded defuse or explosion tick to end the planted C4 display."""
     resolved: dict[int, int] = {}
@@ -191,7 +192,7 @@ def _bomb_resolution_ticks(events: dict[str, pl.DataFrame], rounds: list[dict]) 
                 resolved[number] = min(tick, resolved.get(number, tick))
     return resolved
 
-
+# ตารางเหตุการณ์ การฆ่า
 def _kill_table(dem) -> pl.DataFrame:
     """คิล — เปลี่ยนชื่อคอลัมน์ให้ตรง schema ตัดคอลัมน์ที่ DB ไม่เก็บ"""
     return _clean(
@@ -200,23 +201,23 @@ def _kill_table(dem) -> pl.DataFrame:
                  .with_columns(
                      pl.col("round_num").cast(pl.Int32),
                      pl.col("tick").cast(pl.Int32),
-                     pl.col("penetrated").cast(pl.Int32),
+                     pl.col("penetrated").cast(pl.Int32), #กระสุนทะลุ
                      pl.col(["attacker_id", "victim_id", "assister_id"]).cast(pl.Int64),  # steamid 17 หลัก
                      pl.col(["headshot", "attacker_blind", "thru_smoke", "noscope", "assisted_flash"]).cast(pl.Boolean),
                  )
-                 .sort(["round_num", "tick"])
+                 .sort(["round_num", "tick"]) #เรียงตามหมายเลขรอบ
     )
 
-
+# ตารางเหตุการณ์ ความเสียหายจำนวนเลือด
 def _damage_table(dem) -> pl.DataFrame:
     return _clean(
         apply_round_num(dem.events["player_hurt"], dem.rounds)  # แปะเลขรอบลงในดาเมจ
-        .drop_nulls(["round_num", "user_steamid"])  # กรองแถวที่ไม่สมบูรณ์ทิ้ง
+        .drop_nulls(["round_num", "user_steamid"])  # กรองแถวที่ไม่ข้อมูลไม่ครบ
         .sort(["round_num", "tick"])
-        .with_columns(
+        .with_columns( # นำเลือดก่อนหน้า ลบด้วยเลือดที่เหลือหลังโดนโจมตี
             (pl.col("health").shift(1).over(["round_num", "user_steamid"]).fill_null(100) - pl.col("health"))
             .clip(0, 100)
-            .alias("health_lost")  # เลือดที่เสียไปจริง ๆ ตามเกณฑ์ HLTV
+            .alias("health_lost")  # เลือดที่เสียไปจริงๆ 
         )
         .select(["round_num", *DAMAGE_COLUMNS])
         .rename(DAMAGE_COLUMNS)
@@ -228,6 +229,7 @@ def _damage_table(dem) -> pl.DataFrame:
     )
 
 
+# เลือก tick เป็นช่วง ๆ ในรอบ เพื่อเก็บตำแหน่งไว้ทำ replay
 def position_sample_ticks(start_tick: int, end_tick: int, tickrate: int,
                           sample_hz: int = POSITION_SAMPLE_HZ) -> list[int]:
     """คืน tick จริงที่กระจายใกล้ ``sample_hz`` ต่อวินาที โดยไม่สร้าง tick ซ้ำ"""
@@ -245,6 +247,7 @@ def position_sample_ticks(start_tick: int, end_tick: int, tickrate: int,
     return out
 
 
+# เตรียม tick ต้นและท้ายรอบ กับ tick ตำแหน่งที่ต้องอ่านสำหรับ replay
 def _wanted_ticks(dem, tickrate: int) -> tuple[dict[int, tuple[int, str]], dict[int, int]]:
     want: dict[int, tuple[int, str]] = {}
     pos_want: dict[int, int] = {}          # tick จริง -> round_num ของ snapshot replay
@@ -262,6 +265,7 @@ def _wanted_ticks(dem, tickrate: int) -> tuple[dict[int, tuple[int, str]], dict[
     return want, pos_want
 
 
+# ตารางข้อมูลผู้เล่นแต่ละคนในแต่ละรอบ ทั้งตอนเริ่มและตอนจบ
 def _player_round_table(at_start: pl.DataFrame, at_end: pl.DataFrame) -> pl.DataFrame:
     """หนึ่งแถวต่อคนต่อรอบ — ฝั่ง / มูลค่าอุปกรณ์ / รอดถึงจบรอบไหม"""
     return _clean(
@@ -280,6 +284,7 @@ def _player_round_table(at_start: pl.DataFrame, at_end: pl.DataFrame) -> pl.Data
     )
 
 
+# ตารางตำแหน่งและสถานะผู้เล่นที่ยังมีชีวิตใน tick ที่เลือกไว้
 def _position_table(all_ticks: pl.DataFrame, pos_want: dict[int, int]) -> pl.DataFrame:
     return _clean(
         all_ticks.join(pl.DataFrame({"tick": list(pos_want), "round_num": list(pos_want.values())}), on="tick")
@@ -315,6 +320,7 @@ def _position_table(all_ticks: pl.DataFrame, pos_want: dict[int, int]) -> pl.Dat
     )
 
 
+# เพิ่มเวลาที่ผู้เล่นยังตาบอดจากแฟลชลงในข้อมูลตำแหน่ง
 def _add_flash_remaining(positions: pl.DataFrame, blinds: pl.DataFrame | None, tickrate: int) -> pl.DataFrame:
     """คำนวณเวลาตาบอดคงเหลือจาก player_blind เพราะ flash_duration ใน tick ไม่ได้นับถอยหลัง"""
     original_columns = [name for name in positions.columns if name != "flash_remaining"]
@@ -354,6 +360,7 @@ def _add_flash_remaining(positions: pl.DataFrame, blinds: pl.DataFrame | None, t
     ).sort("__flash_row").select([*original_columns, "flash_remaining"]))
 
 
+# รายการระเบิดที่ถูกขว้าง พร้อมข้อมูลเวลาและตำแหน่ง
 def _grenade_rows(dem, tickrate: int) -> list[dict]:
     """ระเบิดทุกลูก จาก weapon_fire พร้อมจุดตกและเวลาที่ควัน/ไฟหมด
 
@@ -384,6 +391,7 @@ def _grenade_rows(dem, tickrate: int) -> list[dict]:
     return attach_trajectories(grenades, read_projectile_trajectories(dem), tickrate)  # แนบพิกัดทำ projectile 3D
 
 
+# ตารางรายชื่อและข้อมูลของผู้เล่นในแมตช์
 def _player_table(dem, at_start: pl.DataFrame) -> pl.DataFrame:
     """ทุก steam_id ที่โผล่ ชื่อล่าสุดที่เห็นชนะ
 
@@ -410,21 +418,23 @@ def _player_table(dem, at_start: pl.DataFrame) -> pl.DataFrame:
 def parse_demo(path: Path) -> dict:
     """อ่านเดโมหนึ่งไฟล์ คืน dict โครง normalized พร้อม json.dumps"""
     dem = Demo(path)
-    dem.events = dem.parse_events([*EVENTS, "player_hurt", "player_blind"], player_props=PLAYER_PROPS)  # แกะเหตุการณ์ในเกม
-    dem.rounds = create_round_df(dem.events)  # หาว่าเหตุการณ์เหล่านั้นแต่ละรอบคือช่วงไหน
+    dem.events = dem.parse_events([*EVENTS, "player_hurt", "player_blind"], player_props=PLAYER_PROPS)  # อ่านเฉพาะเหตุการณ์ที่ระบบต้องใช้
+    dem.rounds = create_round_df(dem.events)  # ใช้เหตุการณ์เหล่านั้นหาขอบเขตของแต่ละรอบ
     tickrate = int(dem.tickrate)
 
     # ขอ parser ทีเดียวทั้ง tick ของ player_rounds และของ positions
     want, pos_want = _wanted_ticks(dem, tickrate)
-    # ให้ awpy อ่านข้อมูลผู้เล่น เฉพาะ tick ที่เลือกไว้
+
+    # ให้ awpy อ่านข้อมูลผู้เล่น เฉพาะ tick ที่เลือกไว้ คือ ข้อมูลต้นและท้ายรอบ ตำแหน่งใน replay
     all_ticks = pl.from_pandas(dem.parser.parse_ticks(wanted_props=TICK_PROPS, ticks=sorted(set(want) | set(pos_want))))
-    # ป้ายรอบ
+
+    # ป้ายรอบ ตารางรอบ
     ticks = all_ticks.join(
         pl.DataFrame({"tick": list(want), "round_num": [v[0] for v in want.values()], "at": [v[1] for v in want.values()]}),
         on="tick",
     )
-    # ตอน freeze จบ "ผู้เล่นจริง" ทุกคนต้องมีชีวิต — โค้ชอยู่ในทีมเดียวกัน แต่ is_alive = False
-    # ถ้าไม่กรอง โค้ชจะโผล่เป็นผู้เล่นคนที่ 11-12 ของรอบ แล้วไปดึงค่าเฉลี่ย KAST/rating ลง
+    #เช็คผู้รอดชีวิตจากต้นรอบและจบรอบ
+    #เช็คโค้ช
     at_start = ticks.filter((pl.col("at") == "start") & pl.col("is_alive"))
     at_end = ticks.filter(pl.col("at") == "end").select("round_num", "steamid", pl.col("is_alive").alias("survived"))
 
@@ -436,13 +446,12 @@ def parse_demo(path: Path) -> dict:
     positions = _add_flash_remaining(_position_table(all_ticks, pos_want), dem.events.get("player_blind"), tickrate)
     grenades = _grenade_rows(dem, tickrate)
     players = _player_table(dem, at_start)
-
-    # หาชื่อทีมและเหตุการณ์บอมบ์
-    team_a, team_b = teams_from_filename(path.name)
-    rounds_data = rounds.to_dicts()
+    team_a, team_b = teams_from_filename(path.name)  # หาชื่อทีมโดยชื่อไฟล์และเหตุการณ์บอมบ์ 
+    rounds_data = rounds.to_dicts() 
     defuses = _defuse_intervals(dem.events, rounds_data)  # ดูเหตุการณ์ เริ่มกู้ / ยกเลิกกู้
     resolutions = _bomb_resolution_ticks(dem.events, rounds_data)  # ดูเหตุการณ์ กู้สำเร็จหรือบอมบ์ระเบิด แล้วหา tick
-    # เติมผลนั้นลงในแต่ละรอบ ให้ข้อมูลรอบเดียวกันมีรายละเอียดสำหรับแสดงการกู้และการหายไปของบอมบ์ในหน้า replay/review
+    
+    # วนทีละรอบ เติมข้อมูลบอมบ์ลงในแต่ละรอบ ให้ข้อมูลรอบเดียวกันมีรายละเอียดสำหรับแสดงการกู้และการหายไปของบอมบ์ในหน้า replay/review
     for r in rounds_data:
         r["defuses"] = defuses.get(r["round_num"], [])
         r["bomb_resolved_tick"] = resolutions.get(r["round_num"])
@@ -482,6 +491,7 @@ EXPIRE_EVENTS = {"smoke": "smokegrenade_expired", "molotov": "inferno_expire"}  
 MAX_FLIGHT_SEC = 20     # ขว้างแล้วตกช้าสุดกี่วินาที (ลูกที่เด้งไกลที่สุดยังไม่ถึง 10 วินาที) — เกินนี้ไม่ใช่ลูกเดียวกัน
 
 
+# แปลงค่าเป็นชนิดตัวเลขที่ต้องการ และกันค่าที่แปลงไม่ได้
 def _num(v, cast):
     return None if v is None or v != v else cast(v)      # v != v = NaN จาก pandas
 
@@ -495,6 +505,7 @@ def _event_rows(parser, name: str) -> list[dict]:
     return df.to_dict("records") if hasattr(df, "columns") and len(df) else []
 
 
+# อ่านเหตุการณ์ที่ระเบิดเริ่มทำงานและหมดฤทธิ์ แยกตามชนิด
 def read_detonations(parser) -> dict[str, list[dict]]:
     """{ชนิด: [{tick, thrower_id, x, y, end_tick}]} เรียงตาม tick — end_tick มาจาก event ตอนหมดของ entity เดียวกัน"""
     out: dict[str, list[dict]] = {}  # สร้าง Dictionary เปล่าเตรียมไว้เก็บผลลัพธ์
@@ -511,6 +522,7 @@ def read_detonations(parser) -> dict[str, list[dict]]:
     return out
 
 
+# จับคู่ระเบิดที่ขว้างกับจุดที่มันตกหรือเริ่มทำงาน
 def attach_landings(throws: list[dict], detonations: dict[str, list[dict]], tickrate: int) -> list[dict]:
     window = MAX_FLIGHT_SEC * int(tickrate)
     used: set[tuple[str, int]] = set()
@@ -530,6 +542,7 @@ def attach_landings(throws: list[dict], detonations: dict[str, list[dict]], tick
     return out
 
 
+# อ่านตำแหน่งลูกระเบิดระหว่างที่กำลังลอยไปตามทาง
 def read_projectile_trajectories(dem) -> list[dict]:
     """อ่านพิกัด projectile จริงราย tick ที่ demoparser2 มีให้; ไม่สร้างจุดจาก endpoints"""
     try:
@@ -554,6 +567,7 @@ def read_projectile_trajectories(dem) -> list[dict]:
     )
 
 
+# จับคู่ลูกระเบิดแต่ละลูกกับเส้นทางที่มันเคลื่อนที่
 def attach_trajectories(grenades: list[dict], points: list[dict], tickrate: int) -> list[dict]:
     segments: dict[tuple[int, str], list[list[dict]]] = {}
     current: dict[tuple[int, str, int], list[dict]] = {}
@@ -600,6 +614,7 @@ def attach_trajectories(grenades: list[dict], points: list[dict], tickrate: int)
     return out
 
 
+# อ่านไฟล์เดโมแล้วบันทึกผลที่แกะได้เป็น JSON
 def main() -> None:
     ap = argparse.ArgumentParser(description="แปลง .dem เป็น JSON แบบ normalized ไฟล์ละแมตช์")
     ap.add_argument("demos", nargs="*", type=Path, help="ไฟล์ .dem (ไม่ใส่ = ทุกไฟล์ใน demos/)")

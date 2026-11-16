@@ -51,7 +51,7 @@ def _queue():
 
 
 # รับ match_id จาก Api    # job id เลขติดตามงานในคิว
-def enqueue_parse(match_id: int) -> str:
+def enqueue_parse(match_id: int) -> str: # สำหรับนักพัฒนา
     """ส่งงานเข้าคิว คืน job_id — โยน QueueUnavailable ถ้า Redis ไม่ตอบ"""
     if QUEUE_BACKEND == "thread":
         job_id = f"thread-{uuid.uuid4().hex[:12]}"  # สร้างเลขแบบสุ่ม
@@ -59,7 +59,7 @@ def enqueue_parse(match_id: int) -> str:
         return job_id
 
     # ถ้า QUEUE_BACKEND ไม่ใช่ thread
-    from redis.exceptions import RedisError
+    from redis.exceptions import RedisError # สำหรับ User ปกติ
     try:
         job = _queue().enqueue("backend.jobs.demo_processing.parse_demo", match_id,
                                job_timeout=JOB_TIMEOUT_SEC, result_ttl=RESULT_TTL_SEC, failure_ttl=7 * 24 * 3600,
@@ -149,6 +149,8 @@ async def _load(doc: dict, match_id: int) -> int:
 def parse_demo(match_id: int) -> dict:
     """entry point ของ RQ: backend.jobs.demo_processing.parse_demo(match_id)"""
     row = asyncio.run(_db("SELECT id, demo_file FROM matches WHERE id = $1;", match_id))  # Worker หาไฟล์จาก match_id
+
+    # ถ้าไม่เจอ
     if row is None:
         raise JobError(f"ไม่พบแมตช์ id={match_id} ในฐานข้อมูล")
     demo_file = row["demo_file"]
@@ -159,7 +161,7 @@ def parse_demo(match_id: int) -> dict:
         WHERE id = $1;
     """, match_id))
     try:
-        dem_path = DEMOS_DIR / demo_file  # เชื่อมต่อหาว่ามีไฟล์จริงไหม
+        dem_path = DEMOS_DIR / demo_file  # ไปดูในโฟลเดอร์หาว่ามีไฟล์จริงไหม
         if not dem_path.is_file():
             raise JobError(f"ไม่พบไฟล์เดโม {dem_path} — ไฟล์อาจถูกลบ หรือ worker ไม่ได้ mount โฟลเดอร์ demos/")
 
