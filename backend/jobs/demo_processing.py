@@ -148,25 +148,30 @@ async def _load(doc: dict, match_id: int) -> int:
 # นำ id ไปค้นหา ไฟล์ demo ในโฟลเดอร์
 def parse_demo(match_id: int) -> dict:
     """entry point ของ RQ: backend.jobs.demo_processing.parse_demo(match_id)"""
-    row = asyncio.run(_db("SELECT id, demo_file FROM matches WHERE id = $1;", match_id))  # Worker หาไฟล์จาก match_id
+
+    # Worker หาไฟล์จาก match_id
+    row = asyncio.run(_db("SELECT id, demo_file FROM matches WHERE id = $1;", match_id))  
 
     # ถ้าไม่เจอ
     if row is None:
         raise JobError(f"ไม่พบแมตช์ id={match_id} ในฐานข้อมูล")
     demo_file = row["demo_file"]
 
-    # Worker เปลี่ยนสถานะแถวเป็น parsing    # และหาที่อยู่ของไฟล์
+    # เปลี่ยน Status เป็น parsing    # และหาที่อยู่ของไฟล์
     asyncio.run(_db("""
         UPDATE matches SET status = 'parsing', error_message = NULL, started_at = now(), finished_at = NULL
         WHERE id = $1;
     """, match_id))
+
+    # ไปดูในโฟลเดอร์หาว่ามีไฟล์จริงไหม
     try:
-        dem_path = DEMOS_DIR / demo_file  # ไปดูในโฟลเดอร์หาว่ามีไฟล์จริงไหม
+        dem_path = DEMOS_DIR / demo_file  
         if not dem_path.is_file():
             raise JobError(f"ไม่พบไฟล์เดโม {dem_path} — ไฟล์อาจถูกลบ หรือ worker ไม่ได้ mount โฟลเดอร์ demos/")
 
         # ส่งงานให้ parser ทำงานต่อ
         doc = _parse_file(dem_path)  # แกะไฟล์ ได้ผลกลับมาเป็น doc
+        # ใส่ชื่อไฟล์ซ้ำเพื่อยืนยันให้ตรงกับฐานข้อมูล
         doc.setdefault("match", {})["demo_file"] = demo_file
 
         # แปลง doc เป็นข้อความ JSON แล้วเขียนลง output/json/<ชื่อไฟล์>.json เพื่อเก็บผลที่แกะได้ไว้บนดิสก์

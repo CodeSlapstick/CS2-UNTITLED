@@ -10,7 +10,7 @@ import asyncpg
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))      # ให้รัน python backend/etl_loader.py จากรากโปรเจกต์ได้
 
-from backend.config.database import DATABASE_URL as DB_URL  (โหลด .env ตอน import)
+from backend.config.database import DATABASE_URL as DB_URL  # โหลด .env ตอน import
 from backend.config.database import apply_schema 
 from backend.services.features import assign_teams, compute_features 
 
@@ -290,9 +290,9 @@ async def load_match_doc(conn, doc: dict, *, match_id: int | None = None, force:
 
     # สำหรับนักพัฒนานำ ไฟล์ JSON เข้า ETL โดยตรง  # ทำงานต่อเมื่อคนเรียกไม่ได้ส่ง match_id มา
     if match_id is None:
-        # ค้นหาแถวที่มีชื่อไฟล์ตรงกัน
+        # ค้นหาชื่อไฟล์ใน DB ที่มีชื่อไฟล์ตรงกัน
         existing = await conn.fetchrow("SELECT id FROM matches WHERE demo_file = $1;", demo_file)
-        # พบแมตช์เดิม แต่ไม่ได้สั่งเขียนทับ
+        # พบแมตช์เดิม แต่จะไม่ได้สั่งเขียนทับ
         if existing and not force:
             print(f"[SKIP] แมตช์ {demo_file} มีอยู่ในระบบแล้ว (ID: {existing['id']})")
             return existing["id"]

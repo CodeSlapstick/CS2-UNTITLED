@@ -417,19 +417,20 @@ def _player_table(dem, at_start: pl.DataFrame) -> pl.DataFrame:
 # ตัวแกะไฟล์
 def parse_demo(path: Path) -> dict:
     """อ่านเดโมหนึ่งไฟล์ คืน dict โครง normalized พร้อม json.dumps"""
-    dem = Demo(path)
-    dem.events = dem.parse_events([*EVENTS, "player_hurt", "player_blind"], player_props=PLAYER_PROPS)  # อ่านเฉพาะเหตุการณ์ที่ระบบต้องใช้
-    dem.rounds = create_round_df(dem.events)  # ใช้เหตุการณ์เหล่านั้นหาขอบเขตของแต่ละรอบ
-    tickrate = int(dem.tickrate)
 
-    # ขอ parser ทีเดียวทั้ง tick ของ player_rounds และของ positions
+    dem = Demo(path)
+    dem.events = dem.parse_events([*EVENTS, "player_hurt", "player_blind"], player_props=PLAYER_PROPS)  # เข้าไปแกะเฉพาะเหตุการณ์ตามรายชื่อเหล่านี้ออกมา
+    dem.rounds = create_round_df(dem.events)  # ใช้เหตุการณ์ที่เกี่ยวกับรอบ สร้างตารางรอบ
+    tickrate = int(dem.tickrate) # แปลง tick เป็นจำนวนเต็ม
+
+    # เก็บข้อมูล tick ที่ แสดงต้นรอบและจบรอบ , Tick pos_want
     want, pos_want = _wanted_ticks(dem, tickrate)
 
-    # ให้ awpy อ่านข้อมูลผู้เล่น เฉพาะ tick ที่เลือกไว้ คือ ข้อมูลต้นและท้ายรอบ ตำแหน่งใน replay
+    # อ่านข้อมูลผู้เล่นตาม tick ที่เลือก เช่น ตำแหน่ง เลือด เงิน อาวุธ และสถานะการมีชีวิต ใน want, pos_want          # รวมและตัด
     all_ticks = pl.from_pandas(dem.parser.parse_ticks(wanted_props=TICK_PROPS, ticks=sorted(set(want) | set(pos_want))))
 
-    # ป้ายรอบ ตารางรอบ
-    ticks = all_ticks.join(
+    # ทำป้ายรอบ ให้ all_ticks เชื่อมกับ want
+    ticks = all_ticks.join(                          
         pl.DataFrame({"tick": list(want), "round_num": [v[0] for v in want.values()], "at": [v[1] for v in want.values()]}),
         on="tick",
     )
@@ -438,7 +439,7 @@ def parse_demo(path: Path) -> dict:
     at_start = ticks.filter((pl.col("at") == "start") & pl.col("is_alive"))
     at_end = ticks.filter(pl.col("at") == "end").select("round_num", "steamid", pl.col("is_alive").alias("survived"))
 
-    # แยกหมวดเพื่อเตรียมส่งต่อให้ etl เอาไปลง DB
+    # หลังจากแกะแล้ว แยกหมวดเพื่อเตรียมทำเป็น dic
     rounds = _round_table(dem)
     kills = _kill_table(dem)
     damages = _damage_table(dem)
@@ -451,7 +452,7 @@ def parse_demo(path: Path) -> dict:
     defuses = _defuse_intervals(dem.events, rounds_data)  # ดูเหตุการณ์ เริ่มกู้ / ยกเลิกกู้
     resolutions = _bomb_resolution_ticks(dem.events, rounds_data)  # ดูเหตุการณ์ กู้สำเร็จหรือบอมบ์ระเบิด แล้วหา tick
     
-    # วนทีละรอบ เติมข้อมูลบอมบ์ลงในแต่ละรอบ ให้ข้อมูลรอบเดียวกันมีรายละเอียดสำหรับแสดงการกู้และการหายไปของบอมบ์ในหน้า replay/review
+    # วนทีละรอบ เติมข้อมูลกู้บอมบ์ลงในแต่ละรอบ ใน rounds_data
     for r in rounds_data:
         r["defuses"] = defuses.get(r["round_num"], [])
         r["bomb_resolved_tick"] = resolutions.get(r["round_num"])

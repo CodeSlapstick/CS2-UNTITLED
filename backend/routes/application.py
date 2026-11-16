@@ -722,7 +722,7 @@ async def api_upload_demo(
     await conn.execute("UPDATE matches SET job_id = $2 WHERE id = $1;", match_id, job_id)
     log(f"[UPLOAD] {name} ({size / 1024 / 1024:.1f} MB) -> match {match_id} เข้าคิว job {job_id}")
 
-    # API ตอบ HTTP 202 ว่ารับไฟล์และส่งงานเข้าคิวแล้ว
+    # API ตอบ HTTP 202 ว่ารับไฟล์และส่งงานเข้าคิวแล้ว (queued)
     return JSONResponse(status_code=202, content={
         "match_id": match_id,
         "demo_file": name,
