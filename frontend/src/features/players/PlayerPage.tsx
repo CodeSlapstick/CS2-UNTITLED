@@ -12,6 +12,7 @@ export function PlayerPage() {
   const { t } = useT();
   const [recent, setRecent] = useState<PlayerProfileFilters["recent"]>(0);
   const filters: PlayerProfileFilters = { recent, side: "all" };
+  // ขอข้อมูลด้วย React Query
   const profile = useQuery({
     queryKey: [
       "player-profile",
@@ -22,6 +23,7 @@ export function PlayerPage() {
       filters.map,
       filters.side,
     ],
+    // เรียก API เพื่อดึงข้อมูลโปรไฟล์ผู้เล่น
     queryFn: () => playerApi.profile(who, filters),
     retry: false,
   });
@@ -50,6 +52,7 @@ export function PlayerPage() {
     );
   if (!profile.data) return null;
 
+  // ส่งข้อมูล
   return <PlayerProfileContent data={profile.data} recent={recent} onRecentChange={setRecent} />;
 }
 

@@ -3,8 +3,8 @@ import type { ECharts } from "echarts";
 import type { PlayerMatch } from "@/shared/api";
 import { useT } from "@/shared/i18n";
 
-// React ดูแลปุ่มและกล่อง ส่วน ECharts คำนวณตำแหน่งแล้ววาดแกน จุด และเส้นลงบน Canvas
-// useState จำค่าที่มีผลต่อหน้าจอ, useMemo เก็บผลคำนวณ, useRef เก็บสิ่งที่ต้องอ้างถึง, useEffect จัดการกราฟหลังสร้างกล่อง
+// React สร้างปุ่ม ตัวเลือกแผนที่ และกล่องสำหรับใส่กราฟ
+// ECharts รับข้อมูลแล้ววาดแกน จุด เส้น และกล่องรายละเอียดลงในกล่องนั้น
 export type FormMetric = "adr" | "kast" | "rating";
 const METRICS: FormMetric[] = ["adr", "kast", "rating"];
 
@@ -30,7 +30,6 @@ function getMapNames(matches: PlayerMatch[]) {
 }
 
 export function formSeries(matches: PlayerMatch[], metric: FormMetric) {
-  // sort เปลี่ยนลำดับ array ที่ใช้คัดลอกก่อนไม่เปลี่ยนต้น
   const sortedMatches = [...matches];
   sortedMatches.sort((first, second) => {
     const timeDifference = Date.parse(first.imported_at) - Date.parse(second.imported_at);
@@ -39,7 +38,7 @@ export function formSeries(matches: PlayerMatch[], metric: FormMetric) {
   });
 
   return sortedMatches.map(match => {
-    // เลือกค่าสถิติ,value ใช้วาดตำแหน่งจุด,match ใช้แสดงข้อมูลเพิ่มเติม
+    // แปลงแต่ละแมตช์,value วาด,match สำหรับแสดงรายละเอียดชี้เมาส์
     const value = match[metric];
     return { match, value: Number.isFinite(value) ? value : null };
   });
@@ -63,66 +62,67 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
       if (selectedMap === "all") return true;
       return match.map_name === selectedMap;
     });
-    // เรียงแมตช์
+    // เรียงแมตช์และเลือกค่าที่จะวาด:
     return formSeries(filteredMatches, selectedMetric);
     // เก็บ points เดิมไว้เมื่อข้อมูลและตัวเลือกไม่เปลี่ยน
   }, [matches, selectedMap, selectedMetric]);
 
   // สร้างและวาดกราฟ
   useEffect(() => {
-    // ค่าของ Ref อ่านและเปลี่ยนผ่าน .current
+    // หยิบกล่องกราฟที่ React เก็บไว้ มาใช้ในชื่อ container
     const container = chartContainerRef.current;
     // ถ้าไม่มีกล่องหรือข้อมูล หยุด
     if (!container || points.length === 0) return;
 
-    // ป้องกันการสร้างกราฟต่อ หากผู้ใช้ออกจากส่วนนี้ระหว่างรอโหลด ECharts
+    // เตรียมไว้ตอนเริ่มสร้างกราฟ
     let cancelled = false;
-    // เก็บกราฟของ effect รอบนี้ เพื่อให้ฟังก์ชัน cleanup ด้านล่างล้างกราฟได้
+    // เก็บกราฟที่สร้างเสร็จแล้ว
     let chart: ECharts | undefined;
+    // เก็บตัวติดตามขนาดของกล่องกราฟ
     let resizeObserver: ResizeObserver | undefined;
     let themeObserver: MutationObserver | undefined;
 
+    // สร้างกราฟ วาดลงกล่อง
     async function createChart() {
       setChartStatus("loading");
       try {
-        // โหลดไลบรารีเมื่อจะใช้จริง และ await รอให้โหลดเสร็จก่อนทำบรรทัดถัดไป
+        // โหลด ECharts และรอให้เสร็จ
         const echarts = await import("echarts");
         if (cancelled || !container) return;
 
-        // init สร้างกราฟใน container; undefined คือไม่ระบุธีมสำเร็จรูป; Canvas คือพื้นที่วาดภาพบนเว็บ
+        // สร้างกราฟในกล่อง Canvas วาดภาพ
         const chartInstance = echarts.init(container, undefined, { renderer: "canvas" });
-        // เก็บตัวกราฟไว้ให้ cleanup ล้างเมื่อเลิกใช้งาน
         chart = chartInstance;
 
-        // ประกาศวิธีวาดไว้ก่อน ยังไม่ทำงานจนกว่าจะเรียก drawChart() ด้านล่าง
+        // สั่งวาดกราฟ
         function drawChart() {
-          // อ่านสีจาก CSS ของเว็บ เพื่อให้เส้น ตัวหนังสือ และพื้นหลังตรงกับธีมปัจจุบัน
+          // สี
           const styles = getComputedStyle(document.documentElement);
           const color = (name: string) => styles.getPropertyValue(name).trim();
           const lineColor = color("--interactive");
           const textColor = color("--text");
           const mutedColor = color("--muted");
-          // แกน X ใช้ลำดับแมตช์ ["1", "2", "3"] ส่วนแกน Y ใช้ค่าจริง เช่น [70, 85, 60]
+          // แกน X ใช้ลำดับแมตช์,ส่วนแกน Y ใช้ค่าจริง
           const matchNumbers = points.map((_, index) => String(index + 1));
           const metricValues = points.map(point => point.value);
 
-          // จุดที่สั่งให้ ECharts วาดแกน จุด และเส้นลงบน Canvas
-          // เราส่งข้อมูลกับค่าตั้ง ส่วน ECharts จัดสเกลและคำนวณพิกัดให้
+          // ส่งข้อมูลและค่าตั้งให้ ECharts วาด
           chartInstance.setOption({
             animation: false,
             textStyle: { fontFamily: "Anuphan, sans-serif", color: textColor },
-            // เว้นพื้นที่ขอบสำหรับข้อความและตัวเลขของแกน
+            // ขอบ
             grid: { left: 50, right: 22, top: 20, bottom: 40 },
-            // แกนนอนเป็นหมวดหมู่ตามลำดับแมตช์ โดยแต่ละแมตช์ห่างเท่ากัน
+
             xAxis: {
               type: "category",
               data: matchNumbers,
+              // ไม่เว้นช่องว่างหัว ท้าย
               boundaryGap: false,
               axisLabel: { color: mutedColor },
               axisLine: { lineStyle: { color: color("--line") } },
               axisTick: { show: false },
             },
-            // แกนตั้งเป็นตัวเลข เริ่มที่ 0; KAST จำกัดที่ 100 ส่วนค่าอื่นให้กำหนดขอบบนอัตโนมัติ
+
             yAxis: {
               type: "value",
               min: 0,
@@ -137,19 +137,21 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
               },
               splitLine: { lineStyle: { color: color("--line-2") } },
             },
-            // กล่องรายละเอียดเมื่อใช้เมาส์ชี้จุดบนกราฟ
+
+            // เมาส์ชี้จุด
             tooltip: {
               trigger: "axis",
               confine: true,
               backgroundColor: color("--card"),
               borderColor: color("--line"),
               textStyle: { color: textColor },
+              // dataIndex บอกตำแหน่งจุดที่กำลังดู แล้วใช้ตำแหน่งนั้นหยิบข้อมูลจาก points
               formatter(params: { dataIndex: number }[]) {
-                // dataIndex บอกตำแหน่งจุดที่กำลังดู แล้วใช้ตำแหน่งนั้นหยิบข้อมูลจาก points
                 const pointIndex = params[0]?.dataIndex ?? 0;
                 const point = points[pointIndex];
                 if (!point) return "";
 
+                // หยิบข้อมูลของแมตช์
                 const match = point.match;
                 let resultText = t("เสมอ");
                 if (match.result === "win") resultText = t("ชนะ");
@@ -157,6 +159,7 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
 
                 // textContent ใส่เป็นข้อความ ส่วน pre-line ทำให้ \n แสดงเป็นการขึ้นบรรทัดใหม่
                 const tooltip = document.createElement("div");
+                // ขึ้นบรรทัดแสดงในกล่อง
                 tooltip.style.whiteSpace = "pre-line";
                 tooltip.textContent = [
                   `${t("แมตช์ {n}", { n: pointIndex + 1 })} · ${match.map_name ?? "—"}`,
@@ -166,12 +169,13 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
                 return tooltip;
               },
             },
+
             // ชุดข้อมูลหนึ่งเส้น: data คือค่าของแต่ละจุด ส่วนชื่อและสีใช้ตามสถิติ/ธีมที่เลือก
             series: [{
               type: "line",
               name: metricLabel(selectedMetric),
               data: metricValues,
-              // เมื่อเจอ null ให้เว้นเส้น เพื่อแยกไม่มีข้อมูลออกจากค่าศูนย์
+              // มูลขาด เส้นขาด
               connectNulls: false,
               symbol: "circle",
               symbolSize: 8,
@@ -184,13 +188,14 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
         // เรียกให้เริ่มวาดจริง หลังจากประกาศฟังก์ชันและสร้างตัวกราฟแล้ว
         drawChart();
 
-        // เมื่อ data-theme ของ <html> เปลี่ยน ให้อ่านสีใหม่และวาดด้วยค่าตั้งใหม่
+        // หลังวาดเสร็จ โค้ดติดตามธีมและขนาดของกล่อง
         themeObserver = new MutationObserver(drawChart);
         themeObserver.observe(document.documentElement, {
           attributes: true,
           attributeFilter: ["data-theme"],
         });
-        // เมื่อกล่องกราฟเปลี่ยนขนาด เช่น ย่อหน้าต่าง ให้ซ่อน tooltip และปรับกราฟตามกล่อง
+
+        // เมื่อกล่องเปลี่ยนขนาด ซ่อน tooltip และปรับกราฟตามกล่อง
         resizeObserver = new ResizeObserver(() => {
           chartInstance.dispatchAction({ type: "hideTip" });
           chartInstance.resize();
@@ -202,10 +207,10 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
       }
     }
 
-    // เรียกสร้างกราฟ; void หมายถึงไม่เอาค่าที่ฟังก์ชันส่งกลับมาไปใช้ต่อ
+    // ไม่เอาค่าที่ฟังก์ชันคืนกลับมาไปใช้ต่อ
     void createChart();
 
-    // React เรียก cleanup ตอนออกจาก component หรือก่อน effect รอบใหม่ เพื่อไม่ทิ้งกราฟ/ตัวติดตามเก่าไว้
+    // เมื่อเลิกใช้กราฟ จะล้างสิ่งที่สร้างไว้
     return () => {
       cancelled = true;
       themeObserver?.disconnect();
@@ -215,7 +220,7 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
     // ทำ effect ใหม่เมื่อจุดข้อมูล สถิติ หรือฟังก์ชันแปลข้อความเปลี่ยน
   }, [points, selectedMetric, t]);
 
-  // แสดงตัวเลือกและกล่องกราฟ ref นี้เชื่อมกล่องกับ useEffect ด้านบน
+  // ปุ่ม ตัวเลือก กล่องกราฟ
   return (
     <section className="profile-form">
       <div className="profile-form-head">
@@ -253,12 +258,13 @@ export function PlayerFormChart({ matches }: { matches: PlayerMatch[] }) {
         <p className="profile-empty-note">{t("ยังไม่มีแมตช์ในช่วงนี้")}</p>
       ) : (
         <>
-          {/* React สร้างกล่องนี้ แล้ว ref จะเก็บกล่องไว้ใน chartContainerRef.current ให้ useEffect ใช้ */}
+          {/* กล่องหน้าเว็บ */}
           <div
             ref={chartContainerRef}
             className="profile-form-echart"
             data-testid="player-form-chart"
           />
+
           {/* สถานะ ready ไม่แสดงข้อความรอ ส่วน loading และ error แสดงข้อความของตัวเอง */}
           {chartStatus === "loading" && (
             <p className="profile-form-note">{t("กำลังโหลดกราฟ…")}</p>
