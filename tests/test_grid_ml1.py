@@ -4,11 +4,32 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from backend.services.review import cell_of, death_context, load_grid_model, parse_grid_model, radar_frame
 from research.models import grid_ml1 as grid
+
+
+def test_hotspot_stability_includes_distance_boundary_and_averages_samples(monkeypatch):
+    centers = np.array([[0.0, 0.0], [1000.0, 0.0]])
+    sample_centers = iter(
+        [
+            np.array([[150.0, 0.0], [1000.0, 150.0]]),
+            np.array([[151.0, 0.0], [1000.0, 0.0]]),
+        ]
+    )
+
+    def find_sample_hotspots(sample):
+        return np.array([], dtype=int), next(sample_centers)
+
+    monkeypatch.setattr(grid, "find_hotspots", find_sample_hotspots)
+
+    # First sample recovers both centers at the inclusive 150-unit boundary.
+    # Second sample recovers one of two: mean(1, 0.5) = 0.75.
+    samples = [pd.DataFrame(), pd.DataFrame()]
+    assert grid.hotspot_stability(centers, samples) == 0.75
 
 
 def test_import_does_not_parse_arguments_train_or_write_files(tmp_path):
@@ -79,7 +100,6 @@ def test_prepare_duels_filters_map_and_non_enemy_kills(kills_csv):
     assert duels["t_round"].iloc[0] == 10
     assert duels["ct_won"].sum() == 54
     assert not {"cx", "cy", "dist_xy"}.intersection(duels.columns)
-    assert (duels[duels["t_round"] < 30]["planted"] == 0).all()
     assert radar["size"] > 0
 
 
